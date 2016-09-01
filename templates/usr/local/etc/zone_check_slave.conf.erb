@@ -1,0 +1,20 @@
+<%- 
+@zones =  Hash.new 
+@bind_server_conf['/etc/bind/named.conf']['zones'].each_pair { |zone, cfg|
+  @slave_group = cfg.grep(/^also-notify/)[0].split()[2].tr(';','')
+  if ! @zones.has_key?(@slave_group) then
+    @zones[@slave_group] = { 
+      'zones' => [zone], 
+      'masters' => @bind_server_conf['/etc/bind/named.conf']['masters'][@slave_group].map { |m|
+        m.split(';')[0] }
+    }
+  else
+    @zones[@slave_group]['zones'].push(zone)
+  end
+}
+@config = { 
+  'zones' => @zones, 
+  'ip_addresses' => @bind_server_conf['/etc/bind/named.conf']['listen_on_addr']
+} 
+-%>
+<%= @config.to_yaml %>

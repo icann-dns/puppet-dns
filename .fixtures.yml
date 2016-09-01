@@ -1,0 +1,12 @@
+fixtures:
+    symlinks:
+      dns: "#{source_dir}"
+    repositories:
+      stdlib:
+        repo: https://github.com/puppetlabs/puppetlabs-stdlib.git
+      concat:
+        repo: https://github.com/puppetlabs/puppetlabs-concat.git
+      nsd:
+        repo: https://github.com/icann-dns/puppet-nsd.git
+      knot:
+        repo: https://github.com/icann-dns/puppet-knot.git

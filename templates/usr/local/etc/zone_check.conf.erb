@@ -1,0 +1,6 @@
+<%- @config = { 
+  'zones' => @zones, 
+  'tsig' => @tsig, 
+  'ip_addresses' => @ip_addresses} 
+-%>
+<%= @config.to_yaml %>

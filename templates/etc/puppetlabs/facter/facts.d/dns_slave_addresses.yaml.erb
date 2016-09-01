@@ -1,0 +1,7 @@
+# <%= @fqdn %>
+<%- if @ipv4_capable -%>
+  "<%= eval("@ipaddress_#{@ipv4_primary_interface}") %>": <%= @tsig['name'] %>
+<%- end -%>
+<%- if @ipv6_capable -%>
+  "<%= eval("@ipaddress6_#{@ipv6_primary_interface}") %>": <%= @tsig['name'] %>
+<%- end -%>

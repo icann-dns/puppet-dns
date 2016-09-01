@@ -1,0 +1,34 @@
+---
+sudo: false
+language: ruby
+cache: bundler
+bundler_args: --without system_tests
+script: "bundle exec rake validate lint spec"
+matrix:
+  fast_finish: true
+  include:
+  #vagrant not supported yet
+  #- rvm: 1.9.3
+  #  env: BEAKER_set="freebsd-10.2"
+  #  sudo: required
+  #  services:
+  #  - vagrant
+  #  script: bundle exec rake beaker
+  - rvm: 2.1.9
+    env: BEAKER_set="ubuntu-14.04"
+    sudo: required
+    services:
+    - docker
+    script: bundle exec rake beaker
+  - rvm: 2.2.0
+    env: PUPPET_GEM_VERSION="~> 4.5.3" STRICT_VARIABLES="yes"
+  - rvm: 2.2.0
+    env: PUPPET_GEM_VERSION="~> 4.0" STRICT_VARIABLES="yes"
+  - rvm: 2.1.9
+    env: PUPPET_GEM_VERSION="~> 4.5.3" STRICT_VARIABLES="yes"
+  - rvm: 2.1.9
+    env: PUPPET_GEM_VERSION="~> 4.0" STRICT_VARIABLES="yes"
+  - rvm: 2.1.6
+    env: PUPPET_GEM_VERSION="~> 4.0" STRICT_VARIABLES="yes"
+notifications:
+  email: false
