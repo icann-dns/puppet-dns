@@ -24,9 +24,7 @@ describe 'dns' do
     {
       #:daemon => "$::dns::params::daemon",
       #:slaves_target => "$::dns::params::slaves_target",
-      #:slaves_template => "$::dns::params::slaves_template",
       #:tsigs_target => "$::dns::params::tsigs_target",
-      #:tsigs_template => "$::dns::params::tsigs_template",
       #:nsid => "$::dns::params::nsid",
       #:identity => "$::dns::params::identity",
       #:ip_addresses => [],
@@ -304,16 +302,8 @@ describe 'dns' do
           before { params.merge!( slaves_target: true ) }
           it { expect { subject.call }.to raise_error(Puppet::Error) }
         end
-        context 'slaves_template' do
-          before { params.merge!( slaves_template: true ) }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
-        end
         context 'tsigs_target' do
           before { params.merge!( tsigs_target: true ) }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
-        end
-        context 'tsigs_template' do
-          before { params.merge!( tsigs_template: true ) }
           it { expect { subject.call }.to raise_error(Puppet::Error) }
         end
         context 'nsid' do
