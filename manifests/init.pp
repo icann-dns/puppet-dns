@@ -9,9 +9,9 @@ class dns (
   String                          $tsigs_template = $::dns::params::tsigs_template,
   String                                    $nsid = $::dns::params::nsid,
   String                                $identity = $::dns::params::identity,
-  Array[Dns::Ip_address]            $ip_addresses = [],
+  Array[Dns::Ip_address]            $ip_addresses = $::dns::params::ip_addresses,
   Boolean                                 $master = false,
-  String                                $instance = undef,
+  String                                $instance = 'default',
   Pattern[/^(present|absent)$/]           $ensure = 'present',
   Boolean                       $enable_zonecheck = true,
   Hash                                      $zones = {},
@@ -20,6 +20,7 @@ class dns (
 ) inherits dns::params {
 
   if $enable_zonecheck {
+    include ::python
     package {'zonecheck':
       ensure   => '1.0.5',
       provider => 'pip',
