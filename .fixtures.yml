@@ -10,3 +10,5 @@ fixtures:
         repo: https://github.com/icann-dns/puppet-nsd.git
       knot:
         repo: https://github.com/icann-dns/puppet-knot.git
+      python:
+        repo: https://github.com/stankevich/puppet-python.git
