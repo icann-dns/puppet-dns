@@ -8,7 +8,7 @@
 #--no-2sp_soft_tabs-check
 #--no-hard_tabs-check
 #--no-trailing_whitespace-check
-#--no-80chars-check
+--no-140chars-check
 #--no-arrow_alignment-check
 
 # comments

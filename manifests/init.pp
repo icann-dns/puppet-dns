@@ -1,14 +1,15 @@
 # == Class: dns
 #
+# Using custom types untill next stdlib release
 class dns (
-  Pattern[/^(nsd|knot)$/]                  $daemon = $::dns::params::daemon,
-  Stdlib::Compat::Absolute_path    $slaves_target = $::dns::params::slaves_target,
+  Pattern[/^(nsd|knot)$/]                 $daemon = $::dns::params::daemon,
+  Dns::Absolute_path               $slaves_target = $::dns::params::slaves_target,
   String                         $slaves_template = $::dns::params::slaves_template,
-  Stdlib::Compat::Absolute_path     $tsigs_target = $::dns::params::tsigs_target,
+  Dns::Absolute_path                $tsigs_target = $::dns::params::tsigs_target,
   String                          $tsigs_template = $::dns::params::tsigs_template,
   String                                    $nsid = $::dns::params::nsid,
   String                                $identity = $::dns::params::identity,
-  Array[Stdlib::Compat::Ip_address] $ip_addresses = [],
+  Array[Dns::Ip_address]            $ip_addresses = [],
   Boolean                                 $master = false,
   String                                $instance = undef,
   Pattern[/^(present|absent)$/]           $ensure = 'present',
