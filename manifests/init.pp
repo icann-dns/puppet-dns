@@ -4,9 +4,7 @@
 class dns (
   Pattern[/^(nsd|knot)$/]                 $daemon = $::dns::params::daemon,
   Dns::Absolute_path               $slaves_target = $::dns::params::slaves_target,
-  String                         $slaves_template = $::dns::params::slaves_template,
   Dns::Absolute_path                $tsigs_target = $::dns::params::tsigs_target,
-  String                          $tsigs_template = $::dns::params::tsigs_template,
   String                                    $nsid = $::dns::params::nsid,
   String                                $identity = $::dns::params::identity,
   Array[Dns::Ip_address]            $ip_addresses = $::dns::params::ip_addresses,
@@ -14,13 +12,17 @@ class dns (
   String                                $instance = 'default',
   Pattern[/^(present|absent)$/]           $ensure = 'present',
   Boolean                       $enable_zonecheck = true,
-  Hash                                      $zones = {},
-  Hash                                      $files = {},
+  Hash                                     $zones = {},
+  Hash                                     $files = {},
   Hash                                      $tsig = {},
 ) inherits dns::params {
 
+  $slaves_template = 'dns/etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml.erb'
+  $tsigs_template  = 'dns/etc/puppetlabs/facter/facts.d/dns_slave_tsigs.yaml.erb'
   if $enable_zonecheck {
-    include ::python
+    if $::kernel != 'FreeBSD' {
+      include ::python
+    }
     package {'zonecheck':
       ensure   => '1.0.5',
       provider => 'pip',
