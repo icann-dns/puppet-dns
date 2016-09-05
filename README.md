@@ -250,6 +250,7 @@ dns::zones:
 This module makes use of exported concat fragments so that we can configure slave IP address and TSIG keys on the master server.  This is done by managing the following files in the custom facts directory on the master server.
   * /etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml
   * /etc/puppetlabs/facter/facts.d/dns_slave_tsigs.yaml.
+
 As we are relying on custom facts this means that there will be a delay as to when the slave server is configurered on the master server the flow is as follows.  In a future release it is intended to remove the reliance on the custom facts dir (pull requests welcome)
   1) Slave server runs puppet and exports slave configueration
   2) Master server runs puppet and updates custom facts file
