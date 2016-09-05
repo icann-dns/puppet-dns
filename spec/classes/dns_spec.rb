@@ -47,6 +47,7 @@ describe 'dns' do
         facts.merge({
           "dns_slave_tsigs"  => {},
           "dns_slave_addresses"  => {},
+          "ipaddress" => '192.0.2.2'
         })
       end
       case facts[:operatingsystem]
@@ -84,8 +85,9 @@ describe 'dns' do
          is_expected.to contain_file("/usr/local/etc/zone_check.conf")
         .with({
           "ensure" => "present",
-          "content" => "---\nzones: {}\ntsig: {}\nip_addresses: []\n\n",
-          })
+          }).with_content(
+            /192.0.2.2/
+        )
         end
   
         
@@ -137,7 +139,7 @@ describe 'dns' do
           is_expected.to contain_class("nsd")
               .with({
           "enable" => nsd_enable,
-          "ip_addresses" => [],
+          "ip_addresses" => ['192.0.2.2'],
           "tsigs" => {},
           "slave_addresses" => {},
           "zones" => {},
@@ -154,7 +156,7 @@ describe 'dns' do
           is_expected.to contain_class("knot")
         .with({
           "enable" => knot_enable,
-          "ip_addresses" => [],
+          "ip_addresses" => ['192.0.2.2'],
           "tsigs" => {},
           "slave_addresses" => {},
           "zones" => {},
