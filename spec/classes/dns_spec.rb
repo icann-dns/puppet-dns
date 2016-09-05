@@ -211,8 +211,18 @@ describe 'dns' do
           it { is_expected.to contain_class("nsd").with("identity" => "foobar") }
         end
         context 'ip_addresses' do
-          before { params.merge!( ip_addresses: ['192.0.0.1'] ) }
+          before { params.merge!( ip_addresses: [
+                                 '192.0.2.2',
+                                  '2001:DB8::1',] ) }
           it { is_expected.to compile }
+          it do
+            is_expected.to contain_file("/usr/local/etc/zone_check.conf")
+              .with_content(
+                /192.0.2.2/
+              ).with_content(
+              /2001:DB8::1/
+            )
+          end
         end
         context 'master' do
           before { params.merge!( master: true ) }
