@@ -13,6 +13,8 @@
     * [Setup requirements](#setup-requirements)
     * [Beginning with dns](#beginning-with-dns)
 4. [Usage - Configuration options and additional functionality](#usage)
+    * [Basic Config](#basic-config)
+    * [Master Slave Config](#master-slave-config)
 5. [Reference - An under-the-hood peek at what the module is doing and how](#reference)
 5. [Limitations - OS compatibility, etc.](#limitations)
 6. [Development - Guide for contributing to the module](#development)
@@ -67,6 +69,8 @@ dns::enable_zonecheck: false
 ```
 
 ## Usage
+
+### Basic Config
 
 Add config with primary tsig key
 
@@ -239,6 +243,58 @@ dns::zones:
     zonefile: hostname.as112.arpa.zone
     zones:
     - hostname.as112.arpa
+```
+
+#### Master Slave Config
+
+This module makes use of exported concat fragments so that we can configure slave IP address and TSIG keys on the master server.  This is done by managing the following files in the custom facts directory on the master server.
+  * /etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml
+  * /etc/puppetlabs/facter/facts.d/dns_slave_tsigs.yaml.
+As we are relying on custom facts this means that there will be a delay as to when the slave server is configurered on the master server the flow is as follows.  In a future release it is intended to remove the reliance on the custom facts dir (pull requests welcome)
+  1) Slave server runs puppet and exports slave configueration
+  2) Master server runs puppet and updates custom facts file
+  3) master server runs and now sees the new servers configuered by the custom facts
+
+The parameter `dns::instance` is used to create pairs.  All slaves in the same instance will be configured on all masters with the same instance.
+
+puppet policy
+```puppet
+#Master server ip address = 192.0.2.2
+#Slave server ip address = 192.0.2.3
+include dns
+```
+
+Slave hiera config
+```yaml
+dns::instance: example.com
+dns::tsig:
+    algo: hmac-sha256
+    data: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
+    name: slave.example.com
+dns::zones:
+  example:
+    allow_notify:
+    - 192.0.2.2
+    masters:
+    - 192.0.2.2
+    zones:
+    - example.com
+    - example.net
+```
+
+Master hiera config
+```yaml
+dns::master: true
+dns::instance: example.com
+dns::tsig:
+    algo: hmac-sha256
+    data: BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=
+    name: master.example.com
+dns::zones:
+  example.com:
+    zones:
+    - example.com
+    - example.net
 ```
 
 ## Reference
