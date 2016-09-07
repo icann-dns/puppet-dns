@@ -15,6 +15,7 @@ class dns (
   Hash                                     $zones = {},
   Hash                                     $files = {},
   Hash                                      $tsig = {},
+  Boolean                          $enable_nagios = false,
 ) inherits dns::params {
 
   $slaves_template = 'dns/etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml.erb'
@@ -119,6 +120,36 @@ class dns (
       files           => $files,
       nsid            => $nsid,
       identity        => $identity,
+    }
+  }
+  if $enable_nagios {
+    $_ip_addresses_list = join($ip_addresses, ' ')
+
+    $zones.each |String $zoneset, Hash $_config| {
+      $_config['zones'].each |String $zone| {
+        if has_key($_config, 'masters') {
+          $_masters = delete($_config['masters'], ['127.0.0.1','0::1'])
+          $master_check_args = join($_masters, ' ')
+          @@nagios_service{ "${::fqdn}_DNS_ZONE_MASTERS_${zone}":
+            ensure              => present,
+            use                 => 'generic-service',
+            host_name           => $::fqdn,
+            service_description => "DNS_ZONE_MASTERS_${zone}",
+            check_command       => "check_nrpe_args!check_dns!${zone}!${master_check_args}!${_ip_addresses_list}",
+          }
+        }
+        if has_key($_config, 'provide_xfr') {
+          $_slaves = delete($_config['provide_xfr'], ['127.0.0.1','0::1'])
+          $slave_check_args = join($_slaves, ' ')
+          @@nagios_service{ "${::fqdn}_DNS_ZONE_SLAVES_${zone}":
+            ensure              => present,
+            use                 => 'generic-service',
+            host_name           => $::fqdn,
+            service_description => "DNS_ZONE_SLAVES_${zone}",
+            check_command       => "check_nrpe_args!check_dns!${zone}!${slave_check_args}!${_ip_addresses_list}",
+          }
+        }
+      }
     }
   }
 }

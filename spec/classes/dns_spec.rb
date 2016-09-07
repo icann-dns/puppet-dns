@@ -35,6 +35,7 @@ describe 'dns' do
       #:zones => {},
       #:files => {},
       #:tsig => {},
+      #:enable_nagios => false,
 
     }
   end
@@ -300,6 +301,40 @@ describe 'dns' do
           before { params.merge!( tsig: { 'name' => 'test', 'data' => 'aaaa' })}
           it { is_expected.to compile }
         end
+        context 'enable_nagios' do
+          before { 
+            params.merge!( 
+              enable_nagios: true,
+              zones: { 
+                'example.com' => {
+                  'masters'          => ['192.0.2.1'],
+                  'notify_addresses' => ['192.0.2.1'],
+                  'allow_notify'     => ['192.0.2.1'],
+                  'provide_xfr'      => ['192.0.2.1'],
+                  'zones'            => ['example.com'],
+              }
+          } ) }
+          it { is_expected.to compile }
+          it {
+            expect(exported_resources).to contain_nagios_service(
+              "foo.example.com_DNS_ZONE_MASTERS_example.com")
+              .with({
+              "use" => "generic-service",
+              "host_name" => "foo.example.com",
+              "service_description" => "DNS_ZONE_MASTERS_example.com",
+              "check_command" => "check_nrpe_args!check_dns!example.com!192.0.2.1!192.0.2.2"
+            })
+          }
+          it {
+            expect(exported_resources).to contain_nagios_service(
+              "foo.example.com_DNS_ZONE_SLAVES_example.com").with({
+              "use" => "generic-service",
+              "host_name" => "foo.example.com",
+              "service_description" => "DNS_ZONE_SLAVES_example.com",
+              "check_command" => "check_nrpe_args!check_dns!example.com!192.0.2.1!192.0.2.2"
+            }) 
+          }
+        end
       end
       describe 'check bad type' do
         context 'daemon' do
@@ -360,6 +395,10 @@ describe 'dns' do
         end
         context 'tsig' do
           before { params.merge!( tsig: true ) }
+          it { expect { subject.call }.to raise_error(Puppet::Error) }
+        end
+        context 'enable_nagios' do
+          before { params.merge!( tsig: '' ) }
           it { expect { subject.call }.to raise_error(Puppet::Error) }
         end
       end

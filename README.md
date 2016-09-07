@@ -327,7 +327,7 @@ dns::zones:
 * `zones` (Hash, Default: {}): A hash of nsd::zone or knot::zone resourves
 * `files` (Hash, Default: {}): A hash of nsd::file or knot::file resourves
 * `tsig` (Hash, Default: {}): A hash of nsd::tsig or knot::tsig 
-
+* `enable_nagios` (Boolean, Default: false): export nagios_Service definitions for each zone 
 
 ### Private Classes
 

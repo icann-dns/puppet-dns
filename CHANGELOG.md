@@ -1,3 +1,6 @@
+### 2016-09-05 0.1.2
+* Add nagios_service support
+
 ### 2016-09-05 0.1.1
 * Improve IPv6 regex
 
