@@ -129,24 +129,28 @@ class dns (
       $_config['zones'].each |String $zone| {
         if has_key($_config, 'masters') {
           $_masters = delete($_config['masters'], ['127.0.0.1','0::1'])
-          $master_check_args = join($_masters, ' ')
-          @@nagios_service{ "${::fqdn}_DNS_ZONE_MASTERS_${zone}":
-            ensure              => present,
-            use                 => 'generic-service',
-            host_name           => $::fqdn,
-            service_description => "DNS_ZONE_MASTERS_${zone}",
-            check_command       => "check_nrpe_args!check_dns!${zone}!${master_check_args}!${_ip_addresses_list}",
+          if ! empty($_masters) {
+            $master_check_args = join($_masters, ' ')
+            @@nagios_service{ "${::fqdn}_DNS_ZONE_MASTERS_${zone}":
+              ensure              => present,
+              use                 => 'generic-service',
+              host_name           => $::fqdn,
+              service_description => "DNS_ZONE_MASTERS_${zone}",
+              check_command       => "check_nrpe_args!check_dns!${zone}!${master_check_args}!${_ip_addresses_list}",
+            }
           }
         }
         if has_key($_config, 'provide_xfr') {
           $_slaves = delete($_config['provide_xfr'], ['127.0.0.1','0::1'])
-          $slave_check_args = join($_slaves, ' ')
-          @@nagios_service{ "${::fqdn}_DNS_ZONE_SLAVES_${zone}":
-            ensure              => present,
-            use                 => 'generic-service',
-            host_name           => $::fqdn,
-            service_description => "DNS_ZONE_SLAVES_${zone}",
-            check_command       => "check_nrpe_args!check_dns!${zone}!${slave_check_args}!${_ip_addresses_list}",
+          if ! empty($_slaves) {
+            $slave_check_args = join($_slaves, ' ')
+            @@nagios_service{ "${::fqdn}_DNS_ZONE_SLAVES_${zone}":
+              ensure              => present,
+              use                 => 'generic-service',
+              host_name           => $::fqdn,
+              service_description => "DNS_ZONE_SLAVES_${zone}",
+              check_command       => "check_nrpe_args!check_dns!${zone}!${slave_check_args}!${_ip_addresses_list}",
+            }
           }
         }
       }
