@@ -1,3 +1,6 @@
+### 2016-09-05 0.1.3
+* Fix bug in nagios checks where we ehere creating erronous slave/master checks
+
 ### 2016-09-05 0.1.2
 * Add nagios_service support
 
