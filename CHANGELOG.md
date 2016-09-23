@@ -1,3 +1,6 @@
+### 2016-09-05 0.1.4
+* bump zonecheck version
+
 ### 2016-09-05 0.1.3
 * Fix bug in nagios checks where we ehere creating erronous slave/master checks
 
