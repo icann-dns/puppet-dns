@@ -1,5 +1,5 @@
 ### 2016-09-05 0.1.5
-* Remove nagios cghecks for slaves
+* Remove nagios checks for slaves
 
 ### 2016-09-05 0.1.4
 * bump zonecheck version
