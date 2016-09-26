@@ -76,7 +76,7 @@ describe 'dns' do
         it do
           is_expected.to contain_package("zonecheck")
         .with({
-          "ensure" => "1.0.6",
+          "ensure" => "1.0.7",
           "provider" => "pip",
           })
         end
