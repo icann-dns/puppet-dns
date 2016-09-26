@@ -140,19 +140,6 @@ class dns (
             }
           }
         }
-        if has_key($_config, 'provide_xfr') {
-          $_slaves = delete($_config['provide_xfr'], ['127.0.0.1','0::1'])
-          if ! empty($_slaves) {
-            $slave_check_args = join($_slaves, ' ')
-            @@nagios_service{ "${::fqdn}_DNS_ZONE_SLAVES_${zone}":
-              ensure              => present,
-              use                 => 'generic-service',
-              host_name           => $::fqdn,
-              service_description => "DNS_ZONE_SLAVES_${zone}",
-              check_command       => "check_nrpe_args!check_dns!${zone}!${slave_check_args}!${_ip_addresses_list}",
-            }
-          }
-        }
       }
     }
   }
