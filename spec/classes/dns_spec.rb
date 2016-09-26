@@ -325,15 +325,6 @@ describe 'dns' do
               "check_command" => "check_nrpe_args!check_dns!example.com!192.0.2.1!192.0.2.2"
             })
           }
-          it {
-            expect(exported_resources).to contain_nagios_service(
-              "foo.example.com_DNS_ZONE_SLAVES_example.com").with({
-              "use" => "generic-service",
-              "host_name" => "foo.example.com",
-              "service_description" => "DNS_ZONE_SLAVES_example.com",
-              "check_command" => "check_nrpe_args!check_dns!example.com!192.0.2.1!192.0.2.2"
-            }) 
-          }
         end
       end
       describe 'check bad type' do
