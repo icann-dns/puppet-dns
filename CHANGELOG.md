@@ -1,3 +1,6 @@
+### 2016-10-03 0.1.7
+* bump zonecheck version
+
 ### 2016-09-05 0.1.6
 * bump zonecheck version
 

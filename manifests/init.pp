@@ -25,7 +25,7 @@ class dns (
       include ::python
     }
     package {'zonecheck':
-      ensure   => '1.0.7',
+      ensure   => '1.0.8',
       provider => 'pip',
     }
     file {'/usr/local/etc/zone_check.conf':
