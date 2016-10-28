@@ -1,7 +1,7 @@
 ---
 .travis.yml:
   install_system_tests: true
-  includes:
+  extras:
   - rvm: 2.3.1
     env: BEAKER_set="docker/ubuntu-14.04" CHECK=beaker
     sudo: required
