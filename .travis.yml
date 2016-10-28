@@ -15,6 +15,11 @@ script:
 matrix:
   fast_finish: true
   include:
+  - env: BEAKER_set="docker/ubuntu-14.04"
+    sudo: required
+    services:
+    - docker
+    script: bundle exec rake beaker
   - rvm: 2.1.9
     env: PUPPET_VERSION="~> 4.0" CHECK=test
   - rvm: 2.2.5

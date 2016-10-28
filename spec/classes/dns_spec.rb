@@ -112,7 +112,7 @@ describe 'dns' do
           expect(exported_resources).to contain_concat__fragment('dns_slave_addresses_yaml_foo.example.com').with(
             'target' => '/etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml',
             'tag' => 'dns::test_slave_interface_yaml',
-            'content' => '# foo.example.com\n',
+            'content' => "# foo.example.com\n",
             'order' => '10'
           )
         end
@@ -153,7 +153,7 @@ describe 'dns' do
           it do
             is_expected.to contain_concat__fragment('dns_slave_addresses_yaml_foo.example.com').with(
               'target' => '/tmp',
-              'content' => 'dns_slave_addresses:\n',
+              'content' => "dns_slave_addresses:\n",
               'order' => '01'
             )
           end
@@ -165,7 +165,7 @@ describe 'dns' do
           it do
             is_expected.to contain_concat__fragment('dns_slave_tsigs_yaml_foo.example.com').with(
               'target' => '/tmp',
-              'content' => 'dns_slave_tsigs:\n',
+              'content' => "dns_slave_tsigs:\n",
               'order' => '01'
             )
           end
@@ -204,7 +204,7 @@ describe 'dns' do
           it do
             is_expected.to contain_concat__fragment('dns_slave_tsigs_yaml_foo.example.com').with(
               'target' => '/etc/puppetlabs/facter/facts.d/dns_slave_tsigs.yaml',
-              'content' => 'dns_slave_tsigs:\n',
+              'content' => "dns_slave_tsigs:\n",
               'order' => '01'
             )
           end
@@ -214,7 +214,7 @@ describe 'dns' do
           it do
             is_expected.to contain_concat__fragment('dns_slave_addresses_yaml_foo.example.com').with(
               'target' => '/etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml',
-              'content' => 'dns_slave_addresses:\n',
+              'content' => "dns_slave_addresses:\n",
               'order' => '01'
             )
           end
@@ -226,7 +226,7 @@ describe 'dns' do
             expect(exported_resources).to contain_concat__fragment('dns_slave_addresses_yaml_foo.example.com').with(
               'target' => '/etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml',
               'tag' => 'dns::foobar_slave_interface_yaml',
-              'content' => '# foo.example.com\n',
+              'content' => "# foo.example.com\n",
               'order' => '10'
             )
           end
