@@ -1,9 +1,10 @@
 ---
 .travis.yml:
   install_system_tests: true
-  include:
+  includes:
   - env: BEAKER_set="docker/ubuntu-14.04" CHECK=beaker
     sudo: required
-    docker: true
+    services:
+    - docker
   secure: "cL82bKko4SXs+Kheh5pY9BwcnhiXMbZGYgD8RqAItdE0NoKt9EA2Y7HZjSzgR0Y1za9hTx/CjXOUq2oYUC3Kbp0A/jJdFwot9hfpxXeTEVAizYA7CK5rBaXpSvXK+gTpDdc9UNGQT6ahpL4XR4wUn6GNfp7da6tKrXykAFIGv8IdldID8ayoGGqY2oICv5Ot6KSgJIRGVSFbWAE8eO/nqo07O92inTQEdco7eJRZ3sk4DQlTdavhjfgrtl+nxXosF2qK39I75vHrm7wLYtvpx7iTo60C1RqIj/1CGT4GhUkmMiDS2UIebyKnvRBHZYqLcpvl3P4KPrhYdYamtSuU9y4WGPYUjl+rZuUJ+m8GpUseKYhqta64UIuu+d/Ndun1enHEX+eQ8DJTAa3/N6geiwGdmEsyLx3qlfEClwtLadOK3g3IYh0M9Pn9p3/+ePV8JwmGLCUWfRFQhKVwLvrl12NfLSKDD+tPFXQVh+b66y6YNO0sUcVmNOhQJK17/29v61MTJnAQFyXcxfGhcOO6K/N1XLpsuniXO1ZAc5WY+zaqMch6qPniHZxju1wGWVvUsq/A1smQOJjKbM6FA3a43bmWIiNwxwfvIQybJwV/vdotDDznYE0qSVIZVgbhdiPpCqea3b/g2DaoJMHAs/YmIHa/8X4rae95bJVeYGWpKnY="
   
