@@ -1,14 +1,24 @@
 GIT
-  remote: https://github.com/bobtfish/hiera-puppet-helper.git
-  revision: 155f132c0b225db4ff64db49f17d6c5bf354b871
+  remote: https://github.com/rodjek/rspec-puppet.git
+  revision: 4ea9884292c230122d531f084008e2d11af38254
   specs:
-    hiera-puppet-helper (2.0.1)
+    rspec-puppet (2.5.0)
+      rspec
+
+GIT
+  remote: https://github.com/voxpupuli/voxpupuli-release-gem.git
+  revision: 4fc386d54c92e029075ae00f6d192aeb0b68b5bf
+  specs:
+    voxpupuli-release (0.3.0)
+      puppet-blacksmith
+      rake
 
 GEM
   remote: https://rubygems.org/
   specs:
     CFPropertyList (2.2.8)
     addressable (2.4.0)
+    ast (2.3.0)
     aws-sdk-v1 (1.66.0)
       json (~> 1.4)
       nokogiri (>= 1.4.4)
@@ -48,6 +58,8 @@ GEM
       stringify-hash (~> 0.0.0)
     beaker-pe (0.11.0)
       stringify-hash (~> 0.0.0)
+    beaker-puppet_install_helper (0.5.0)
+      beaker (>= 2.0)
     beaker-rspec (5.6.0)
       beaker (~> 2.0)
       rspec
@@ -270,7 +282,10 @@ GEM
       shellany (~> 0.0)
     open_uri_redirections (0.2.1)
     os (0.9.6)
+    parser (2.3.1.4)
+      ast (~> 2.2)
     pkg-config (1.1.7)
+    powerpack (0.1.1)
     pry (0.10.4)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
@@ -284,6 +299,23 @@ GEM
       puppet (>= 2.7.16)
       rest-client (~> 1.8.0)
     puppet-lint (2.0.2)
+    puppet-lint-absolute_classname-check (0.2.4)
+      puppet-lint (>= 1.0, < 3.0)
+    puppet-lint-classes_and_types_beginning_with_digits-check (0.1.2)
+      puppet-lint (>= 1.0, < 3.0)
+    puppet-lint-leading_zero-check (0.1.1)
+      puppet-lint (>= 1.0, < 3.0)
+    puppet-lint-trailing_comma-check (0.3.2)
+      puppet-lint (>= 1.0, < 3.0)
+    puppet-lint-unquoted_string-check (0.3.0)
+      puppet-lint (>= 1.0, < 3.0)
+    puppet-lint-variable_contains_upcase (1.0.2)
+      puppet-lint (>= 1.0, < 3.0)
+    puppet-lint-version_comparison-check (0.2.1)
+      puppet-lint (>= 1.0, < 3.0)
+    puppet-strings (0.4.0)
+      puppet (>= 3.7.0)
+      yard (~> 0.8)
     puppet-syntax (2.1.0)
       rake
     puppetlabs_spec_helper (1.2.2)
@@ -294,6 +326,7 @@ GEM
     pusher-client (0.6.2)
       json
       websocket (~> 1.0)
+    rainbow (2.1.0)
     rake (11.2.2)
     rb-fsevent (0.9.7)
     rb-inotify (0.9.5)
@@ -325,8 +358,6 @@ GEM
     rspec-mocks (3.5.0)
       diff-lcs (>= 1.2.0, < 2.0)
       rspec-support (~> 3.5.0)
-    rspec-puppet (2.4.0)
-      rspec
     rspec-puppet-facts (1.6.1)
       facter
       facterdb (>= 0.3.0)
@@ -336,6 +367,15 @@ GEM
     rspec-puppet-utils (2.2.1)
     rspec-support (3.5.0)
     rsync (1.0.9)
+    rubocop (0.44.1)
+      parser (>= 2.3.1.1, < 3.0)
+      powerpack (~> 0.1)
+      rainbow (>= 1.99.1, < 3.0)
+      ruby-progressbar (~> 1.7)
+      unicode-display_width (~> 1.0, >= 1.0.1)
+    rubocop-rspec (1.8.0)
+      rubocop (>= 0.42.0)
+    ruby-progressbar (1.8.1)
     serverspec (2.36.1)
       multi_json
       rspec (~> 3.0)
@@ -377,32 +417,38 @@ GEM
     unf (0.1.4)
       unf_ext
     unf_ext (0.0.7.2)
-    vagrant-wrapper (2.0.3)
+    unicode-display_width (1.1.1)
     websocket (1.2.3)
+    yard (0.9.5)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  beaker
+  beaker-puppet_install_helper
   beaker-rspec
+  facter
   guard-rake
-  hiera-puppet-helper!
   metadata-json-lint
-  puppet (~> 4.6.1)
+  pry
+  puppet (~> 4.0)
   puppet-blacksmith
-  puppet-lint
-  puppet-syntax
-  puppetlabs_spec_helper
-  rake
-  rb-inotify (<= 0.9.5)
-  rspec-puppet
+  puppet-lint-absolute_classname-check
+  puppet-lint-classes_and_types_beginning_with_digits-check
+  puppet-lint-leading_zero-check
+  puppet-lint-trailing_comma-check
+  puppet-lint-unquoted_string-check
+  puppet-lint-variable_contains_upcase
+  puppet-lint-version_comparison-check
+  puppet-strings (= 0.4.0)
+  puppetlabs_spec_helper (~> 1.2.2)
+  rspec-puppet!
   rspec-puppet-facts
   rspec-puppet-utils
-  serverspec
+  rubocop-rspec (~> 1.6)
   travis
   travis-lint
-  vagrant-wrapper
+  voxpupuli-release!
 
 BUNDLED WITH
-   1.12.5
+   1.13.3
