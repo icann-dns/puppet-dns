@@ -28,15 +28,19 @@ class dns (
       ensure   => '1.0.10',
       provider => 'pip',
     }
-    file {'/usr/local/etc/zone_check.conf':
-      ensure  => $ensure,
-      content => template('dns/usr/local/etc/zone_check.conf.erb'),
-    }
-    cron {'/usr/local/bin/zonecheck':
-      ensure  => $ensure,
-      command => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts',
-      minute  => '*/15',
-    }
+  }
+  $ensure_zonecheck = $enable_zonecheck ? {
+    true    => 'present',
+    default => 'absent',
+  }
+  file {'/usr/local/etc/zone_check.conf':
+    ensure  => $ensure_zonecheck,
+    content => template('dns/usr/local/etc/zone_check.conf.erb'),
+  }
+  cron {'/usr/local/bin/zonecheck':
+    ensure  => $ensure_zonecheck,
+    command => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts',
+    minute  => '*/15',
   }
   if $daemon == 'nsd' {
     $nsd_enable  =  true

@@ -241,8 +241,16 @@ describe 'dns' do
           before { params.merge!(enable_zonecheck: false) }
           it { is_expected.to compile }
           it { is_expected.not_to contain_package('zonecheck') }
-          it { is_expected.not_to contain_file('/usr/local/etc/zone_check.conf') }
-          it { is_expected.not_to contain_cron('/usr/local/bin/zonecheck') }
+          it do
+            is_expected.to contain_file('/usr/local/etc/zone_check.conf').with_ensure(
+              'absent'
+            )
+          end
+          it do
+            is_expected.to contain_cron('/usr/local/bin/zonecheck').with_ensure(
+              'absent'
+            )
+          end
         end
         context 'zones' do
           before do
