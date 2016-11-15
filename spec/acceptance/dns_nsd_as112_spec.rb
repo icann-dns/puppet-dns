@@ -62,6 +62,7 @@ describe 'nsd class' do
   }
       EOS
       apply_manifest(pp, catch_failures: true)
+      apply_manifest(pp, catch_failures: true)
       expect(apply_manifest(pp, catch_failures: true).exit_code).to eq 0
     end
     describe service('nsd') do
