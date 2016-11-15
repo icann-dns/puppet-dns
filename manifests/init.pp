@@ -3,15 +3,16 @@
 # Using custom types untill next stdlib release
 class dns (
   Pattern[/^(nsd|knot)$/]                 $daemon = $::dns::params::daemon,
-  Dns::Absolute_path               $slaves_target = $::dns::params::slaves_target,
-  Dns::Absolute_path                $tsigs_target = $::dns::params::tsigs_target,
+  Tea::Absolutepath                $slaves_target = $::dns::params::slaves_target,
+  Tea::Absolutepath                 $tsigs_target = $::dns::params::tsigs_target,
   String                                    $nsid = $::dns::params::nsid,
   String                                $identity = $::dns::params::identity,
-  Array[Dns::Ip_address]            $ip_addresses = $::dns::params::ip_addresses,
+  Array[Tea::Ip_address]            $ip_addresses = $::dns::params::ip_addresses,
   Boolean                                 $master = false,
   String                                $instance = 'default',
   Pattern[/^(present|absent)$/]           $ensure = 'present',
   Boolean                       $enable_zonecheck = true,
+  String                       $zonecheck_version = '1.0.13',
   Hash                                     $zones = {},
   Hash                                     $files = {},
   Hash                                      $tsig = {},
@@ -25,7 +26,7 @@ class dns (
       include ::python
     }
     package {'zonecheck':
-      ensure   => '1.0.10',
+      ensure   => $zonecheck_version,
       provider => 'pip',
     }
   }

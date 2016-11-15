@@ -13,5 +13,9 @@ fixtures:
       knot:
         repo: https://github.com/icann-dns/puppet-knot.git
         ref: 0.1.3
+      tea:
+        repo: https://github.com/icann-dns/puppet-tea.git
+        ref: 0.2.5
+      python:
       python:
         repo: https://github.com/stankevich/puppet-python.git
