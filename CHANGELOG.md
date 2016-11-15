@@ -1,5 +1,7 @@
-### 2016-10-03 0.1.9
+### 2016-11-14 0.1.9
 * Updated enable_zonecheck paramters so that it removes the cron job and configuration file if set to false
+* enable parameter to change zonecheck version
+* switch to using icann-tea for generic types
 
 ### 2016-10-03 0.1.8
 * bump zonecheck version

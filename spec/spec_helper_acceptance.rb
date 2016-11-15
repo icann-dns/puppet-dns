@@ -30,6 +30,7 @@ RSpec.configure do |c|
       on(host, puppet('module', 'install', 'stankevich-python'))
       on(host, puppet('module', 'install', 'icann-knot'))
       on(host, puppet('module', 'install', 'icann-nsd'))
+      on(host, puppet('module', 'install', 'icann-tea'))
     end
   end
 end
