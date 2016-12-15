@@ -1,3 +1,6 @@
+### 2016-11-14 0.1.10
+* bump zonecheck version
+
 ### 2016-11-14 0.1.9
 * Updated enable_zonecheck paramters so that it removes the cron job and configuration file if set to false
 * enable parameter to change zonecheck version

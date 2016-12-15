@@ -12,7 +12,7 @@ class dns (
   String                                $instance = 'default',
   Pattern[/^(present|absent)$/]           $ensure = 'present',
   Boolean                       $enable_zonecheck = true,
-  String                       $zonecheck_version = '1.0.13',
+  String                       $zonecheck_version = '1.0.14',
   Hash                                     $zones = {},
   Hash                                     $files = {},
   Hash                                      $tsig = {},
