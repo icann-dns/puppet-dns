@@ -85,7 +85,7 @@ describe 'dns' do
         it do
           is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
             'ensure' => 'present',
-            'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts',
+            'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -v',
             'minute' => '*/15'
           )
         end
@@ -249,6 +249,42 @@ describe 'dns' do
           it do
             is_expected.to contain_cron('/usr/local/bin/zonecheck').with_ensure(
               'absent'
+            )
+          end
+        end
+        context 'zone check log level critical' do
+          before { params.merge!(zonecheck_loglevel: 'critical') }
+          it { is_expected.to compile }
+          it do
+            is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
+              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts ',
+            )
+          end
+        end
+        context 'zone check log level warn' do
+          before { params.merge!(zonecheck_loglevel: 'warn') }
+          it { is_expected.to compile }
+          it do
+            is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
+              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vv',
+            )
+          end
+        end
+        context 'zone check log level info' do
+          before { params.merge!(zonecheck_loglevel: 'info') }
+          it { is_expected.to compile }
+          it do
+            is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
+              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vvv',
+            )
+          end
+        end
+        context 'zone check log level debug' do
+          before { params.merge!(zonecheck_loglevel: 'debug') }
+          it { is_expected.to compile }
+          it do
+            is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
+              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vvvv',
             )
           end
         end

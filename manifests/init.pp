@@ -13,6 +13,7 @@ class dns (
   Pattern[/^(present|absent)$/]           $ensure = 'present',
   Boolean                       $enable_zonecheck = true,
   String                       $zonecheck_version = '1.0.14',
+  Tea::Syslog_level           $zonecheck_loglevel = 'error',
   Hash                                     $zones = {},
   Hash                                     $files = {},
   Hash                                      $tsig = {},
@@ -21,6 +22,14 @@ class dns (
 
   $slaves_template = 'dns/etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml.erb'
   $tsigs_template  = 'dns/etc/puppetlabs/facter/facts.d/dns_slave_tsigs.yaml.erb'
+  $zonecheck_verbose = $zonecheck_loglevel ? {
+    'critical' => '',
+    'error'    => '-v',
+    'warn'     => '-vv',
+    'info'     => '-vvv',
+    'debug'    => '-vvvv',
+    default    => '-v'
+  }
   if $enable_zonecheck {
     if $::kernel != 'FreeBSD' {
       include ::python
@@ -30,6 +39,7 @@ class dns (
       provider => 'pip',
     }
   }
+
   $ensure_zonecheck = $enable_zonecheck ? {
     true    => 'present',
     default => 'absent',
@@ -40,7 +50,7 @@ class dns (
   }
   cron {'/usr/local/bin/zonecheck':
     ensure  => $ensure_zonecheck,
-    command => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts',
+    command => "/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts ${zonecheck_verbose}",
     minute  => '*/15',
   }
   if $daemon == 'nsd' {
