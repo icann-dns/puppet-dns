@@ -257,7 +257,7 @@ describe 'dns' do
           it { is_expected.to compile }
           it do
             is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
-              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts ',
+              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts '
             )
           end
         end
@@ -266,7 +266,7 @@ describe 'dns' do
           it { is_expected.to compile }
           it do
             is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
-              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vv',
+              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vv'
             )
           end
         end
@@ -275,7 +275,7 @@ describe 'dns' do
           it { is_expected.to compile }
           it do
             is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
-              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vvv',
+              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vvv'
             )
           end
         end
@@ -284,7 +284,7 @@ describe 'dns' do
           it { is_expected.to compile }
           it do
             is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
-              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vvvv',
+              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vvvv'
             )
           end
         end
