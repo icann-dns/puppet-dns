@@ -17,6 +17,8 @@ class dns (
   Hash                                     $zones = {},
   Hash                                     $files = {},
   Hash                                      $tsig = {},
+  Hash[String, Dns::Tsig]                  $tsigs = {},
+  Optional[String]             $default_tsig_name = undef,
   Boolean                          $enable_nagios = false,
 ) inherits dns::params {
 
