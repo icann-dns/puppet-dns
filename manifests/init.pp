@@ -12,49 +12,29 @@ class dns (
   String                                $instance = 'default',
   Pattern[/^(present|absent)$/]           $ensure = 'present',
   Boolean                       $enable_zonecheck = true,
-  String                       $zonecheck_version = '1.0.14',
-  Tea::Syslog_level           $zonecheck_loglevel = 'error',
-  Hash                                     $zones = {},
+  Hash[String, Dns::Zone]                  $zones = {},
   Hash                                     $files = {},
   Hash                                      $tsig = {},
   Hash[String, Dns::Tsig]                  $tsigs = {},
+  Hash[String, Dns::Server]              $servers = {},
   Optional[String]             $default_tsig_name = undef,
   Boolean                          $enable_nagios = false,
 ) inherits dns::params {
+  if ! empty($tsig) {
+    deprecation(
+      'tsig', 'Please use the Tsig array and the default tsig name instead'
+    )
+  }
+  class { '::dns::zonecheck':
+    enable       => $enable_zonecheck,
+    ip_addresses => $ip_addresses,
+    zones        => $zones,
+    tsig         => $tsig,
+  }
 
   $slaves_template = 'dns/etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml.erb'
   $tsigs_template  = 'dns/etc/puppetlabs/facter/facts.d/dns_slave_tsigs.yaml.erb'
-  $zonecheck_verbose = $zonecheck_loglevel ? {
-    'critical' => '',
-    'error'    => '-v',
-    'warn'     => '-vv',
-    'info'     => '-vvv',
-    'debug'    => '-vvvv',
-    default    => '-v'
-  }
-  if $enable_zonecheck {
-    if $::kernel != 'FreeBSD' {
-      include ::python
-    }
-    package {'zonecheck':
-      ensure   => $zonecheck_version,
-      provider => 'pip',
-    }
-  }
 
-  $ensure_zonecheck = $enable_zonecheck ? {
-    true    => 'present',
-    default => 'absent',
-  }
-  file {'/usr/local/etc/zone_check.conf':
-    ensure  => $ensure_zonecheck,
-    content => template('dns/usr/local/etc/zone_check.conf.erb'),
-  }
-  cron {'/usr/local/bin/zonecheck':
-    ensure  => $ensure_zonecheck,
-    command => "/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts ${zonecheck_verbose}",
-    minute  => '*/15',
-  }
   if $daemon == 'nsd' {
     $nsd_enable  =  true
     $knot_enable =  false
@@ -119,7 +99,7 @@ class dns (
       ip_addresses    => $ip_addresses,
       tsigs           => $slave_tsigs,
       slave_addresses => $slave_addresses,
-      zones           => $zones,
+      #zones           => $zones,
       tsig            => $tsig,
       server_count    => $server_count,
       files           => $files,
@@ -131,7 +111,7 @@ class dns (
       ip_addresses    => $ip_addresses,
       tsigs           => $slave_tsigs,
       slave_addresses => $slave_addresses,
-      zones           => $zones,
+      #zones           => $zones,
       tsig            => $tsig,
       server_count    => $server_count,
       files           => $files,
@@ -142,20 +122,28 @@ class dns (
   if $enable_nagios {
     $_ip_addresses_list = join($ip_addresses, ' ')
 
-    $zones.each |String $zoneset, Hash $_config| {
-      $_config['zones'].each |String $zone| {
-        if has_key($_config, 'masters') {
-          $_masters = delete($_config['masters'], ['127.0.0.1','0::1'])
-          if ! empty($_masters) {
-            $master_check_args = join($_masters, ' ')
-            @@nagios_service{ "${::fqdn}_DNS_ZONE_MASTERS_${zone}":
-              ensure              => present,
-              use                 => 'generic-service',
-              host_name           => $::fqdn,
-              service_description => "DNS_ZONE_MASTERS_${zone}",
-              check_command       => "check_nrpe_args!check_dns!${zone}!${master_check_args}!${_ip_addresses_list}",
-            }
+    $zones.each |String $zone, Hash $config| {
+      if has_key($config, 'masters') {
+        $_masters = flatten($config['masters'].map |String $master| {
+          if ! has_key($servers, $master) {
+            fail(
+              "Dns::Server[${master}] configured for ${zone} but does not exist"
+            )
           }
+          delete_undef_values(
+            [$servers[$master]['address4'], $servers[$master]['address6']]
+          )
+          #$servers[$master]['address4']
+        })
+        if ! empty($_masters) {
+          $master_check_args = join($_masters, ' ')
+          @@nagios_service{ "${::fqdn}_DNS_ZONE_MASTERS_${zone}":
+            ensure              => present,
+            use                 => 'generic-service',
+            host_name           => $::fqdn,
+            service_description => "DNS_ZONE_MASTERS_${zone}",
+            check_command       => "check_nrpe_args!check_dns!${zone}!${master_check_args}!${_ip_addresses_list}",
+        }
         }
       }
     }

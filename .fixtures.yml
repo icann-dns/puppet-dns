@@ -17,5 +17,4 @@ fixtures:
         repo: https://github.com/icann-dns/puppet-tea.git
         ref: v0.2.7
       python:
-      python:
         repo: https://github.com/stankevich/puppet-python.git

@@ -69,26 +69,7 @@ describe 'dns' do
       describe 'check default config' do
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_class('dns::params') }
-        it do
-          is_expected.to contain_package('zonecheck').with(
-            'ensure' => '1.0.14',
-            'provider' => 'pip'
-          )
-        end
-        it do
-          is_expected.to contain_file('/usr/local/etc/zone_check.conf').with(
-            'ensure' => 'present'
-          ).with_content(
-            %r{192.0.2.2}
-          )
-        end
-        it do
-          is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
-            'ensure' => 'present',
-            'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -v',
-            'minute' => '*/15'
-          )
-        end
+        it { is_expected.to contain_class('dns::zonecheck') }
         it do
           is_expected.to contain_file('/usr/local/bin/dns-control').with(
             'ensure' => 'link',
@@ -240,64 +221,16 @@ describe 'dns' do
         context 'enable_zonecheck' do
           before { params.merge!(enable_zonecheck: false) }
           it { is_expected.to compile }
-          it { is_expected.not_to contain_package('zonecheck') }
-          it do
-            is_expected.to contain_file('/usr/local/etc/zone_check.conf').with_ensure(
-              'absent'
-            )
-          end
-          it do
-            is_expected.to contain_cron('/usr/local/bin/zonecheck').with_ensure(
-              'absent'
-            )
-          end
-        end
-        context 'zone check log level critical' do
-          before { params.merge!(zonecheck_loglevel: 'critical') }
-          it { is_expected.to compile }
-          it do
-            is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
-              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts '
-            )
-          end
-        end
-        context 'zone check log level warn' do
-          before { params.merge!(zonecheck_loglevel: 'warn') }
-          it { is_expected.to compile }
-          it do
-            is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
-              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vv'
-            )
-          end
-        end
-        context 'zone check log level info' do
-          before { params.merge!(zonecheck_loglevel: 'info') }
-          it { is_expected.to compile }
-          it do
-            is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
-              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vvv'
-            )
-          end
-        end
-        context 'zone check log level debug' do
-          before { params.merge!(zonecheck_loglevel: 'debug') }
-          it { is_expected.to compile }
-          it do
-            is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
-              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vvvv'
-            )
-          end
+          it { is_expected.to contain_class('dns::zonecheck').with_enable(false) }
         end
         context 'zones' do
           before do
             params.merge!(
               zones: {
                 'example.com' => {
-                  'masters'          => ['192.0.2.1'],
-                  'notify_addresses' => ['192.0.2.1'],
-                  'allow_notify'     => ['192.0.2.1'],
-                  'provide_xfr'      => ['192.0.2.1'],
-                  'zones'            => ['example.com']
+                  'signed'  => true,
+                  'masters' => ['master.example.com'],
+                  'slaves'  => ['slave.example.com']
                 }
               }
             )
@@ -316,17 +249,20 @@ describe 'dns' do
           before { params.merge!(tsig: { 'name' => 'test', 'data' => 'aaaa' }) }
           it { is_expected.to compile }
         end
-        context 'enable_nagios' do
+        context 'enable_nagios only v4' do
           before do
             params.merge!(
               enable_nagios: true,
               zones: {
                 'example.com' => {
-                  'masters'          => ['192.0.2.1'],
-                  'notify_addresses' => ['192.0.2.1'],
-                  'allow_notify'     => ['192.0.2.1'],
-                  'provide_xfr'      => ['192.0.2.1'],
-                  'zones'            => ['example.com']
+                  'signed'  => true,
+                  'masters' => ['master.example.com'],
+                  'slaves'  => ['slave.example.com']
+                }
+              },
+              servers: {
+                'master.example.com' => {
+                  'address4' => '192.0.2.1'
                 }
               }
             )
@@ -340,6 +276,67 @@ describe 'dns' do
               'host_name' => 'foo.example.com',
               'service_description' => 'DNS_ZONE_MASTERS_example.com',
               'check_command' => 'check_nrpe_args!check_dns!example.com!192.0.2.1!192.0.2.2'
+            )
+          end
+        end
+        context 'enable_nagios only v6' do
+          before do
+            params.merge!(
+              enable_nagios: true,
+              zones: {
+                'example.com' => {
+                  'signed'  => true,
+                  'masters' => ['master.example.com'],
+                  'slaves'  => ['slave.example.com']
+                }
+              },
+              servers: {
+                'master.example.com' => {
+                  'address6' => '2001:DB8::1'
+                }
+              }
+            )
+          end
+          it { is_expected.to compile }
+          it do
+            expect(exported_resources).to contain_nagios_service(
+              'foo.example.com_DNS_ZONE_MASTERS_example.com'
+            ).with(
+              'use' => 'generic-service',
+              'host_name' => 'foo.example.com',
+              'service_description' => 'DNS_ZONE_MASTERS_example.com',
+              'check_command' => 'check_nrpe_args!check_dns!example.com!2001:DB8::1!192.0.2.2'
+            )
+          end
+        end
+        context 'enable_nagios only v4 and v6' do
+          before do
+            params.merge!(
+              enable_nagios: true,
+              zones: {
+                'example.com' => {
+                  'signed'  => true,
+                  'masters' => ['master.example.com'],
+                  'slaves'  => ['slave.example.com']
+                }
+              },
+              servers: {
+                'master.example.com' => {
+                  'address4' => '192.0.2.1',
+                  'address6' => '2001:DB8::1'
+                }
+              }
+            )
+          end
+          it { is_expected.to compile }
+          it do
+            expect(exported_resources).to contain_nagios_service(
+              'foo.example.com_DNS_ZONE_MASTERS_example.com'
+            ).with(
+              'use' => 'generic-service',
+              'host_name' => 'foo.example.com',
+              'service_description' => 'DNS_ZONE_MASTERS_example.com',
+              'check_command' => 'check_nrpe_args!check_dns!example.com!192.0.2.1 2001:DB8::1!192.0.2.2'
             )
           end
         end
