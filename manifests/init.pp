@@ -14,7 +14,7 @@ class dns (
   Hash[String, Dns::Zone]                  $zones = {},
   Hash                                     $files = {},
   Hash                                      $tsig = {},
-  Hash[String, Dns::Tsig]                  $tsigs = {},
+  Hash[Dns::Tsig]                          $tsigs = {},
   Hash[String, Dns::Server]              $servers = {},
   Optional[String]       $default_fetch_tsig_name = undef,
   Optional[String]     $default_provide_tsig_name = undef,
