@@ -60,7 +60,7 @@ class dns (
     }
   }
   if $master {
-    Dns::Tsig <<| tag == "dns::${instance}_slave_tsigs" |>>
+    Dns::Tsig_wrap <<| tag == "dns::${instance}_slave_tsigs" |>>
 
     #these come from the custom facts dir
     $slave_addresses = $::dns_slave_addresses
