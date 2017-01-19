@@ -44,7 +44,7 @@ describe 'dns' do
     context "on #{os}" do
       let(:facts) do
         facts.merge(
-          'dns_slave_tsigs' => {},
+          'dns_tsigs' => {},
           'dns_slave_addresses' => {},
           'ipaddress' => '192.0.2.2'
         )
@@ -74,19 +74,6 @@ describe 'dns' do
           is_expected.to contain_file('/usr/local/bin/dns-control').with(
             'ensure' => 'link',
             'target' => dns_control
-          )
-        end
-        it do
-          expect(exported_resources).to contain_concat__fragment('dns_slave_tsig_yaml_foo.example.com').with(
-            'target' => '/etc/puppetlabs/facter/facts.d/dns_slave_tsigs.yaml',
-            'tag' => 'dns::test_slave_tsigs',
-            'order' => '10'
-          ).with_content(
-            %r{# foo.example.com}
-          ).with_content(
-            %r{algo:\s+$}
-          ).with_content(
-            %r{data:\s+''$}
           )
         end
         it do
@@ -139,18 +126,6 @@ describe 'dns' do
             )
           end
         end
-        context 'tsigs_target' do
-          before { params.merge!(master: true, tsigs_target: '/tmp') }
-          it { is_expected.to compile }
-          it { is_expected.to contain_concat('/tmp') }
-          it do
-            is_expected.to contain_concat__fragment('dns_slave_tsigs_yaml_foo.example.com').with(
-              'target' => '/tmp',
-              'content' => "dns_slave_tsigs:\n",
-              'order' => '01'
-            )
-          end
-        end
         context 'nsid' do
           before { params.merge!(nsid: 'foobar') }
           it { is_expected.to compile }
@@ -179,16 +154,6 @@ describe 'dns' do
         context 'master' do
           before { params.merge!(master: true) }
           it { is_expected.to compile }
-          it do
-            is_expected.to contain_concat('/etc/puppetlabs/facter/facts.d/dns_slave_tsigs.yaml')
-          end
-          it do
-            is_expected.to contain_concat__fragment('dns_slave_tsigs_yaml_foo.example.com').with(
-              'target' => '/etc/puppetlabs/facter/facts.d/dns_slave_tsigs.yaml',
-              'content' => "dns_slave_tsigs:\n",
-              'order' => '01'
-            )
-          end
           it do
             is_expected.to contain_concat('/etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml')
           end
@@ -248,6 +213,9 @@ describe 'dns' do
         context 'tsig' do
           before { params.merge!(tsig: { 'name' => 'test', 'data' => 'aaaa' }) }
           it { is_expected.to compile }
+          it { is_expected.to contain_dns__tsig('test') }
+          it { is_expected.to contain_nsd__tsig('test') }
+          it { is_expected.to contain_knot__tsig('test') }
         end
         context 'enable_nagios only v4' do
           before do

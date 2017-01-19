@@ -17,13 +17,24 @@ class dns (
   Hash                                      $tsig = {},
   Hash[String, Dns::Tsig]                  $tsigs = {},
   Hash[String, Dns::Server]              $servers = {},
-  Optional[String]             $default_tsig_name = undef,
+  Optional[String]       $default_fetch_tsig_name = undef,
+  Optional[String]     $default_provide_tsig_name = undef,
   Boolean                          $enable_nagios = false,
 ) inherits dns::params {
   if ! empty($tsig) {
+    #We have refactored how tsigs are handled
     deprecation(
-      'tsig', 'Please use the Tsig array and the default tsig name instead'
+      'tsig', 'Please use the Tsig array and the default_*_tsig_name instead'
     )
+    dns::tsig{ $tsig['name']:
+      algo => $tsig['algo'],
+      data => $tsig['data'],
+    }
+    if ! $default_fetch_tsig_name {
+      $_default_fetch_tsig_name = $tsig['name']
+    }
+  } else {
+    $_default_fetch_tsig_name = $default_fetch_tsig_name
   }
   class { '::dns::zonecheck':
     enable       => $enable_zonecheck,
@@ -33,7 +44,6 @@ class dns (
   }
 
   $slaves_template = 'dns/etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml.erb'
-  $tsigs_template  = 'dns/etc/puppetlabs/facter/facts.d/dns_slave_tsigs.yaml.erb'
 
   if $daemon == 'nsd' {
     $nsd_enable  =  true
@@ -51,16 +61,10 @@ class dns (
     }
   }
   if $master {
+    Dns::Tsig <<| tag == "dns::${instance}_slave_tsigs" |>>
+
     #these come from the custom facts dir
-    $slave_tsigs     = $::dns_slave_tsigs
     $slave_addresses = $::dns_slave_addresses
-    concat{$tsigs_target:}
-    concat::fragment{
-      "dns_slave_tsigs_yaml_${::fqdn}":
-        target  => $tsigs_target,
-        content => "dns_slave_tsigs:\n",
-        order   => '01',
-    }
     Concat::Fragment <<| tag == "dns::${instance}_slave_tsigs" |>>
     concat{$slaves_target:}
     concat::fragment{
@@ -71,14 +75,14 @@ class dns (
     }
     Concat::Fragment <<| tag == "dns::${instance}_slave_interface_yaml" |>>
   } else {
-    $slave_tsigs     = {}
-    $slave_addresses = {}
-    @@concat::fragment{ "dns_slave_tsig_yaml_${::fqdn}":
-      target  => $tsigs_target,
-      tag     => "dns::${instance}_slave_tsigs",
-      content => template($tsigs_template),
-      order   => '10',
+    $tsigs.each |String $tsig, Dns::Tsig $config| {
+      @@dns::tsig {"dns::export_${instance}_${tsig}":
+        algo => $config['algo'],
+        data => $config['data'],
+        tag  => "dns::${instance}_slave_tsigs",
+      }
     }
+    $slave_addresses = {}
     @@concat::fragment{ "dns_slave_addresses_yaml_${::fqdn}":
       target  => $slaves_target,
       tag     => "dns::${instance}_slave_interface_yaml",
@@ -97,10 +101,10 @@ class dns (
     class { '::nsd':
       enable          => $nsd_enable,
       ip_addresses    => $ip_addresses,
-      tsigs           => $slave_tsigs,
+      tsigs           => $tsigs,
       slave_addresses => $slave_addresses,
       #zones           => $zones,
-      tsig            => $tsig,
+      #tsig            => $tsig,
       server_count    => $server_count,
       files           => $files,
       nsid            => $nsid,
@@ -109,10 +113,10 @@ class dns (
     class { '::knot':
       enable          => $knot_enable,
       ip_addresses    => $ip_addresses,
-      tsigs           => $slave_tsigs,
+      tsigs           => $tsigs,
       slave_addresses => $slave_addresses,
       #zones           => $zones,
-      tsig            => $tsig,
+      #tsig            => $tsig,
       server_count    => $server_count,
       files           => $files,
       nsid            => $nsid,
