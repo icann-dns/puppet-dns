@@ -4,7 +4,6 @@
 class dns (
   Pattern[/^(nsd|knot)$/]                 $daemon = $::dns::params::daemon,
   Tea::Absolutepath                $slaves_target = $::dns::params::slaves_target,
-  Tea::Absolutepath                 $tsigs_target = $::dns::params::tsigs_target,
   String                                    $nsid = $::dns::params::nsid,
   String                                $identity = $::dns::params::identity,
   Array[Tea::Ip_address]            $ip_addresses = $::dns::params::ip_addresses,
