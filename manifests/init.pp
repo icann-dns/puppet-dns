@@ -14,7 +14,7 @@ class dns (
   Hash[String, Dns::Zone]                  $zones = {},
   Hash                                     $files = {},
   Hash                                      $tsig = {},
-  Hash[Dns::Tsig]                          $tsigs = {},
+  Hash[String, Dns::Tsig]                  $tsigs = {},
   Hash[String, Dns::Server]              $servers = {},
   Optional[String]       $default_fetch_tsig_name = undef,
   Optional[String]     $default_provide_tsig_name = undef,
@@ -25,7 +25,7 @@ class dns (
     deprecation(
       'tsig', 'Please use the Tsig array and the default_*_tsig_name instead'
     )
-    dns::tsig{ $tsig['name']:
+    dns::tsig_wrap{ $tsig['name']:
       algo => $tsig['algo'],
       data => $tsig['data'],
     }
@@ -75,7 +75,7 @@ class dns (
     Concat::Fragment <<| tag == "dns::${instance}_slave_interface_yaml" |>>
   } else {
     $tsigs.each |String $tsig, Dns::Tsig $config| {
-      @@dns::tsig {"dns::export_${instance}_${tsig}":
+      @@dns::tsig_wrap {"dns::export_${instance}_${tsig}":
         algo => $config['algo'],
         data => $config['data'],
         tag  => "dns::${instance}_slave_tsigs",
