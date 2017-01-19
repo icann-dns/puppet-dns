@@ -1,6 +1,6 @@
 # dns::tsig
 #
-define dns::tsig_wrap (
+define dns::tsig (
   String    $data,
   Dns::Algo $algo = 'hmac-sha256',
 ) {

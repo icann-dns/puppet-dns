@@ -14,7 +14,7 @@ class dns (
   Hash[String, Dns::Zone]                  $zones = {},
   Hash                                     $files = {},
   Hash                                      $tsig = {},
-  Hash[String, Dns::Tsig]                  $tsigs = {},
+  Hash                                     $tsigs = {},
   Hash[String, Dns::Server]              $servers = {},
   Optional[String]       $default_fetch_tsig_name = undef,
   Optional[String]     $default_provide_tsig_name = undef,
@@ -25,7 +25,7 @@ class dns (
     deprecation(
       'tsig', 'Please use the Tsig array and the default_*_tsig_name instead'
     )
-    dns::tsig_wrap{ $tsig['name']:
+    dns::tsig { $tsig['name']:
       algo => $tsig['algo'],
       data => $tsig['data'],
     }
@@ -60,7 +60,7 @@ class dns (
     }
   }
   if $master {
-    Dns::Tsig_wrap <<| tag == "dns::${instance}_slave_tsigs" |>>
+    Dns::Tsig <<| tag == "dns::${instance}_slave_tsigs" |>>
 
     #these come from the custom facts dir
     $slave_addresses = $::dns_slave_addresses
@@ -75,7 +75,7 @@ class dns (
     Concat::Fragment <<| tag == "dns::${instance}_slave_interface_yaml" |>>
   } else {
     $tsigs.each |String $tsig, Dns::Tsig $config| {
-      @@dns::tsig_wrap {"dns::export_${instance}_${tsig}":
+      @@dns::tsig {"dns::export_${instance}_${tsig}":
         algo => $config['algo'],
         data => $config['data'],
         tag  => "dns::${instance}_slave_tsigs",
