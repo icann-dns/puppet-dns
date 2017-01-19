@@ -60,11 +60,10 @@ class dns (
     }
   }
   if $master {
-    Dns::Tsig <<| tag == "dns::${instance}_slave_tsigs" |>>
+    Dns::Tsig <<| tag == "dns::${environment}_${instance}_slave_tsigs" |>>
 
     #these come from the custom facts dir
     $slave_addresses = $::dns_slave_addresses
-    Concat::Fragment <<| tag == "dns::${instance}_slave_tsigs" |>>
     concat{$slaves_target:}
     concat::fragment{
       "dns_slave_addresses_yaml_${::fqdn}":
@@ -72,13 +71,13 @@ class dns (
         content => "dns_slave_addresses:\n",
         order   => '01',
     }
-    Concat::Fragment <<| tag == "dns::${instance}_slave_interface_yaml" |>>
+    Concat::Fragment <<| tag == "dns::${environment}_${instance}_slave_interface_yaml" |>>
   } else {
     $tsigs.each |String $tsig, Dns::Tsig $config| {
       @@dns::tsig {"dns::export_${instance}_${tsig}":
         algo => $config['algo'],
         data => $config['data'],
-        tag  => "dns::${instance}_slave_tsigs",
+        tag  => "dns::${environment}_${instance}_slave_tsigs",
       }
     }
     $slave_addresses = {}
