@@ -5,7 +5,7 @@ type Dns::Zone = Struct[{
   provide_xfr           => Optional[Array[String]],
   fetch_tsig_name       => Optional[String],
   provide_tsig_name     => Optional[String],
+  zonefile              => Optional[String],
   allow_notify_override => Optional[Array[String]],
   send_notify_override  => Optional[Array[String]],
-  zonefile_override     => Optional[String],
 }]
