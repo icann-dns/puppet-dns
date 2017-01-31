@@ -12,7 +12,7 @@ end
 
 group :test do
   gem 'puppetlabs_spec_helper', '~> 1.2.2',                         :require => false
-  gem 'rspec-puppet',                                               :require => false, :git => 'https://github.com/rodjek/rspec-puppet.git'
+  gem 'rspec-puppet', '~> 2.5',                                     :require => false
   gem 'rspec-puppet-facts',                                         :require => false
   gem 'rspec-puppet-utils',                                         :require => false
   gem 'puppet-lint-absolute_classname-check',                       :require => false
@@ -26,10 +26,17 @@ group :test do
   gem 'puppet-blacksmith',                                          :require => false
   gem 'pry',                                                        :require => false
   gem 'voxpupuli-release',                                          :require => false, :git => 'https://github.com/voxpupuli/voxpupuli-release-gem.git'
-  gem 'puppet-strings', '0.4.0',                                    :require => false
-  gem 'rubocop-rspec', '~> 1.6',                                    :require => false if RUBY_VERSION >= '2.3.0'
-  gem 'json_pure', '<= 2.0.1',                                      :require => false if RUBY_VERSION < '2.0.0'
+  gem 'puppet-strings', '~> 1.0.0',                                 :require => false
+  gem 'redcarpet',                                                  :require => false
+  gem 'rubocop', '~> 0.47.0',                                       :require => false if RUBY_VERSION >= '2.3.0'
+  gem 'rubocop-rspec', '~> 1.10.0',                                 :require => false if RUBY_VERSION >= '2.3.0'
+  gem 'mocha', '>= 1.2.1',                                          :require => false
+  gem 'coveralls',                                                  :require => false
+  gem 'simplecov-console',                                          :require => false
+  gem 'github_changelog_generator', '~> 1.13.0',                    :require => false if RUBY_VERSION < '2.2.2'
   gem 'listen', '<= 3.0.6',                                         :require => false if RUBY_VERSION < '2.2.5'
+  gem 'rack', '~> 1.0',                                             :require => false if RUBY_VERSION < '2.2.2'
+  gem 'github_changelog_generator',                                 :require => false if RUBY_VERSION >= '2.2.2'
 end
 
 group :development do
@@ -48,6 +55,7 @@ group :system_tests do
   else
     gem 'beaker-rspec',  :require => false
   end
+  gem 'serverspec',                    :require => false
   gem 'beaker-puppet_install_helper',  :require => false
 end
 
