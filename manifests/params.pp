@@ -8,13 +8,15 @@ class dns::params {
       default   => 'knot',
     }
   }
-
-  $slaves_target   = '/etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml'
-  $slaves_template = 'dns/etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml.erb'
-  $tsigs_target    = '/etc/puppetlabs/facter/facts.d/dns_slave_tsigs.yaml'
-  $tsigs_template  = 'dns/etc/puppetlabs/facter/facts.d/dns_slave_tsigs.yaml.erb'
-  $ip_addresses    = [$::ipaddress]
-  $nsid            = $::fqdn
-  $identity        = $::fqdn
-
+  #We add 0 to cast string to int
+  if $::processorcount + 0  > 3 {
+    $server_count = $::processorcount - 3
+  } else {
+    $server_count = 1
+  }
+  $default_ipv4 = $::networking['ip']
+  $default_ipv6 = $::networking['ip6']
+  $ip_addresses = [$::ipaddress]
+  $nsid         = $::fqdn
+  $identity     = $::fqdn
 }

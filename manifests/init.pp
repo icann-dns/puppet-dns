@@ -2,47 +2,31 @@
 #
 # Using custom types untill next stdlib release
 class dns (
-  Pattern[/^(nsd|knot)$/]                 $daemon = $::dns::params::daemon,
-  Tea::Absolutepath                $slaves_target = $::dns::params::slaves_target,
-  String                                    $nsid = $::dns::params::nsid,
-  String                                $identity = $::dns::params::identity,
-  Array[Tea::Ip_address]            $ip_addresses = $::dns::params::ip_addresses,
-  Boolean                                 $master = false,
-  String                                $instance = 'default',
-  Pattern[/^(present|absent)$/]           $ensure = 'present',
-  Boolean                       $enable_zonecheck = true,
-  Hash[String, Dns::Zone]                  $zones = {},
-  Hash                                     $files = {},
-  Hash                                      $tsig = {},
-  Hash                                     $tsigs = {},
-  Hash[String, Dns::Server]              $servers = {},
-  Optional[String]       $default_fetch_tsig_name = undef,
-  Optional[String]     $default_provide_tsig_name = undef,
-  Boolean                          $enable_nagios = false,
+  Optional[String]              $default_tsig_name = undef,
+  Tea::Ipv4                     $default_ipv4      = $::dns::params::default_ipv4,
+  Tea::Ipv6                     $default_ipv6      = $::dns::params::default_ipv6,
+  Integer[1,256]                $server_count      = $::dns::params::server_count,
+  Pattern[/^(nsd|knot)$/]       $daemon            = $::dns::params::daemon,
+  String                        $nsid              = $::dns::params::nsid,
+  String                        $identity          = $::dns::params::identity,
+  Array[Tea::Ip_address]        $ip_addresses      = $::dns::params::ip_addresses,
+  Boolean                       $master            = false,
+  String                        $instance          = 'default',
+  Pattern[/^(present|absent)$/] $ensure            = 'present',
+  Tea::Port                     $port              = 53,
+  Boolean                       $enable_zonecheck  = true,
+  Hash[String, Dns::Zone]       $zones             = {},
+  Hash                          $files             = {},
+  Hash                          $tsigs             = {},
+  Hash                          $remotes           = {},
+  Boolean                       $enable_nagios     = false,
 ) inherits dns::params {
-  if ! empty($tsig) {
-    #We have refactored how tsigs are handled
-    deprecation(
-      'tsig', 'Please use the Tsig array and the default_*_tsig_name instead'
-    )
-    dns::tsig { $tsig['name']:
-      algo => $tsig['algo'],
-      data => $tsig['data'],
-    }
-    if ! $default_fetch_tsig_name {
-      $_default_fetch_tsig_name = $tsig['name']
-    }
-  } else {
-    $_default_fetch_tsig_name = $default_fetch_tsig_name
-  }
-  class { '::dns::zonecheck':
-    enable       => $enable_zonecheck,
-    ip_addresses => $ip_addresses,
-    zones        => $zones,
-    tsig         => $tsig,
-  }
-
-  $slaves_template = 'dns/etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml.erb'
+  #class { '::dns::zonecheck':
+  #  enable       => $enable_zonecheck,
+  #  ip_addresses => $ip_addresses,
+  #  zones        => $zones,
+  #  tsig         => $tsig,
+  #}
 
   if $daemon == 'nsd' {
     $nsd_enable  =  true
@@ -59,66 +43,58 @@ class dns (
       target => '/usr/sbin/knotc',
     }
   }
+  # Currently nsd and knot dont support signed 
+  # and signed policy so we remove them
+  $_zones = $zones.reduce({}) |$reduce_store, $value| {
+    $zone = $value[0]
+    $config = $value[1].filter |$key| { $key[0] !~ /^signe/ }
+    $tmp = merge($reduce_store, {$zone => $config})
+    $tmp
+  }
   if $master {
-    Dns::Tsig <<| tag == "dns::${environment}_${instance}_slave_tsigs" |>>
-
-    #these come from the custom facts dir
-    $slave_addresses = $::dns_slave_addresses
-    concat{$slaves_target:}
-    concat::fragment{
-      "dns_slave_addresses_yaml_${::fqdn}":
-        target  => $slaves_target,
-        content => "dns_slave_addresses:\n",
-        order   => '01',
-    }
-    Concat::Fragment <<| tag == "dns::${environment}_${instance}_slave_interface_yaml" |>>
+    Dns::Tsig <<| tag == "dns::${environment}_${instance}_slave_tsig" |>>
+    Dns::Remote <<| tag == "dns::${environment}_${instance}_slave_remote" |>>
+    #$_master_zones = $zones.map |String $zone, Dns::Zone $config| {
+    #  { $zone =>  { 'provide_xfrs' => ['all slaves'] } }
+    #}
   } else {
-    $tsigs.each |String $tsig, Dns::Tsig $config| {
+    $tsigs.each |String $tsig, Hash $config| {
       @@dns::tsig {"dns::export_${instance}_${tsig}":
-        algo => $config['algo'],
+        algo => pick($config['algo'], 'hmac-sha256'),
         data => $config['data'],
         tag  => "dns::${environment}_${instance}_slave_tsigs",
       }
     }
-    $slave_addresses = {}
-    @@concat::fragment{ "dns_slave_addresses_yaml_${::fqdn}":
-      target  => $slaves_target,
-      tag     => "dns::${instance}_slave_interface_yaml",
-      content => template($slaves_template),
-      order   => '10',
+    @@dns::remote {"dns::export_${instance}_${::fqdn}":
+      address4  => $default_ipv4,
+      address6  => $default_ipv6,
+      tsig_name => $default_tsig_name,
+      port      => $port,
     }
-  }
-  #We add 0 to cast string to int
-  if $::processorcount + 0  > 3 {
-    $server_count = $::processorcount - 3
-  } else {
-    $server_count = 1
   }
 
   if $ensure == 'present' {
     class { '::nsd':
-      enable          => $nsd_enable,
-      ip_addresses    => $ip_addresses,
-      tsigs           => $tsigs,
-      slave_addresses => $slave_addresses,
-      #zones           => $zones,
-      #tsig            => $tsig,
-      server_count    => $server_count,
-      files           => $files,
-      nsid            => $nsid,
-      identity        => $identity,
+      enable       => $nsd_enable,
+      ip_addresses => $ip_addresses,
+      server_count => $server_count,
+      nsid         => $nsid,
+      identity     => $identity,
+      files        => $files,
+      tsigs        => $tsigs,
+      zones        => $_zones,
+      remotes      => $remotes,
     }
     class { '::knot':
-      enable          => $knot_enable,
-      ip_addresses    => $ip_addresses,
-      tsigs           => $tsigs,
-      slave_addresses => $slave_addresses,
-      #zones           => $zones,
-      #tsig            => $tsig,
-      server_count    => $server_count,
-      files           => $files,
-      nsid            => $nsid,
-      identity        => $identity,
+      enable       => $knot_enable,
+      ip_addresses => $ip_addresses,
+      server_count => $server_count,
+      nsid         => $nsid,
+      identity     => $identity,
+      files        => $files,
+      tsigs        => $tsigs,
+      zones        => $_zones,
+      remotes      => $remotes,
     }
   }
   if $enable_nagios {
@@ -127,15 +103,14 @@ class dns (
     $zones.each |String $zone, Hash $config| {
       if has_key($config, 'masters') {
         $_masters = flatten($config['masters'].map |String $master| {
-          if ! has_key($servers, $master) {
+          if ! has_key($remotes, $master) {
             fail(
               "Dns::Server[${master}] configured for ${zone} but does not exist"
             )
           }
           delete_undef_values(
-            [$servers[$master]['address4'], $servers[$master]['address6']]
+            [$remotes[$master]['address4'], $remotes[$master]['address6']]
           )
-          #$servers[$master]['address4']
         })
         if ! empty($_masters) {
           $master_check_args = join($_masters, ' ')
@@ -145,7 +120,7 @@ class dns (
             host_name           => $::fqdn,
             service_description => "DNS_ZONE_MASTERS_${zone}",
             check_command       => "check_nrpe_args!check_dns!${zone}!${master_check_args}!${_ip_addresses_list}",
-        }
+          }
         }
       }
     }
