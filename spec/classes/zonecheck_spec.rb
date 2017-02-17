@@ -52,11 +52,11 @@ describe 'dns::zonecheck' do
           is_expected.to contain_file('/usr/local/etc/zone_check.conf').with_ensure(
             'present'
           ).with_content(
-            %r{zones: \{\}},
+            %r{zones: \{\}}
           ).with_content(
-            %r{tsig: \{\}},
+            %r{tsig: \{\}}
           ).with_content(
-            %r{ip_addresses: \[\]},
+            %r{ip_addresses: \[\]}
           )
         end
         it do
@@ -66,7 +66,6 @@ describe 'dns::zonecheck' do
             'minute' => '*/15'
           )
         end
-  
       end
       describe 'Change Defaults' do
         context 'enable' do
@@ -86,7 +85,7 @@ describe 'dns::zonecheck' do
         context 'version' do
           before { params.merge!(version: 'foobar') }
           it { is_expected.to compile }
-          it { is_expected.to contain_package("zonecheck").with_ensure('foobar') }
+          it { is_expected.to contain_package('zonecheck').with_ensure('foobar') }
         end
         context 'syslog_level critical' do
           before { params.merge!(syslog_level: 'critical') }
@@ -138,8 +137,8 @@ describe 'dns::zonecheck' do
         context 'zones' do
           before do
             params.merge!(
-              zones: { 'example.com' => { 'signed' => true }}
-            ) 
+              zones: { 'example.com' => { 'signed' => true } }
+            )
           end
           it { is_expected.to compile }
           it do
@@ -153,7 +152,7 @@ describe 'dns::zonecheck' do
         context 'tsig' do
           before do
             params.merge!(
-              tsig: { 
+              tsig: {
                 'example.com' => {
                   'data' => 'foobar',
                   'algo' => 'hmac-sha1'
@@ -166,7 +165,7 @@ describe 'dns::zonecheck' do
             is_expected.to contain_file(
               '/usr/local/etc/zone_check.conf'
             ).with_content(
-              %r{tsig:\s+example.com:\s+data: foobar\s+algo: hmac-sha1},
+              %r{tsig:\s+example.com:\s+data: foobar\s+algo: hmac-sha1}
             )
           end
         end

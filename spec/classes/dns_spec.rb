@@ -14,20 +14,20 @@ describe 'dns' do
   # while all required parameters will require you to add a value
   let(:params) do
     {
-      #:daemon => "$::dns::params::daemon",
-      #:slaves_target => "$::dns::params::slaves_target",
-      #:tsigs_target => "$::dns::params::tsigs_target",
-      #:nsid => "$::dns::params::nsid",
-      #:identity => "$::dns::params::identity",
-      #:ip_addresses => [],
-      #:master => false,
-      #instance: 'test',
-      #:ensure => "present",
-      #:enable_zonecheck => true,
-      #:zones => {},
-      #:files => {},
-      #:tsig => {},
-      #:enable_nagios => false,
+      # :daemon => "$::dns::params::daemon",
+      # :slaves_target => "$::dns::params::slaves_target",
+      # :tsigs_target => "$::dns::params::tsigs_target",
+      # :nsid => "$::dns::params::nsid",
+      # :identity => "$::dns::params::identity",
+      # :ip_addresses => [],
+      # :master => false,
+      # instance: 'test',
+      # :ensure => "present",
+      # :enable_zonecheck => true,
+      # :zones => {},
+      # :files => {},
+      # :tsig => {},
+      # :enable_nagios => false,
     }
   end
   # add these two lines in a single test block to enable puppet and hiera debug mode
@@ -39,7 +39,7 @@ describe 'dns' do
         facts.merge(
           environment: 'production',
           ipaddress: '192.0.2.2',
-          networking: { 'ip' => '192.0.2.1', 'ip6' => '2001:DB8::1' },
+          networking: { 'ip' => '192.0.2.1', 'ip6' => '2001:DB8::1' }
         )
       end
       case facts[:operatingsystem]
@@ -62,7 +62,7 @@ describe 'dns' do
       describe 'check default config' do
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_class('dns::params') }
-        #it { is_expected.to contain_class('dns::zonecheck') }
+        # it { is_expected.to contain_class('dns::zonecheck') }
         it do
           is_expected.to contain_file('/usr/local/bin/dns-control').with(
             'ensure' => 'link',
@@ -172,7 +172,7 @@ describe 'dns' do
         context 'enable_zonecheck' do
           before { params.merge!(enable_zonecheck: false) }
           it { is_expected.to compile }
-          #it { is_expected.to contain_class('dns::zonecheck').with_enable(false) }
+          # it { is_expected.to contain_class('dns::zonecheck').with_enable(false) }
         end
         context 'zones' do
           before do
@@ -205,7 +205,7 @@ describe 'dns' do
           it { is_expected.to compile }
         end
         context 'tsigs' do
-          before { params.merge!(tsigs: { 'test' => { 'data' => 'aaaa'} }) }
+          before { params.merge!(tsigs: { 'test' => { 'data' => 'aaaa' } }) }
           it { is_expected.to compile }
           it do
             expect(exported_resources).to contain_dns__tsig(
@@ -223,7 +223,7 @@ describe 'dns' do
                 'example.com' => {
                   'signed'  => true,
                   'masters' => ['master.example.com'],
-                  'provide_xfrs'  => ['slave.example.com']
+                  'provide_xfrs' => ['slave.example.com']
                 }
               },
               remotes: {
@@ -256,7 +256,7 @@ describe 'dns' do
                 'example.com' => {
                   'signed'  => true,
                   'masters' => ['master.example.com'],
-                  'provide_xfrs'  => ['slave.example.com']
+                  'provide_xfrs' => ['slave.example.com']
                 }
               },
               remotes: {
@@ -289,7 +289,7 @@ describe 'dns' do
                 'example.com' => {
                   'signed'  => true,
                   'masters' => ['master.example.com'],
-                  'provide_xfrs'  => ['slave.example.com']
+                  'provide_xfrs' => ['slave.example.com']
                 }
               },
               remotes: {
