@@ -24,14 +24,14 @@ RSpec.configure do |c|
   module_root = File.expand_path(File.join(File.dirname(__FILE__), '..'))
   git_repos = [
     {
-      mod: 'nsd', 
+      mod: 'nsd',
       branch: 'refactor_zone',
-      repo: 'https://github.com/icann-dns/puppet-nsd' 
+      repo: 'https://github.com/icann-dns/puppet-nsd'
     },
     {
-      mod: 'knot', 
+      mod: 'knot',
       branch: 'refactor_zone',
-      repo: 'https://github.com/icann-dns/puppet-knot' 
+      repo: 'https://github.com/icann-dns/puppet-knot'
     }
   ]
   c.formatter = :documentation
@@ -43,11 +43,11 @@ RSpec.configure do |c|
       on(host, puppet('module', 'install', 'puppetlabs-concat'))
       on(host, puppet('module', 'install', 'stankevich-python'))
       on(host, puppet('module', 'install', 'icann-tea'))
-      #on(host, puppet('module', 'install', 'icann-knot'))
-      #on(host, puppet('module', 'install', 'icann-nsd'))
+      # on(host, puppet('module', 'install', 'icann-knot'))
+      # on(host, puppet('module', 'install', 'icann-nsd'))
       git_repos.each do |g|
         step "Installing puppet module \'#{g[:repo]}\' from git on Master to #{default['distmoduledir']}"
-         on(host, "git clone -b #{g[:branch]} --single-branch #{g[:repo]} #{default['distmoduledir']}/#{g[:mod]}")
+        on(host, "git clone -b #{g[:branch]} --single-branch #{g[:repo]} #{default['distmoduledir']}/#{g[:mod]}")
       end
     end
   end
