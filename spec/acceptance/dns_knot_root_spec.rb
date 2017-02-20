@@ -7,17 +7,27 @@ describe 'knot class' do
       pp = <<-EOS
   class {'::dns':
     daemon => 'knot',
-    zones => {
-      'root' => {
-        'masters'  => ['192.0.32.132', '192.0.47.132'],
-        'zonefile' => 'root',
-        'zones' => ['.'],
+	remotes => {
+      'lax.xfr.dns.icann.org' => {
+        'address4' => '192.0.32.132'
       },
-      'arpa_and_root_servers' => {
-        'masters'  => ['192.0.32.132', '192.0.47.132'],
-        'zones' => ['arpa.', 'root-servers.net.'],
+      'iad.xfr.dns.icann.org' => {
+        'address4' => '192.0.47.132'
       },
     },
+	zones => {
+      '.' => {
+        signed   => true,
+        masters  => ['lax.xfr.dns.icann.org', 'iad.xfr.dns.icann.org'],
+        zonefile => 'root'
+      },
+      'arpa.' => {
+        masters  => ['lax.xfr.dns.icann.org', 'iad.xfr.dns.icann.org']
+      },
+      'root-servers.net.' => {
+        masters  => ['lax.xfr.dns.icann.org', 'iad.xfr.dns.icann.org']
+      }
+    }
   }
       EOS
       apply_manifest(pp, catch_failures: true)

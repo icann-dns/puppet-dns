@@ -1,5 +1,5 @@
 type Dns::Zone = Struct[{
-  signed                 => Boolean,
+  signed                 => Optional[Boolean],
   signer_policy          => Optional[String],
   masters                => Optional[Array[String]],
   provide_xfrs           => Optional[Array[String]],

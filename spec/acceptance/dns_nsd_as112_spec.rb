@@ -4,63 +4,7 @@ describe 'nsd class' do
   ipaddress = fact('ipaddress')
   context 'as112' do
     it 'is_expected.to work with no errors' do
-      pp = <<-EOS
-  class {'::dns':
-    daemon => 'nsd',
-    zones => {
-      'rfc1918' => {
-        'zonefile' => 'db.dd-empty',
-        'zones' => [
-          '10.in-addr.arpa',
-          '16.172.in-addr.arpa',
-          '17.172.in-addr.arpa',
-          '18.172.in-addr.arpa',
-          '19.172.in-addr.arpa',
-          '20.172.in-addr.arpa',
-          '21.172.in-addr.arpa',
-          '22.172.in-addr.arpa',
-          '23.172.in-addr.arpa',
-          '24.172.in-addr.arpa',
-          '25.172.in-addr.arpa',
-          '26.172.in-addr.arpa',
-          '27.172.in-addr.arpa',
-          '28.172.in-addr.arpa',
-          '29.172.in-addr.arpa',
-          '30.172.in-addr.arpa',
-          '31.172.in-addr.arpa',
-          '168.192.in-addr.arpa',
-          '254.169.in-addr.arpa',
-        ],
-      },
-      'empty.as112.arpa' => {
-        'zonefile' => 'db.dr-empty',
-        'zones'    => ['empty.as112.arpa'],
-      },
-      'hostname.as112.net' => {
-        'zonefile' => 'hostname.as112.net.zone',
-        'zones'    =>  ['hostname.as112.net'],
-      },
-      'hostname.as112.arpa' => {
-        'zonefile' => 'hostname.as112.arpa.zone',
-        'zones'    => ['hostname.as112.arpa'],
-      },
-    },
-    files => {
-      'db.dd-empty' => {
-        'source'  => 'puppet:///modules/dns/db.dd-empty',
-      },
-      'db.dr-empty' => {
-        'source'  => 'puppet:///modules/dns/db.dr-empty',
-      },
-      'hostname.as112.net.zone' => {
-        'content_template' => 'dns/hostname.as112.net.zone.erb',
-      },
-      'hostname.as112.arpa.zone' => {
-        'content_template' => 'dns/hostname.as112.arpa.zone.erb',
-      },
-    },
-  }
-      EOS
+      pp = 'class {\'::dns::as112\': daemon => \'nsd\' }'
       apply_manifest(pp, catch_failures: true)
       apply_manifest(pp, catch_failures: true)
       expect(apply_manifest(pp, catch_failures: true).exit_code).to eq 0
