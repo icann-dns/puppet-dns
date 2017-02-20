@@ -39,15 +39,20 @@ RSpec.configure do |c|
     # Install module to all hosts
     hosts.each do |host|
       install_dev_puppet_module_on(host, source: module_root)
-      on(host, puppet('module', 'install', 'puppetlabs-stdlib'))
-      on(host, puppet('module', 'install', 'puppetlabs-concat'))
-      on(host, puppet('module', 'install', 'stankevich-python'))
-      on(host, puppet('module', 'install', 'icann-tea'))
-      # on(host, puppet('module', 'install', 'icann-knot'))
-      # on(host, puppet('module', 'install', 'icann-nsd'))
-      git_repos.each do |g|
-        step "Installing puppet module \'#{g[:repo]}\' from git on Master to #{default['distmoduledir']}"
-        on(host, "git clone -b #{g[:branch]} --single-branch #{g[:repo]} #{default['distmoduledir']}/#{g[:mod]}")
+      if (host['roles'] & %w(master masterless)).any?
+        step 'Configure master or masterless'
+        on(host, puppet('module', 'install', 'puppetlabs-stdlib'))
+        on(host, puppet('module', 'install', 'puppetlabs-concat'))
+        on(host, puppet('module', 'install', 'stankevich-python'))
+        on(host, puppet('module', 'install', 'icann-tea'))
+        # on(host, puppet('module', 'install', 'icann-knot'))
+        # on(host, puppet('module', 'install', 'icann-nsd'))
+        git_repos.each do |g|
+          step "Installing puppet module \'#{g[:repo]}\' from git on Master to #{default['distmoduledir']}"
+          on(host, "git clone -b #{g[:branch]} --single-branch #{g[:repo]} #{default['distmoduledir']}/#{g[:mod]}")
+        end
+      else
+          step 'configure Agent'
       end
     end
   end
