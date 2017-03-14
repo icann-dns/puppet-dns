@@ -30,9 +30,9 @@ describe 'nsd class' do
     }
   }
       EOS
-      apply_manifest(pp, catch_failures: true)
-      apply_manifest(pp, catch_failures: true)
-      expect(apply_manifest(pp, catch_failures: true).exit_code).to eq 0
+      execute_manifest(pp, catch_failures: true)
+      execute_manifest(pp, catch_failures: true)
+      expect(execute_manifest(pp, catch_failures: true).exit_code).to eq 0
       # sleep to allow zone transfer (value probably to high)
       sleep(10)
     end

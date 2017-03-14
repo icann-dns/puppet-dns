@@ -5,9 +5,9 @@ describe 'nsd class' do
   context 'as112' do
     it 'is_expected.to work with no errors' do
       pp = 'class {\'::dns::as112\': daemon => \'nsd\' }'
-      apply_manifest(pp, catch_failures: true)
-      apply_manifest(pp, catch_failures: true)
-      expect(apply_manifest(pp, catch_failures: true).exit_code).to eq 0
+      execute_manifest(pp, catch_failures: true)
+      execute_manifest(pp, catch_failures: true)
+      expect(execute_manifest(pp, catch_failures: true).exit_code).to eq 0
     end
     describe service('nsd') do
       it { is_expected.to be_running }
