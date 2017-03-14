@@ -1,5 +1,12 @@
 ## Contributing
 
+=======
+This module has grown over time based on a range of contributions from
+people using it. If you follow these contributing guidelines your patch
+will likely make it into a release a little quicker.
+
+## Contributing
+
 1. Fork the repo.
 
 2. Create a separate branch for your change.
@@ -68,7 +75,6 @@ To run a specific spec test set the `SPEC` variable:
 To run the linter, the syntax checker and the unit tests:
 
     bundle exec rake test
-
 
 ## Integration tests
 
