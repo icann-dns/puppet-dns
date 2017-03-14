@@ -11,7 +11,7 @@ config = {
     'static_catalogs' => 'false'
   },
   'master' => {
-    'autosign' => 'true',
+    'autosign' => 'true'
   }
 }
 git_repos = [
@@ -47,9 +47,9 @@ hosts.each do |host|
 end
 master_ip = fact_on(master, 'ipaddress')
 hosts.each do |host|
-  if host['roles'].include?('master') or ENV['BEAKER_TESTMODE'] == 'apply'
+  if host['roles'].include?('master') || ENV['BEAKER_TESTMODE'] == 'apply'
     if host['roles'].include?('master')
-      step 'Configure Puppet Master Server' 
+      step 'Configure Puppet Master Server'
       host.install_package('puppetserver')
       on(host, 'echo "JAVA_ARGS=\"-Xms1g -Xmx1g -XX:MaxPermSize=128m\"" >> /etc/default/puppetserver')
       config['main']['user'] = 'puppet'
@@ -69,8 +69,8 @@ hosts.each do |host|
       on(host, "git clone -b #{g[:branch]} --single-branch #{g[:repo]} #{default['distmoduledir']}/#{g[:mod]}")
     end
   else
-      step 'Configure Puppet Agent' 
-      on(host, "echo '#{master_ip} #{master}' >> /etc/hosts")
+    step 'Configure Puppet Agent'
+    on(host, "echo '#{master_ip} #{master}' >> /etc/hosts")
   end
   config['main']['certname'] = host
   configure_puppet_on(host, config)

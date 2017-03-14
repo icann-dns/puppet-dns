@@ -8,12 +8,18 @@
     services:
     - docker
   - rvm: 2.3.1
-    env: BEAKER_set="docker/ubuntu-master-14.04" CHECK=beaker BEAKER_TESTMODE=agent
+    env:
+    - BEAKER_set="docker/ubuntu-master-14.04"
+    - CHECK=beaker 
+    - BEAKER_TESTMODE=agent
     sudo: required
     services:
     - docker
   - rvm: 2.3.1
-    env: BEAKER_set="docker/ubuntu-master-14.04" CHECK=beaker BEAKER_TESTMODE=agent
+    env:
+    - BEAKER_set="docker/ubuntu-14.04"
+    - CHECK=beaker 
+    - BEAKER_TESTMODE=apply
     sudo: required
     services:
     - docker
