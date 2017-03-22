@@ -2,10 +2,9 @@ require 'beaker-rspec'
 require 'beaker/testmode_switcher/dsl'
 require 'beaker-pe'
 
-master = only_host_with_role(hosts, 'master')
 modules = [
-  'puppetlabs-stdlib', 
-  'puppetlabs-concat', 
+  'puppetlabs-stdlib',
+  'puppetlabs-concat',
   'stankevich-python',
   'icann-tea'
 ]
@@ -28,7 +27,7 @@ def install_modules(host, modules, git_repos)
     on(host, puppet('module', 'install', m))
   end
   git_repos.each do |g|
-    step "Installing puppet module \'#{g[:repo]}\' from git on Master to #{default['distmoduledir']}"
+    step "Installing puppet module \'#{g[:repo]}\' from git on #{host} to #{default['distmoduledir']}"
     on(host, "git clone -b #{g[:branch]} --single-branch #{g[:repo]} #{default['distmoduledir']}/#{g[:mod]}")
   end
 end
@@ -47,11 +46,12 @@ hosts.each do |host|
   on(host, 'echo $(grep nameserver /etc/resolv.conf) > /etc/resolv.conf')
 end
 if ENV['BEAKER_TESTMODE'] == 'agent'
-  step "install puppet enterprise"
+  step 'install puppet enterprise'
   install_pe
+  master = only_host_with_role(hosts, 'master')
   install_modules(master, modules, git_repos)
 else
-  step "install masterless"
+  step 'install masterless'
   hosts.each do |host|
     install_puppet_on(
       host,
