@@ -60,9 +60,10 @@ class dns (
   } else {
     $tsigs.each |String $tsig, Hash $config| {
       @@dns::tsig {"dns::export_${instance}_${tsig}":
-        algo => pick($config['algo'], 'hmac-sha256'),
-        data => $config['data'],
-        tag  => "dns::${environment}_${instance}_slave_tsigs",
+        algo     => pick($config['algo'], 'hmac-sha256'),
+        data     => $config['data'],
+        key_name => $tsig,
+        tag      => "dns::${environment}_${instance}_slave_tsig",
       }
     }
     @@dns::remote {"dns::export_${instance}_${::fqdn}":
@@ -70,6 +71,7 @@ class dns (
       address6  => $default_ipv6,
       tsig_name => $default_tsig_name,
       port      => $port,
+      tag       => "dns::${environment}_${instance}_slave_remote",
     }
   }
 
