@@ -58,8 +58,8 @@ group :system_tests do
   gem 'serverspec',                    :require => false
   gem 'beaker-puppet_install_helper',  :require => false
   gem 'beaker-testmode_switcher',      :require => false
-  gem 'beaker-pe'
-  gem 'beaker-answers'
+  gem 'beaker-pe',                     :require => false
+  gem 'beaker-answers',                :require => false
 end
 
 
