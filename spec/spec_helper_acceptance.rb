@@ -1,19 +1,14 @@
 require 'beaker-rspec'
 require 'beaker/testmode_switcher/dsl'
+require 'beaker-pe'
 
-module_root = File.expand_path(File.join(File.dirname(__FILE__), '..'))
 master = only_host_with_role(hosts, 'master')
-config = {
-  'main' => {
-    'user' => 'root',
-    'group' => 'root',
-    'server' => master,
-    'static_catalogs' => 'false'
-  },
-  'master' => {
-    'autosign' => 'true'
-  }
-}
+modules = [
+  'puppetlabs-stdlib', 
+  'puppetlabs-concat', 
+  'stankevich-python',
+  'icann-tea'
+]
 git_repos = [
   {
     mod: 'nsd',
@@ -26,6 +21,17 @@ git_repos = [
     repo: 'https://github.com/icann-dns/puppet-knot'
   }
 ]
+def install_modules(host, modules, git_repos)
+  module_root = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+  install_dev_puppet_module_on(host, source: module_root)
+  modules.each do |m|
+    on(host, puppet('module', 'install', m))
+  end
+  git_repos.each do |g|
+    step "Installing puppet module \'#{g[:repo]}\' from git on Master to #{default['distmoduledir']}"
+    on(host, "git clone -b #{g[:branch]} --single-branch #{g[:repo]} #{default['distmoduledir']}/#{g[:mod]}")
+  end
+end
 # Install Puppet on all hosts
 hosts.each do |host|
   host.install_package('git')
@@ -33,49 +39,29 @@ hosts.each do |host|
     # default installs incorect version
     host.install_package('sysutils/puppet4')
     host.install_package('dns/bind-tools')
-    # install_puppet_on(host)
   else
     host.install_package('vim')
     host.install_package('dnsutils')
+  end
+  # remove search list and domain from resolve.conf
+  on(host, 'echo $(grep nameserver /etc/resolv.conf) > /etc/resolv.conf')
+end
+if ENV['BEAKER_TESTMODE'] == 'agent'
+  step "install puppet enterprise"
+  install_pe
+  install_modules(master, modules, git_repos)
+else
+  step "install masterless"
+  hosts.each do |host|
     install_puppet_on(
       host,
       version: '4',
       puppet_agent_version: '1.6.1',
       default_action: 'gem_install'
     )
+    install_modules(host, modules, git_repos)
   end
 end
-master_ip = fact_on(master, 'ipaddress')
-hosts.each do |host|
-  if host['roles'].include?('master') || ENV['BEAKER_TESTMODE'] == 'apply'
-    if host['roles'].include?('master')
-      step 'Configure Puppet Master Server'
-      host.install_package('puppetserver')
-      on(host, 'echo "JAVA_ARGS=\"-Xms1g -Xmx1g -XX:MaxPermSize=128m\"" >> /etc/default/puppetserver')
-      config['main']['user'] = 'puppet'
-      config['main']['group'] = 'puppet'
-    else
-      step 'Masterless run'
-    end
-    install_dev_puppet_module_on(host, source: module_root)
-    on(host, puppet('module', 'install', 'puppetlabs-stdlib'))
-    on(host, puppet('module', 'install', 'puppetlabs-concat'))
-    on(host, puppet('module', 'install', 'stankevich-python'))
-    on(host, puppet('module', 'install', 'icann-tea'))
-    # on(host, puppet('module', 'install', 'icann-knot'))
-    # on(host, puppet('module', 'install', 'icann-nsd'))
-    git_repos.each do |g|
-      step "Installing puppet module \'#{g[:repo]}\' from git on Master to #{default['distmoduledir']}"
-      on(host, "git clone -b #{g[:branch]} --single-branch #{g[:repo]} #{default['distmoduledir']}/#{g[:mod]}")
-    end
-  else
-    step 'Configure Puppet Agent'
-    on(host, "echo '#{master_ip} #{master}' >> /etc/hosts")
-  end
-  config['main']['certname'] = host
-  configure_puppet_on(host, config)
-end
-on(master, 'service puppetserver start')
 RSpec.configure do |c|
   c.formatter = :documentation
   # c.before :suite do

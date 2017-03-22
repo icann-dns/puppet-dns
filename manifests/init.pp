@@ -75,26 +75,28 @@ class dns (
 
   if $ensure == 'present' {
     class { '::nsd':
-      enable       => $nsd_enable,
-      ip_addresses => $ip_addresses,
-      server_count => $server_count,
-      nsid         => $nsid,
-      identity     => $identity,
-      files        => $files,
-      tsigs        => $tsigs,
-      zones        => $_zones,
-      remotes      => $remotes,
+      enable            => $nsd_enable,
+      ip_addresses      => $ip_addresses,
+      server_count      => $server_count,
+      nsid              => $nsid,
+      identity          => $identity,
+      default_tsig_name => $default_tsig_name,
+      files             => $files,
+      tsigs             => $tsigs,
+      zones             => $_zones,
+      remotes           => $remotes,
     }
     class { '::knot':
-      enable       => $knot_enable,
-      ip_addresses => $ip_addresses,
-      server_count => $server_count,
-      nsid         => $nsid,
-      identity     => $identity,
-      files        => $files,
-      tsigs        => $tsigs,
-      zones        => $_zones,
-      remotes      => $remotes,
+      enable            => $knot_enable,
+      ip_addresses      => $ip_addresses,
+      server_count      => $server_count,
+      nsid              => $nsid,
+      identity          => $identity,
+      default_tsig_name => $default_tsig_name,
+      files             => $files,
+      tsigs             => $tsigs,
+      zones             => $_zones,
+      remotes           => $remotes,
     }
   }
   if $enable_nagios {

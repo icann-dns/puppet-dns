@@ -6,6 +6,9 @@ HOSTS:
   ubuntu-1404-x64-puppet-master:
     roles: 
     - master
+    - dashboard
+    - database
+    - agent
     platform: ubuntu-14.04-amd64
     hypervisor: docker
     image: ubuntu:14.04
@@ -20,6 +23,7 @@ HOSTS:
     roles: 
     - agent
     - default
+    - frictionless
     - dnsmaster
     platform: ubuntu-14.04-amd64
     hypervisor: docker
@@ -35,6 +39,7 @@ HOSTS:
     roles: 
     - agent
     - slave
+    - frictionless
     platform: ubuntu-14.04-amd64
     hypervisor: docker
     image: ubuntu:14.04
@@ -47,6 +52,8 @@ HOSTS:
       - 'locale-gen en_US.UTF-8'
 CONFIG:
   trace_limit: 200
-  masterless: true
+  #pe_debug: true
+  pe_ver: 2016.4.3
+  pe_dir: https://s3.amazonaws.com/pe-builds/released/2016.4.3
 ...
 # vim: syntax=yaml
