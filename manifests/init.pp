@@ -69,6 +69,7 @@ class dns (
     @@dns::remote {"dns::export_${instance}_${::fqdn}":
       address4  => $default_ipv4,
       address6  => $default_ipv6,
+      tsig      => "dns::export_${instance}_${tsig}",
       tsig_name => $default_tsig_name,
       port      => $port,
       tag       => "dns::${environment}_${instance}_slave_remote",
