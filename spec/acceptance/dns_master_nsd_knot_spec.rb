@@ -73,11 +73,13 @@ EOS
   }
 EOS
 
-      execute_manifest_on(dnsmaster, master_pp, catch_failures: true)
-      execute_manifest_on(slave, slave_pp, catch_failures: true)
-      execute_manifest_on(dnsmaster, master_pp, catch_failures: true)
-      execute_manifest_on(slave, slave_pp, catch_failures: true)
-      execute_manifest_on(dnsmaster, master_pp, catch_failures: true)
+      it 'run puppet a bunch of times' do
+        execute_manifest_on(dnsmaster, master_pp, catch_failures: true)
+        execute_manifest_on(slave, slave_pp, catch_failures: true)
+        execute_manifest_on(dnsmaster, master_pp, catch_failures: true)
+        execute_manifest_on(slave, slave_pp, catch_failures: true)
+        execute_manifest_on(dnsmaster, master_pp, catch_failures: true)
+      end
       it 'clean puppet run on dns master' do
         expect(execute_manifest_on(dnsmaster, master_pp, catch_failures: true).exit_code).to eq 0
       end
