@@ -71,7 +71,7 @@ describe 'dns' do
         end
         it do
           expect(exported_resources).to contain_dns__remote(
-            'dns::export_default_foo.example.com'
+            'dns__export_default_foo.example.com'
           ).with(
             address4: '192.0.2.1',
             address6: '2001:DB8::1',
@@ -140,7 +140,7 @@ describe 'dns' do
           it { is_expected.to compile }
           it do
             expect(exported_resources).not_to contain_dns__remote(
-              'dns::export_default_foo.example.com'
+              'dns__export_default_foo.example.com'
             ).with(
               address: '192.0.2.1',
               address6: '2001:DB8::1',
@@ -154,7 +154,7 @@ describe 'dns' do
           it { is_expected.to compile }
           it do
             expect(exported_resources).to contain_dns__remote(
-              'dns::export_foobar_foo.example.com'
+              'dns__export_foobar_foo.example.com'
             ).with(
               address4: '192.0.2.1',
               address6: '2001:DB8::1',
@@ -209,7 +209,7 @@ describe 'dns' do
           it { is_expected.to compile }
           it do
             expect(exported_resources).to contain_dns__tsig(
-              'dns::export_default_test'
+              'dns__export_default_test'
             )
           end
           it { is_expected.to contain_nsd__tsig('test') }
