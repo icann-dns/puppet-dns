@@ -61,6 +61,7 @@ describe 'dns' do
       end
       describe 'check default config' do
         it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_class('dns') }
         it { is_expected.to contain_class('dns::params') }
         # it { is_expected.to contain_class('dns::zonecheck') }
         it do
