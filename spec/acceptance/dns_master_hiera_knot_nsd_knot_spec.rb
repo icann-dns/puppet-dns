@@ -100,7 +100,7 @@ dns::default_masters:
 EOF
       create_remote_file(master, "#{hiera_dir}/common.yaml", common_hiera)
       on(master, "chmod +r #{hiera_dir}/common.yaml")
-      on(master, "mkdir #{hiera_dir}/nodes/")
+      on(master, "mkdir -p #{hiera_dir}/nodes/")
       on(master, "chmod +rx #{hiera_dir}/nodes/")
       create_remote_file(master, "#{hiera_dir}/nodes/#{dnstop}.yaml", dnstop_hiera)
       on(master, "chmod +r #{hiera_dir}/nodes/#{dnstop}.yaml")
