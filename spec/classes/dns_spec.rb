@@ -151,7 +151,7 @@ describe 'dns' do
           end
         end
         context 'instance' do
-          before { params.merge!(instance: 'foobar') }
+          before { params.merge!(slave_instance: 'foobar') }
           it { is_expected.to compile }
           it do
             expect(exported_resources).to contain_dns__remote(
@@ -342,8 +342,12 @@ describe 'dns' do
           before { params.merge!(master: 'foobar') }
           it { expect { subject.call }.to raise_error(Puppet::Error) }
         end
-        context 'instance' do
-          before { params.merge!(instance: true) }
+        context 'master_instance' do
+          before { params.merge!(master_instance: true) }
+          it { expect { subject.call }.to raise_error(Puppet::Error) }
+        end
+        context 'slave_instance' do
+          before { params.merge!(slave_instance: true) }
           it { expect { subject.call }.to raise_error(Puppet::Error) }
         end
         context 'ensure' do

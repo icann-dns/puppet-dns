@@ -9,7 +9,6 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
       slave_ip     = fact_on(slave, 'ipaddress')
       master_pp = <<EOS
   class { '::dns':
-    instance => 'acceptance_test',
     master   => true,
     daemon   => 'nsd',
     remotes  => {
@@ -42,7 +41,6 @@ EOS
       # the key below is only to be used in here to not use it in production
       slave_pp = <<EOS
   class { '::dns':
-    instance => 'acceptance_test',
     daemon   => 'nsd',
     default_tsig_name => '#{slave}-test',
     tsigs    => {
