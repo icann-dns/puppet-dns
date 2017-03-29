@@ -160,7 +160,7 @@ EOF
         soa_match = if in_addr_zones.include?(zone)
                       %r{b.in-addr-servers.arpa. nstld.iana.org.}
                     elsif ip6_zones.include?(zone)
-                      %r{b.ip6-servers.arpa. hostmaster.icann.org.}
+                      %r{b.ip6-servers.arpa. nstld.iana.org.}
                     else
                       %r{sns.dns.icann.org. noc.dns.icann.org.}
                     end
