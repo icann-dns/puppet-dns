@@ -45,59 +45,59 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
       dnsedge_ip     = fact_on(dnsedge, 'ipaddress')
       hiera_dir      = '/etc/puppetlabs/code/environments/production/hieradata'
       pp             = 'class { \'::dns\': }'
-      common_hiera = <<-EOS.strip_margin('|')
-      |---
-      |dns::zones:
-      |  #{allzones.join(": {}\n  ")}: {}
-      |
-      EOS
-      dnstop_hiera = <<-EOF.strip_margin('|')
-      |---
-      |dns::imports: ['top_layer']
-      |dns::daemon: knot
-      |dns::remotes:
-      |  lax.xfr.dns.icann.org:
-      |    address4: 192.0.32.132
-      |    address6: 2620:0:2d0:202::132
-      |  iad.xfr.dns.icann.org:
-      |    address4: 192.0.47.132
-      |    address6: 2620:0:2830:202::132
-      |dns::default_masters:
-      |- lax.xfr.dns.icann.org
-      |- iad.xfr.dns.icann.org
-      |
-      EOF
-      dnsmiddle_hiera = <<-EOF.strip_margin('|')
-      |---
-      |dns::daemon: nsd
-      |dns::exports: ['top_layer']
-      |dns::imports: ['mid_layer']
-      |dns::default_tsig_name: #{dnsmiddle}-test
-      |dns::tsigs:
-      |  #{dnsmiddle}-test:
-      |    data: qneKJvaiXqVrfrS4v+Oi/9GpLqrkhSGLTCZkf0dyKZ0=
-      |dns::remotes:
-      |  #{dnstop}:
-      |    address4: #{dnstop_ip}
-      |dns::default_masters:
-      |- #{dnstop}
-      |
-      EOF
-      dnsedge_hiera = <<-EOF.strip_margin('|')
-      |---
-      |dns::daemon: knot
-      |dns::exports: ['mid_layer']
-      |dns::default_tsig_name: #{dnsedge}-test
-      |dns::tsigs:
-      |  #{dnsedge}-test:
-      |    data: L7WLyxJGM5X8tfmzMKdfaQt369JWxAMTmm09ZFgMTc4=
-      |dns::remotes:
-      |  #{dnsmiddle}:
-      |    address4: #{dnsmiddle_ip}
-      |dns::default_masters:
-      |- #{dnsmiddle}
-      |
-      EOF
+      common_hiera = <<~END
+      ---
+      dns::zones:
+        #{allzones.join(": {}\n  ")}: {}
+      
+      END
+      dnstop_hiera = <<~END
+      ---
+      dns::imports: ['top_layer']
+      dns::daemon: knot
+      dns::remotes:
+        lax.xfr.dns.icann.org:
+          address4: 192.0.32.132
+          address6: 2620:0:2d0:202::132
+        iad.xfr.dns.icann.org:
+          address4: 192.0.47.132
+          address6: 2620:0:2830:202::132
+      dns::default_masters:
+      - lax.xfr.dns.icann.org
+      - iad.xfr.dns.icann.org
+      
+      END
+      dnsmiddle_hiera = <<~END
+      ---
+      dns::daemon: nsd
+      dns::exports: ['top_layer']
+      dns::imports: ['mid_layer']
+      dns::default_tsig_name: #{dnsmiddle}-test
+      dns::tsigs:
+        #{dnsmiddle}-test:
+          data: qneKJvaiXqVrfrS4v+Oi/9GpLqrkhSGLTCZkf0dyKZ0=
+      dns::remotes:
+        #{dnstop}:
+          address4: #{dnstop_ip}
+      dns::default_masters:
+      - #{dnstop}
+      
+      END
+      dnsedge_hiera = <<~END
+      ---
+      dns::daemon: knot
+      dns::exports: ['mid_layer']
+      dns::default_tsig_name: #{dnsedge}-test
+      dns::tsigs:
+        #{dnsedge}-test:
+          data: L7WLyxJGM5X8tfmzMKdfaQt369JWxAMTmm09ZFgMTc4=
+      dns::remotes:
+        #{dnsmiddle}:
+          address4: #{dnsmiddle_ip}
+      dns::default_masters:
+      - #{dnsmiddle}
+      
+      END
       create_remote_file(master, "#{hiera_dir}/common.yaml", common_hiera)
       on(master, "chmod +r #{hiera_dir}/common.yaml")
       on(master, "mkdir -p #{hiera_dir}/nodes/")
