@@ -1,13 +1,13 @@
 require 'spec_helper_acceptance'
 
 if ENV['BEAKER_TESTMODE'] == 'agent'
-  describe 'basic master (knot) slave (nsd) config' do
+  describe 'basic master (knot) dnsedge (nsd) config' do
     context 'defaults' do
-      dnsmaster    = find_host_with_role('dnsmaster')
-      dnsmaster_ip = fact_on(dnsmaster, 'ipaddress')
-      slave        = find_host_with_role('slave')
-      slave_ip     = fact_on(slave, 'ipaddress')
-      master_pp = <<EOS
+      dnstop     = find_host_with_role('dnstop')
+      dnstop_ip  = fact_on(dnstop, 'ipaddress')
+      dnsedge    = find_host_with_role('dnsedge')
+      dnsedge_ip = fact_on(dnsedge, 'ipaddress')
+      master_pp  = <<EOS
   class { '::dns':
     imports  => ['acceptance_test'],
     daemon   => 'knot',
@@ -39,85 +39,85 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
   }
 EOS
       # the key below is only to be used in here to not use it in production
-      slave_pp = <<EOS
+      dnsedge_pp = <<EOS
   class { '::dns':
     exports  => ['acceptance_test'],
     daemon   => 'knot',
-    default_tsig_name => '#{slave}-test',
+    default_tsig_name => '#{dnsedge}-test',
     tsigs    => {
-      '#{slave}-test' => {
+      '#{dnsedge}-test' => {
         'data' => 'qneKJvaiXqVrfrS4v+Oi/9GpLqrkhSGLTCZkf0dyKZ0='
       },
     },
     remotes  => {
-      '#{dnsmaster}' => {
-        'address4' => '#{dnsmaster_ip}',
+      '#{dnstop}' => {
+        'address4' => '#{dnstop_ip}',
       },
     },
     zones    => {
       '.' => {
         'signed' => true,
-        'masters' => [ #{dnsmaster} ],
+        'masters' => [ #{dnstop} ],
         'zonefile' => 'root',
       },
       'root-servers.net.' => {
         'signed' => true,
-        'masters' => [ #{dnsmaster} ],
+        'masters' => [ #{dnstop} ],
       },
       'arpa.' => {
         'signed' => true,
-        'masters' => [ #{dnsmaster} ],
+        'masters' => [ #{dnstop} ],
       },
     },
   }
 EOS
 
       it 'run puppet a bunch of times' do
-        execute_manifest_on(dnsmaster, master_pp, catch_failures: true)
-        execute_manifest_on(slave, slave_pp, catch_failures: true)
-        execute_manifest_on(dnsmaster, master_pp, catch_failures: true)
-        execute_manifest_on(slave, slave_pp, catch_failures: true)
-        execute_manifest_on(dnsmaster, master_pp, catch_failures: true)
+        execute_manifest_on(dnstop, master_pp, catch_failures: true)
+        execute_manifest_on(dnsedge, dnsedge_pp, catch_failures: true)
+        execute_manifest_on(dnstop, master_pp, catch_failures: true)
+        execute_manifest_on(dnsedge, dnsedge_pp, catch_failures: true)
+        execute_manifest_on(dnstop, master_pp, catch_failures: true)
       end
       it 'clean puppet run on dns master' do
-        expect(execute_manifest_on(dnsmaster, master_pp, catch_failures: true).exit_code).to eq 0
+        expect(execute_manifest_on(dnstop, master_pp, catch_failures: true).exit_code).to eq 0
       end
-      it 'clean puppet run on dns slave' do
-        expect(execute_manifest_on(slave, slave_pp, catch_failures: true).exit_code).to eq 0
+      it 'clean puppet run on dns dnsedge' do
+        expect(execute_manifest_on(dnsedge, dnsedge_pp, catch_failures: true).exit_code).to eq 0
       end
-      describe service('knot'), node: dnsmaster do
+      describe service('knot'), node: dnstop do
         it { is_expected.to be_running }
       end
-      describe port(53), node: dnsmaster do
+      describe port(53), node: dnstop do
         it { is_expected.to be_listening }
       end
-      describe service('knot'), node: slave do
+      describe service('knot'), node: dnsedge do
         it { is_expected.to be_running }
       end
-      describe port(53), node: slave do
+      describe port(53), node: dnsedge do
         it { is_expected.to be_listening }
       end
-      describe command('knotc -c /etc/knot/knot.conf checkconf || cat /etc/knot/knot.conf'), if: os[:family] == 'ubuntu', node: dnsmaster do
+      describe command('knotc -c /etc/knot/knot.conf checkconf || cat /etc/knot/knot.conf'), if: os[:family] == 'ubuntu', node: dnstop do
         its(:stdout) { is_expected.to match %r{} }
       end
-      describe command('knotc -c /usr/local/etc/knot/knot.conf checkconf || cat /usr/local/etc/knot/knot.conf'), if: os[:family] == 'freebsd', node: dnsmaster do
+      describe command('knotc -c /usr/local/etc/knot/knot.conf checkconf || cat /usr/local/etc/knot/knot.conf'), if: os[:family] == 'freebsd', node: dnstop do
         its(:stdout) { is_expected.to match %r{} }
       end
-      describe command('knotc -c /etc/knot/knot.conf checkconf || cat /etc/knot/knot.conf'), if: os[:family] == 'ubuntu', node: slave do
+      describe command('knotc -c /etc/knot/knot.conf checkconf || cat /etc/knot/knot.conf'), if: os[:family] == 'ubuntu', node: dnsedge do
         its(:stdout) { is_expected.to match %r{} }
       end
-      describe command('knotc -c /usr/local/etc/knot/knot.conf checkconf || cat /usr/local/etc/knot/knot.conf'), if: os[:family] == 'freebsd', node: slave do
+      describe command('knotc -c /usr/local/etc/knot/knot.conf checkconf || cat /usr/local/etc/knot/knot.conf'), if: os[:family] == 'freebsd', node: dnsedge do
         its(:stdout) { is_expected.to match %r{} }
       end
-      describe command("dig +short soa . @#{slave_ip}"), node: slave do
+      describe command("dig +short soa . @#{dnsedge_ip}"), node: dnsedge do
         its(:exit_status) { is_expected.to eq 0 }
         its(:stdout) { is_expected.to match %r{a.root-servers.net. nstld.verisign-grs.com.} }
       end
-      describe command("dig +short soa root-servers.net. @#{slave_ip}"), node: slave do
+      describe command("dig +short soa root-servers.net. @#{dnsedge_ip}"), node: dnsedge do
         its(:exit_status) { is_expected.to eq 0 }
         its(:stdout) { is_expected.to match %r{a.root-servers.net. nstld.verisign-grs.com.} }
       end
-      describe command("dig +short soa arpa. @#{slave_ip}"), node: slave do
+      describe command("dig +short soa arpa. @#{dnsedge_ip}"), node: dnsedge do
         its(:exit_status) { is_expected.to eq 0 }
         its(:stdout) { is_expected.to match %r{a.root-servers.net. nstld.verisign-grs.com.} }
       end

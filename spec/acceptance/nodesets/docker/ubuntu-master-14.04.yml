@@ -19,12 +19,12 @@ HOSTS:
       - 'rm /sbin/initctl; dpkg-divert --rename --remove /sbin/initctl'
       - 'apt-get install -y net-tools wget'
       - 'locale-gen en_US.UTF-8'
-  ubuntu-1404-x64-dns-master:
+  ubuntu-1404-x64-dns-top:
     roles: 
     - agent
     - default
     - frictionless
-    - dnsmaster
+    - dnstop
     platform: ubuntu-14.04-amd64
     hypervisor: docker
     image: ubuntu:14.04
@@ -35,10 +35,25 @@ HOSTS:
       - 'rm /sbin/initctl; dpkg-divert --rename --remove /sbin/initctl'
       - 'apt-get install -y net-tools wget'
       - 'locale-gen en_US.UTF-8'
-  ubuntu-1404-x64-slave:
+  ubuntu-1404-x64-middle:
     roles: 
     - agent
-    - slave
+    - dnsmiddle
+    - frictionless
+    platform: ubuntu-14.04-amd64
+    hypervisor: docker
+    image: ubuntu:14.04
+    docker_preserve_image: true
+    docker_cmd: '["/sbin/init"]'
+    docker_image_commands:
+      - 'rm /usr/sbin/policy-rc.d'
+      - 'rm /sbin/initctl; dpkg-divert --rename --remove /sbin/initctl'
+      - 'apt-get install -y net-tools wget'
+      - 'locale-gen en_US.UTF-8'
+  ubuntu-1404-x64-edge:
+    roles: 
+    - agent
+    - dnsedge
     - frictionless
     platform: ubuntu-14.04-amd64
     hypervisor: docker

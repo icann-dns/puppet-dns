@@ -1,17 +1,17 @@
 require 'spec_helper_acceptance'
 
 if ENV['BEAKER_TESTMODE'] == 'agent'
-  describe 'basic master (knot) slave (nsd) config' do
+  describe 'basic master (knot) dnsmiddle (nsd) config' do
     context 'defaults' do
       in_addr_zones = [
         'in-addr.arpa',
-        'in-addr-servers.arpa',
+        'in-addr-servers.arpa'
       ]
       ip6_zones = [
         'ip6.arpa',
-        'ip6-servers.arpa',
+        'ip6-servers.arpa'
       ]
-      zones = [ 
+      zones = [
         'mcast.net',
         'as112.arpa',
         'example.com',
@@ -36,12 +36,12 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
         '238.in-addr.arpa',
         '239.in-addr.arpa'
       ]
-      dnsmaster         = find_host_with_role('dnsmaster')
-      dnsmaster_ip      = fact_on(dnsmaster, 'ipaddress')
-      slave             = find_host_with_role('slave')
-      slave_ip          = fact_on(slave, 'ipaddress')
-      hiera_dir         = '/etc/puppetlabs/code/environments/production/hieradata'
-      pp                = 'class { \'::dns\': }'
+      dnstop         = find_host_with_role('dnstop')
+      dnstop_ip      = fact_on(dnstop, 'ipaddress')
+      dnsmiddle      = find_host_with_role('dnsmiddle')
+      dnsmiddle_ip   = fact_on(dnsmiddle, 'ipaddress')
+      hiera_dir      = '/etc/puppetlabs/code/environments/production/hieradata'
+      pp             = 'class { \'::dns\': }'
       common_hiera = <<EOS
 ---
 dns::zones:
@@ -50,7 +50,7 @@ dns::zones:
   #{zones.join(": {}\n  ")}: {}
 
 EOS
-      dnsmaster_hiera = <<EOF
+      dnstop_hiera = <<EOF
 ---
 dns::imports: ['top_layer']
 dns::daemon: knot
@@ -66,88 +66,88 @@ dns::default_masters:
 - iad.xfr.dns.icann.org
 
 EOF
-      slave_hiera = <<EOF
+      dnsmiddle_hiera = <<EOF
 ---
 dns::daemon: nsd
 dns::exports: ['top_layer']
-dns::default_tsig_name: #{slave}-test
+dns::default_tsig_name: #{dnsmiddle}-test
 dns::tsigs:
-  #{slave}-test:
+  #{dnsmiddle}-test:
     data: qneKJvaiXqVrfrS4v+Oi/9GpLqrkhSGLTCZkf0dyKZ0=
 dns::remotes:
-  #{dnsmaster}:
-    address4: #{dnsmaster_ip}
+  #{dnstop}:
+    address4: #{dnstop_ip}
 dns::default_masters:
-- #{dnsmaster}
+- #{dnstop}
 
 EOF
       create_remote_file(master, "#{hiera_dir}/common.yaml", common_hiera)
       on(master, "chmod +r #{hiera_dir}/common.yaml")
       on(master, "mkdir #{hiera_dir}/nodes/")
       on(master, "chmod +rx #{hiera_dir}/nodes/")
-      create_remote_file(master, "#{hiera_dir}/nodes/#{dnsmaster}.yaml", dnsmaster_hiera)
-      on(master, "chmod +r #{hiera_dir}/nodes/#{dnsmaster}.yaml")
-      create_remote_file(master, "#{hiera_dir}/nodes/#{slave}.yaml", slave_hiera)
-      on(master, "chmod +r #{hiera_dir}/nodes/#{slave}.yaml")
+      create_remote_file(master, "#{hiera_dir}/nodes/#{dnstop}.yaml", dnstop_hiera)
+      on(master, "chmod +r #{hiera_dir}/nodes/#{dnstop}.yaml")
+      create_remote_file(master, "#{hiera_dir}/nodes/#{dnsmiddle}.yaml", dnsmiddle_hiera)
+      on(master, "chmod +r #{hiera_dir}/nodes/#{dnsmiddle}.yaml")
 
       it 'run puppet a bunch of times' do
-        execute_manifest_on(dnsmaster, pp, catch_failures: true)
-        execute_manifest_on(slave, pp, catch_failures: true)
-        execute_manifest_on(dnsmaster, pp, catch_failures: true)
-        execute_manifest_on(slave, pp, catch_failures: true)
-        execute_manifest_on(dnsmaster, pp, catch_failures: true)
+        execute_manifest_on(dnstop, pp, catch_failures: true)
+        execute_manifest_on(dnsmiddle, pp, catch_failures: true)
+        execute_manifest_on(dnstop, pp, catch_failures: true)
+        execute_manifest_on(dnsmiddle, pp, catch_failures: true)
+        execute_manifest_on(dnstop, pp, catch_failures: true)
       end
       it 'clean puppet run on dns master' do
-        expect(execute_manifest_on(dnsmaster, pp, catch_failures: true).exit_code).to eq 0
+        expect(execute_manifest_on(dnstop, pp, catch_failures: true).exit_code).to eq 0
       end
-      it 'clean puppet run on dns slave' do
-        expect(execute_manifest_on(slave, pp, catch_failures: true).exit_code).to eq 0
+      it 'clean puppet run on dns dnsmiddle' do
+        expect(execute_manifest_on(dnsmiddle, pp, catch_failures: true).exit_code).to eq 0
       end
       # give a bit of time for all the zones to transfer
       it 'sleep for 2 minutes to allow tranfers to occur' do
         sleep(120)
       end
-      describe service('knot'), node: dnsmaster do
+      describe service('knot'), node: dnstop do
         it { is_expected.to be_running }
       end
-      describe port(53), node: dnsmaster do
+      describe port(53), node: dnstop do
         it { is_expected.to be_listening }
       end
-      describe service('nsd'), node: slave do
+      describe service('nsd'), node: dnsmiddle do
         it { is_expected.to be_running }
       end
-      describe port(53), node: slave do
+      describe port(53), node: dnsmiddle do
         it { is_expected.to be_listening }
       end
-      describe command('knotc -c /etc/knot/knot.conf checkconf || cat /etc/knot/knot.conf'), if: os[:family] == 'ubuntu', node: dnsmaster do
+      describe command('knotc -c /etc/knot/knot.conf checkconf || cat /etc/knot/knot.conf'), if: os[:family] == 'ubuntu', node: dnstop do
         its(:stdout) { is_expected.to match %r{} }
       end
-      describe command('knotc -c /usr/local/etc/knot/knot.conf checkconf || cat /usr/local/etc/knot/knot.conf'), if: os[:family] == 'freebsd', node: dnsmaster do
+      describe command('knotc -c /usr/local/etc/knot/knot.conf checkconf || cat /usr/local/etc/knot/knot.conf'), if: os[:family] == 'freebsd', node: dnstop do
         its(:stdout) { is_expected.to match %r{} }
       end
-      describe command('nsd-checkconf /etc/nsd/nsd.conf || cat /etc/nsd/nsd.conf'), if: os[:family] == 'ubuntu', node: slave do
+      describe command('nsd-checkconf /etc/nsd/nsd.conf || cat /etc/nsd/nsd.conf'), if: os[:family] == 'ubuntu', node: dnsmiddle do
         its(:stdout) { is_expected.to match %r{} }
       end
-      describe command('nsd-checkconf /usr/local/etc/nsd/nsd.conf || cat /usr/local/etc/nsd/nsd.conf'), if: os[:family] == 'freebsd', node: slave do
+      describe command('nsd-checkconf /usr/local/etc/nsd/nsd.conf || cat /usr/local/etc/nsd/nsd.conf'), if: os[:family] == 'freebsd', node: dnsmiddle do
         its(:stdout) { is_expected.to match %r{} }
       end
       in_addr_zones.each do |zone|
         soa_match = %r{b.in-addr-servers.arpa. nstld.iana.org.}
-        describe command("dig +short soa #{zone}. @#{slave_ip}"), node: slave do
+        describe command("dig +short soa #{zone}. @#{dnsmiddle_ip}"), node: dnsmiddle do
           its(:exit_status) { is_expected.to eq 0 }
           its(:stdout) { is_expected.to match soa_match }
         end
       end
       ip6_zones.each do |zone|
         soa_match = %r{b.ip6-servers.arpa. nstld.iana.org.}
-        describe command("dig +short soa #{zone}. @#{slave_ip}"), node: slave do
+        describe command("dig +short soa #{zone}. @#{dnsmiddle_ip}"), node: dnsmiddle do
           its(:exit_status) { is_expected.to eq 0 }
           its(:stdout) { is_expected.to match soa_match }
         end
       end
       zones.each do |zone|
         soa_match = %r{sns.dns.icann.org. noc.dns.icann.org.}
-        describe command("dig +short soa #{zone}. @#{slave_ip}"), node: slave do
+        describe command("dig +short soa #{zone}. @#{dnsmiddle_ip}"), node: dnsmiddle do
           its(:exit_status) { is_expected.to eq 0 }
           its(:stdout) { is_expected.to match soa_match }
         end
