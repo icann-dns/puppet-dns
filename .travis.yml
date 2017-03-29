@@ -29,7 +29,7 @@ matrix:
   - rvm: 2.4.0
     env: PUPPET_VERSION="~> 4.0" CHECK=build DEPLOY_TO_FORGE=yes
   - rvm: 2.3.1
-    env: ["BEAKER_set=\"docker/ubuntu-master-14.04\"", "CHECK=beaker", "BEAKER_TESTMODE=agent"]
+    env: ["BEAKER_set=\"docker/ubuntu-master-14.04\"", "CHECK=beaker", "BEAKER_TESTMODE=agent", "travis_wait"]
     services: ["docker"]
     sudo: required
   - rvm: 2.3.1
