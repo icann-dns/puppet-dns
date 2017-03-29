@@ -12,9 +12,8 @@ class dns (
   String                        $nsid                 = $::dns::params::nsid,
   String                        $identity             = $::dns::params::identity,
   Array[Tea::Ip_address]        $ip_addresses         = $::dns::params::ip_addresses,
-  Boolean                       $master               = false,
-  String                        $master_instance      = 'default',
-  String                        $slave_instance       = 'default',
+  Array[String]                 $imports              = [],
+  Array[String]                 $exports              = [],
   Pattern[/^(present|absent)$/] $ensure               = 'present',
   Tea::Port                     $port                 = 53,
   Boolean                       $enable_zonecheck     = true,
@@ -54,28 +53,26 @@ class dns (
     $tmp = merge($reduce_store, {$zone => $config})
     $tmp
   }
-  if $master {
-    Dns::Tsig <<| tag == "dns__${environment}_${master_instance}_slave_tsig" |>>
-    Dns::Remote <<| tag == "dns__${environment}_${master_instance}_slave_remote" |>>
-    #$_master_zones = $zones.map |String $zone, Dns::Zone $config| {
-    #  { $zone =>  { 'provide_xfrs' => ['all slaves'] } }
-    #}
-  } else {
+  $imports.each |String $import| {
+    Dns::Tsig <<| tag == "dns__${environment}_${import}_slave_tsig" |>>
+    Dns::Remote <<| tag == "dns__${environment}_${import}_slave_remote" |>>
+  }
+  $exports.each |String $export| {
     $tsigs.each |String $tsig, Hash $config| {
-      @@dns::tsig {"dns__export_${slave_instance}_${tsig}":
+      @@dns::tsig {"dns__export_${export}_${tsig}":
         algo     => pick($config['algo'], 'hmac-sha256'),
         data     => $config['data'],
         key_name => $tsig,
-        tag      => "dns__${environment}_${slave_instance}_slave_tsig",
+        tag      => "dns__${environment}_${export}_slave_tsig",
       }
     }
-    @@dns::remote {"dns__export_${slave_instance}_${::fqdn}":
+    @@dns::remote {"dns__export_${export}_${::fqdn}":
       address4  => $default_ipv4,
       address6  => $default_ipv6,
-      tsig      => "dns__export_${slave_instance}_${default_tsig_name}",
+      tsig      => "dns__export_${export}_${default_tsig_name}",
       tsig_name => $default_tsig_name,
       port      => $port,
-      tag       => "dns__${environment}_${slave_instance}_slave_remote",
+      tag       => "dns__${environment}_${export}_slave_remote",
     }
   }
 

@@ -20,8 +20,8 @@ describe 'dns' do
       # :nsid => "$::dns::params::nsid",
       # :identity => "$::dns::params::identity",
       # :ip_addresses => [],
-      # :master => false,
-      # instance: 'test',
+      # :exports => [],
+      # :imports => [],
       # :ensure => "present",
       # :enable_zonecheck => true,
       # :zones => {},
@@ -68,16 +68,6 @@ describe 'dns' do
           is_expected.to contain_file('/usr/local/bin/dns-control').with(
             'ensure' => 'link',
             'target' => dns_control
-          )
-        end
-        it do
-          expect(exported_resources).to contain_dns__remote(
-            'dns__export_default_foo.example.com'
-          ).with(
-            address4: '192.0.2.1',
-            address6: '2001:DB8::1',
-            tsig_name: nil,
-            port: 53
           )
         end
         it do
@@ -136,22 +126,8 @@ describe 'dns' do
             )
           end
         end
-        context 'master' do
-          before { params.merge!(master: true) }
-          it { is_expected.to compile }
-          it do
-            expect(exported_resources).not_to contain_dns__remote(
-              'dns__export_default_foo.example.com'
-            ).with(
-              address: '192.0.2.1',
-              address6: '2001:DB8::1',
-              tsig_name: :undef,
-              port: 53
-            )
-          end
-        end
-        context 'instance' do
-          before { params.merge!(slave_instance: 'foobar') }
+        context 'exports' do
+          before { params.merge!(exports: ['foobar']) }
           it { is_expected.to compile }
           it do
             expect(exported_resources).to contain_dns__remote(
@@ -208,11 +184,6 @@ describe 'dns' do
         context 'tsigs' do
           before { params.merge!(tsigs: { 'test' => { 'data' => 'aaaa' } }) }
           it { is_expected.to compile }
-          it do
-            expect(exported_resources).to contain_dns__tsig(
-              'dns__export_default_test'
-            )
-          end
           it { is_expected.to contain_nsd__tsig('test') }
           it { is_expected.to contain_knot__tsig('test') }
         end
@@ -338,16 +309,12 @@ describe 'dns' do
           before { params.merge!(ip_addresses: true) }
           it { expect { subject.call }.to raise_error(Puppet::Error) }
         end
-        context 'master' do
-          before { params.merge!(master: 'foobar') }
+        context 'exports' do
+          before { params.merge!(exports: true) }
           it { expect { subject.call }.to raise_error(Puppet::Error) }
         end
-        context 'master_instance' do
-          before { params.merge!(master_instance: true) }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
-        end
-        context 'slave_instance' do
-          before { params.merge!(slave_instance: true) }
+        context 'imports' do
+          before { params.merge!(imports: true) }
           it { expect { subject.call }.to raise_error(Puppet::Error) }
         end
         context 'ensure' do
