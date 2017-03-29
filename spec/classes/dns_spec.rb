@@ -30,6 +30,7 @@ describe 'dns' do
       # :enable_nagios => false,
     }
   end
+
   # add these two lines in a single test block to enable puppet and hiera debug mode
   # Puppet::Util::Log.level = :debug
   # Puppet::Util::Log.newdestination(:console)
@@ -42,6 +43,7 @@ describe 'dns' do
           networking: { 'ip' => '192.0.2.1', 'ip6' => '2001:DB8::1' }
         )
       end
+
       case facts[:operatingsystem]
       when 'Ubuntu'
         case facts['lsbdistcodename']

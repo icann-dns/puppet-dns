@@ -27,9 +27,9 @@ describe 'dns::zonecheck' do
       #:ip_addresses => [],
       #:zones => {},
       #:tsig => {},
-
     }
   end
+
   # add these two lines in a single test block to enable puppet and hiera debug mode
   # Puppet::Util::Log.level = :debug
   # Puppet::Util::Log.newdestination(:console)
@@ -40,8 +40,10 @@ describe 'dns::zonecheck' do
       let(:facts) do
         facts
       end
+
       describe 'check default config' do
         it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_class('dns::zonecheck') }
         it do
           is_expected.to contain_package('zonecheck').with(
             'ensure'   => '1.0.14',
