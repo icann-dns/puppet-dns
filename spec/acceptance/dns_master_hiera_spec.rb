@@ -85,7 +85,7 @@ dns::default_masters:
 EOF
       dnsedge_hiera = <<EOF
 ---
-dns::daemon: nsd
+dns::daemon: knot
 dns::exports: ['mid_layer']
 dns::default_tsig_name: #{dnsedge}-test
 dns::tsigs:
