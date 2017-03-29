@@ -11,7 +11,7 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
         'ip6.arpa',
         'ip6-servers.arpa'
       ]
-      zones = [
+      other_zones = [
         'mcast.net',
         'as112.arpa',
         'example.com',
@@ -36,18 +36,19 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
         '238.in-addr.arpa',
         '239.in-addr.arpa'
       ]
+      allzones = in_addr_zones + ip6_zones + other_zones
       dnstop         = find_host_with_role('dnstop')
       dnstop_ip      = fact_on(dnstop, 'ipaddress')
       dnsmiddle      = find_host_with_role('dnsmiddle')
       dnsmiddle_ip   = fact_on(dnsmiddle, 'ipaddress')
+      dnsedge        = find_host_with_role('dnsedge')
+      dnsedge_ip     = fact_on(dnsedge, 'ipaddress')
       hiera_dir      = '/etc/puppetlabs/code/environments/production/hieradata'
       pp             = 'class { \'::dns\': }'
       common_hiera = <<EOS
 ---
 dns::zones:
-  #{in_addr_zones.join(": {}\n  ")}: {}
-  #{ip6_zones.join(": {}\n  ")}: {}
-  #{zones.join(": {}\n  ")}: {}
+  #{allzones.join(": {}\n  ")}: {}
 
 EOS
       dnstop_hiera = <<EOF
@@ -70,6 +71,7 @@ EOF
 ---
 dns::daemon: nsd
 dns::exports: ['top_layer']
+dns::imports: ['mid_layer']
 dns::default_tsig_name: #{dnsmiddle}-test
 dns::tsigs:
   #{dnsmiddle}-test:
@@ -81,6 +83,21 @@ dns::default_masters:
 - #{dnstop}
 
 EOF
+      dnsedge_hiera = <<EOF
+---
+dns::daemon: nsd
+dns::exports: ['mid_layer']
+dns::default_tsig_name: #{dnsedge}-test
+dns::tsigs:
+  #{dnsedge}-test:
+    data: L7WLyxJGM5X8tfmzMKdfaQt369JWxAMTmm09ZFgMTc4=
+dns::remotes:
+  #{dnsmiddle}:
+    address4: #{dnsmiddle_ip}
+dns::default_masters:
+- #{dnsmiddle}
+
+EOF
       create_remote_file(master, "#{hiera_dir}/common.yaml", common_hiera)
       on(master, "chmod +r #{hiera_dir}/common.yaml")
       on(master, "mkdir #{hiera_dir}/nodes/")
@@ -89,19 +106,27 @@ EOF
       on(master, "chmod +r #{hiera_dir}/nodes/#{dnstop}.yaml")
       create_remote_file(master, "#{hiera_dir}/nodes/#{dnsmiddle}.yaml", dnsmiddle_hiera)
       on(master, "chmod +r #{hiera_dir}/nodes/#{dnsmiddle}.yaml")
+      create_remote_file(master, "#{hiera_dir}/nodes/#{dnsedge}.yaml", dnsedge_hiera)
+      on(master, "chmod +r #{hiera_dir}/nodes/#{dnsedge}.yaml")
 
       it 'run puppet a bunch of times' do
         execute_manifest_on(dnstop, pp, catch_failures: true)
         execute_manifest_on(dnsmiddle, pp, catch_failures: true)
+        execute_manifest_on(dnsedge, pp, catch_failures: true)
         execute_manifest_on(dnstop, pp, catch_failures: true)
         execute_manifest_on(dnsmiddle, pp, catch_failures: true)
+        execute_manifest_on(dnsedge, pp, catch_failures: true)
         execute_manifest_on(dnstop, pp, catch_failures: true)
+        execute_manifest_on(dnsmiddle, pp, catch_failures: true)
       end
       it 'clean puppet run on dns master' do
         expect(execute_manifest_on(dnstop, pp, catch_failures: true).exit_code).to eq 0
       end
       it 'clean puppet run on dns dnsmiddle' do
         expect(execute_manifest_on(dnsmiddle, pp, catch_failures: true).exit_code).to eq 0
+      end
+      it 'clean puppet run on dns dnsedge' do
+        execute_manifest_on(dnsedge, pp, catch_failures: true)
       end
       # give a bit of time for all the zones to transfer
       it 'sleep for 2 minutes to allow tranfers to occur' do
@@ -131,23 +156,23 @@ EOF
       describe command('nsd-checkconf /usr/local/etc/nsd/nsd.conf || cat /usr/local/etc/nsd/nsd.conf'), if: os[:family] == 'freebsd', node: dnsmiddle do
         its(:stdout) { is_expected.to match %r{} }
       end
-      in_addr_zones.each do |zone|
-        soa_match = %r{b.in-addr-servers.arpa. nstld.iana.org.}
+      allzones.each do |zone|
+        if in_addr_zones.include?(zone)
+          soa_match = %r{b.in-addr-servers.arpa. nstld.iana.org.}
+        elsif ip6_zones.include?(zone)
+          soa_match = %r{b.ip6-servers.arpa. hostmaster.icann.org.}
+        else
+          soa_match = %r{sns.dns.icann.org. noc.dns.icann.org.}
+        end
+        describe command("dig +short soa #{zone}. @#{dnstop_ip}"), node: dnstop do
+          its(:exit_status) { is_expected.to eq 0 }
+          its(:stdout) { is_expected.to match soa_match }
+        end
         describe command("dig +short soa #{zone}. @#{dnsmiddle_ip}"), node: dnsmiddle do
           its(:exit_status) { is_expected.to eq 0 }
           its(:stdout) { is_expected.to match soa_match }
         end
-      end
-      ip6_zones.each do |zone|
-        soa_match = %r{b.ip6-servers.arpa. nstld.iana.org.}
-        describe command("dig +short soa #{zone}. @#{dnsmiddle_ip}"), node: dnsmiddle do
-          its(:exit_status) { is_expected.to eq 0 }
-          its(:stdout) { is_expected.to match soa_match }
-        end
-      end
-      zones.each do |zone|
-        soa_match = %r{sns.dns.icann.org. noc.dns.icann.org.}
-        describe command("dig +short soa #{zone}. @#{dnsmiddle_ip}"), node: dnsmiddle do
+        describe command("dig +short soa #{zone}. @#{dnsedge_ip}"), node: dnsedge do
           its(:exit_status) { is_expected.to eq 0 }
           its(:stdout) { is_expected.to match soa_match }
         end
