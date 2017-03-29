@@ -157,13 +157,13 @@ EOF
         its(:stdout) { is_expected.to match %r{} }
       end
       allzones.each do |zone|
-        if in_addr_zones.include?(zone)
-          soa_match = %r{b.in-addr-servers.arpa. nstld.iana.org.}
-        elsif ip6_zones.include?(zone)
-          soa_match = %r{b.ip6-servers.arpa. hostmaster.icann.org.}
-        else
-          soa_match = %r{sns.dns.icann.org. noc.dns.icann.org.}
-        end
+        soa_match = if in_addr_zones.include?(zone)
+                      %r{b.in-addr-servers.arpa. nstld.iana.org.}
+                    elsif ip6_zones.include?(zone)
+                      %r{b.ip6-servers.arpa. hostmaster.icann.org.}
+                    else
+                      %r{sns.dns.icann.org. noc.dns.icann.org.}
+                    end
         describe command("dig +short soa #{zone}. @#{dnstop_ip}"), node: dnstop do
           its(:exit_status) { is_expected.to eq 0 }
           its(:stdout) { is_expected.to match soa_match }
