@@ -1,7 +1,7 @@
 require 'spec_helper_acceptance'
 
 if ENV['BEAKER_TESTMODE'] == 'agent'
-  describe 'basic master (knot) dnsmiddle (nsd) config' do
+  describe 'complex hiera knot -> nsd -> knot' do
     context 'defaults' do
       in_addr_zones = [
         'in-addr.arpa',
