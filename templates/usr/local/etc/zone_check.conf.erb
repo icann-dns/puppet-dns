@@ -1,6 +1,25 @@
-<%- @config = { 
-  'zones' => @zones, 
+<%- 
+masters = @remotes.map  do |key, remote|  
+  if @masters.include?(key) 
+    [remote['address4'], remote['address6']] 
+  end
+end.flatten.compact
+provide_xfr = @remotes.map  do |key, remote|  
+  if @provide_xfrs.include?(key) 
+    [remote['address4'], remote['address6']] 
+  end
+end.flatten.compact
+zones = { 
+  'zoneset' => {
+    'masters' => masters,
+    'provide_xfr' => provide_xfr,
+    'zones' => @zones.keys
+  }
+}
+@config = { 
+  'zones' => zones, 
   'tsig' => @tsig, 
-  'ip_addresses' => @ip_addresses} 
+  'ip_addresses' => @ip_addresses
+} 
 -%>
 <%= @config.to_yaml %>

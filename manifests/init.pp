@@ -25,9 +25,6 @@ class dns (
 ) inherits dns::params {
   #class { '::dns::zonecheck':
   #  enable       => $enable_zonecheck,
-  #  ip_addresses => $ip_addresses,
-  #  zones        => $zones,
-  #  tsig         => $tsig,
   #}
 
   if $daemon == 'nsd' {

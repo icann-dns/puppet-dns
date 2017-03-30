@@ -31,7 +31,6 @@ describe 'dns::zonecheck' do
       #:tsig => {},
     }
   end
-
   # add these two lines in a single test block to enable puppet and hiera debug mode
   # Puppet::Util::Log.level = :debug
   # Puppet::Util::Log.newdestination(:console)
@@ -40,7 +39,46 @@ describe 'dns::zonecheck' do
   on_supported_os.each do |os, facts|
     context "on #{os}" do
       let(:facts) do
-        facts
+        facts.merge(
+          environment: 'production',
+          ipaddress: '192.0.2.2',
+          networking: { 'ip' => '192.0.2.1', 'ip6' => '2001:DB8::1' }
+        )
+      end
+      let(:pre_condition) do
+        'class {\'::dns\':
+          default_tsig_name => \'foobar\',
+          default_masters => [ \'master\' ],
+          default_provide_xfrs => [\'slave\'],
+          tsigs   => {
+            \'foobar\' => {
+              data => \'asdasd\'
+            }
+          },
+          zones => {
+            \'.\' => {},
+            \'arpa.\' => {},
+            \'root-servers.net.\' => {}
+          },
+          remotes => {
+            \'extra_allow_notify\' => {
+              \'address4\' => \'192.0.2.4\',
+              \'address6\' => \'2001:DB8::4\'
+            },
+            \'extra_notify\' => {
+              \'address4\' => \'192.0.2.3\',
+              \'address6\' => \'2001:DB8::3\'
+            },
+            \'master\' => {
+              \'address4\' => \'192.0.2.1\',
+              \'address6\' => \'2001:DB8::1\'
+            },
+            \'slave\' => {
+              \'address4\' => \'192.0.2.2\',
+              \'address6\' => \'2001:DB8::2\'
+            }
+          }
+        }'
       end
 
       describe 'check default config' do
@@ -56,11 +94,26 @@ describe 'dns::zonecheck' do
           is_expected.to contain_file('/usr/local/etc/zone_check.conf').with_ensure(
             'present'
           ).with_content(
-            %r{zones: \{\}}
-          ).with_content(
-            %r{tsig: \{\}}
-          ).with_content(
-            %r{ip_addresses: \[\]}
+            %r{
+              zones:
+              \s+zoneset:
+                \s+masters:
+                \s+-\s192.0.2.1
+                \s+-\s2001:DB8::1
+                \s+provide_xfr:
+                \s+-\s192.0.2.2
+                \s+-\s2001:DB8::2
+                \s+zones:
+                \s+-\s"."
+                \s+-\sarpa.
+                \s+-\sroot-servers.net.
+              \s+tsig:
+                \s+algo:\shmac-sha256
+                \s+name:\sfoobar
+                \s+data:\sasdasd
+              \s+ip_addresses:
+                \s+-\s192.0.2.2
+            }x
           )
         end
         it do
@@ -127,52 +180,6 @@ describe 'dns::zonecheck' do
             )
           end
         end
-        context 'ip_addresses' do
-          before { params.merge!(ip_addresses: ['192.2.0.1']) }
-          it { is_expected.to compile }
-          it do
-            is_expected.to contain_file(
-              '/usr/local/etc/zone_check.conf'
-            ).with_content(
-              %r{ip_addresses:\n-\s+192.2.0.1}
-            )
-          end
-        end
-        context 'zones' do
-          before do
-            params.merge!(
-              zones: { 'example.com' => { 'signed' => true } }
-            )
-          end
-          it { is_expected.to compile }
-          it do
-            is_expected.to contain_file(
-              '/usr/local/etc/zone_check.conf'
-            ).with_content(
-              %r{zones:\s+example.com:\s+signed: true}
-            )
-          end
-        end
-        context 'tsig' do
-          before do
-            params.merge!(
-              tsig: {
-                'example.com' => {
-                  'data' => 'foobar',
-                  'algo' => 'hmac-sha1'
-                }
-              }
-            )
-          end
-          it { is_expected.to compile }
-          it do
-            is_expected.to contain_file(
-              '/usr/local/etc/zone_check.conf'
-            ).with_content(
-              %r{tsig:\s+example.com:\s+data: foobar\s+algo: hmac-sha1}
-            )
-          end
-        end
       end
       describe 'check bad type' do
         context 'enable' do
@@ -189,18 +196,6 @@ describe 'dns::zonecheck' do
         end
         context 'syslog_bad string' do
           before { params.merge!(syslog_level: 'foobar') }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
-        end
-        context 'ip_addresses' do
-          before { params.merge!(ip_addresses: true) }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
-        end
-        context 'zones' do
-          before { params.merge!(zones: true) }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
-        end
-        context 'tsig' do
-          before { params.merge!(tsig: true) }
           it { expect { subject.call }.to raise_error(Puppet::Error) }
         end
       end

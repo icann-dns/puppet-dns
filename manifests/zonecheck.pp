@@ -4,10 +4,19 @@ class dns::zonecheck (
   Boolean                 $enable       = true,
   String                  $version      = '1.0.14',
   Tea::Syslog_level       $syslog_level = 'error',
-  Array[Tea::Ip_address]  $ip_addresses = [],
-  Hash[String, Dns::Zone] $zones        = {},
-  Hash                    $tsig         = {},
 ) {
+  $zones        = $::dns::zones
+  $ip_addresses = $::dns::ip_addresses
+  $masters      = $::dns::default_masters
+  $provide_xfrs = $::dns::default_provide_xfrs
+  $remotes      = $::dns::remotes
+  if has_key($::dns::tsigs, $::dns::default_tsig_name) {
+    $tsig = {
+      'algo' => 'hmac-sha256',
+      'name' => $::dns::default_tsig_name,
+      'data' => $::dns::tsigs[$::dns::default_tsig_name]['data'],
+    }
+  }
   $ensure = $enable ? {
     true    => 'present',
     default => 'absent',
