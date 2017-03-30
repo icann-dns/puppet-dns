@@ -51,6 +51,8 @@ hosts.each do |host|
 end
 if ENV['BEAKER_TESTMODE'] == 'agent'
   step 'install puppet enterprise'
+  # install_pe takes longer then 10 minutes so we create a bit of a hack
+  # to ensure we keep sending output so travis doesn't kill us
   _install_pe = fork do
     install_pe
   end
