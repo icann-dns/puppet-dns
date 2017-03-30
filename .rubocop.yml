@@ -1,6 +1,6 @@
 require: rubocop-rspec
 AllCops:
-  TargetRubyVersion: 1.9
+  TargetRubyVersion: 2.3
   Include:
     - ./**/*.rb
   Exclude:
@@ -38,6 +38,9 @@ Lint/ShadowingOuterLocalVariable:
 
 Lint/LiteralInInterpolation:
   Enabled: True
+
+Style/IndentHeredoc:
+  Enabled: False
 
 Style/HashSyntax:
   Enabled: True
