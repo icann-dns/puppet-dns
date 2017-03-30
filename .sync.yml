@@ -7,7 +7,6 @@
     - BEAKER_set="docker/ubuntu-master-14.04"
     - CHECK=beaker
     - BEAKER_TESTMODE=agent
-    - travis_wait
     sudo: required
     services:
     - docker
