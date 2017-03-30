@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'beaker-rspec'
 require 'beaker/testmode_switcher/dsl'
 require 'beaker-pe'

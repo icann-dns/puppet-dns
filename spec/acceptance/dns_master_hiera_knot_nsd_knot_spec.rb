@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper_acceptance'
 
 if ENV['BEAKER_TESTMODE'] == 'agent'
@@ -48,8 +50,7 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
       common_hiera = <<~END
       ---
       dns::zones:
-        #{allzones.join(": {}\n  ")}: {}
-      
+        #{allzones.join(": {}\n  ")}: {}\n
       END
       dnstop_hiera = <<~END
       ---
@@ -64,8 +65,7 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
           address6: 2620:0:2830:202::132
       dns::default_masters:
       - lax.xfr.dns.icann.org
-      - iad.xfr.dns.icann.org
-      
+      - iad.xfr.dns.icann.org\n
       END
       dnsmiddle_hiera = <<~END
       ---
@@ -80,11 +80,10 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
         #{dnstop}:
           address4: #{dnstop_ip}
       dns::default_masters:
-      - #{dnstop}
-      
+      - #{dnstop}\n
       END
       dnsedge_hiera = <<~END
-      ---
+  ---
       dns::daemon: knot
       dns::exports: ['mid_layer']
       dns::default_tsig_name: #{dnsedge}-test
@@ -95,8 +94,7 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
         #{dnsmiddle}:
           address4: #{dnsmiddle_ip}
       dns::default_masters:
-      - #{dnsmiddle}
-      
+      - #{dnsmiddle}\n
       END
       create_remote_file(master, "#{hiera_dir}/common.yaml", common_hiera)
       on(master, "chmod +r #{hiera_dir}/common.yaml")
@@ -142,6 +140,12 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
         it { is_expected.to be_running }
       end
       describe port(53), node: dnsmiddle do
+        it { is_expected.to be_listening }
+      end
+      describe service('nsd'), node: dnsedge do
+        it { is_expected.to be_running }
+      end
+      describe port(53), node: dnsedge do
         it { is_expected.to be_listening }
       end
       describe command('knotc -c /etc/knot/knot.conf checkconf || cat /etc/knot/knot.conf'), if: os[:family] == 'ubuntu', node: dnstop do
