@@ -53,7 +53,7 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
   step 'install puppet enterprise'
   # install_pe takes longer then 10 minutes so we create a bit of a hack
   # to ensure we keep sending output so travis doesn't kill us
-  _install_pe = fork do
+  install_pe_fork = fork do
     install_pe
   end
   progress = fork do
@@ -62,7 +62,7 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
       sleep 60
     end
   end
-  Process.wait(_install_pe)
+  Process.wait(install_pe_fork)
   Process.kill(15, progress)
   master = only_host_with_role(hosts, 'master')
   install_modules(master, modules, git_repos)
