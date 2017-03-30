@@ -5,6 +5,7 @@ class dns::zonecheck (
   String                  $version      = '1.0.14',
   Tea::Syslog_level       $syslog_level = 'error',
 ) {
+  include ::dns
   $zones        = $::dns::zones
   $ip_addresses = $::dns::ip_addresses
   $masters      = $::dns::default_masters
