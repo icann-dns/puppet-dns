@@ -67,7 +67,7 @@ HOSTS:
       - 'locale-gen en_US.UTF-8'
 CONFIG:
   trace_limit: 200
-  pe_debug: true
+  pe_debug: false
   pe_ver: 2016.4.3
   pe_dir: https://s3.amazonaws.com/pe-builds/released/2016.4.3
 ...
