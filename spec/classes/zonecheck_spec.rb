@@ -31,6 +31,7 @@ describe 'dns::zonecheck' do
       #:tsig => {},
     }
   end
+
   # add these two lines in a single test block to enable puppet and hiera debug mode
   # Puppet::Util::Log.level = :debug
   # Puppet::Util::Log.newdestination(:console)
