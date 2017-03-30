@@ -96,16 +96,18 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
       dns::default_masters:
       - #{dnsmiddle}\n
       END
-      create_remote_file(master, "#{hiera_dir}/common.yaml", common_hiera)
-      on(master, "chmod +r #{hiera_dir}/common.yaml")
-      on(master, "mkdir -p #{hiera_dir}/nodes/")
-      on(master, "chmod +rx #{hiera_dir}/nodes/")
-      create_remote_file(master, "#{hiera_dir}/nodes/#{dnstop}.yaml", dnstop_hiera)
-      on(master, "chmod +r #{hiera_dir}/nodes/#{dnstop}.yaml")
-      create_remote_file(master, "#{hiera_dir}/nodes/#{dnsmiddle}.yaml", dnsmiddle_hiera)
-      on(master, "chmod +r #{hiera_dir}/nodes/#{dnsmiddle}.yaml")
-      create_remote_file(master, "#{hiera_dir}/nodes/#{dnsedge}.yaml", dnsedge_hiera)
-      on(master, "chmod +r #{hiera_dir}/nodes/#{dnsedge}.yaml")
+      it 'copy hiera files' do
+        create_remote_file(master, "#{hiera_dir}/common.yaml", common_hiera)
+        on(master, "chmod +r #{hiera_dir}/common.yaml")
+        on(master, "mkdir -p #{hiera_dir}/nodes/")
+        on(master, "chmod +rx #{hiera_dir}/nodes/")
+        create_remote_file(master, "#{hiera_dir}/nodes/#{dnstop}.yaml", dnstop_hiera)
+        on(master, "chmod +r #{hiera_dir}/nodes/#{dnstop}.yaml")
+        create_remote_file(master, "#{hiera_dir}/nodes/#{dnsmiddle}.yaml", dnsmiddle_hiera)
+        on(master, "chmod +r #{hiera_dir}/nodes/#{dnsmiddle}.yaml")
+        create_remote_file(master, "#{hiera_dir}/nodes/#{dnsedge}.yaml", dnsedge_hiera)
+        on(master, "chmod +r #{hiera_dir}/nodes/#{dnsedge}.yaml")
+      end
 
       it 'run puppet a bunch of times' do
         execute_manifest_on(dnstop, pp, catch_failures: true)
