@@ -3,6 +3,7 @@
 require 'beaker-rspec'
 require 'beaker/testmode_switcher/dsl'
 require 'beaker-pe'
+require 'progressbar'
 
 modules = [
   'puppetlabs-stdlib',
@@ -35,6 +36,7 @@ def install_modules(host, modules, git_repos)
 end
 # Install Puppet on all hosts
 hosts.each do |host|
+  step "install packages on #{host}"
   host.install_package('git')
   if host['platform'] =~ %r{freebsd}
     # default installs incorect version
@@ -49,7 +51,23 @@ hosts.each do |host|
 end
 if ENV['BEAKER_TESTMODE'] == 'agent'
   step 'install puppet enterprise'
-  install_pe
+  _install_pe = fork do
+    install_pe
+  end
+  progress = fork do
+    progressbar = ProgressBar.create(title: "Installing puppet Enterprise", total: nil)
+    trap "INT" do
+      progressbar.total = 100
+      progressbar.finish
+      exit
+    end
+    loop do
+      progressbar.increment
+      sleep 1
+    end
+  end
+  Process.wait(_install_pe)
+  Process.kill(2, progress)
   master = only_host_with_role(hosts, 'master')
   install_modules(master, modules, git_repos)
 else
