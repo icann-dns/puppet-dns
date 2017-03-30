@@ -55,19 +55,13 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
     install_pe
   end
   progress = fork do
-    progressbar = ProgressBar.create(title: "Installing puppet Enterprise", total: nil)
-    trap "INT" do
-      progressbar.total = 100
-      progressbar.finish
-      exit
-    end
     loop do
-      progressbar.increment
-      sleep 1
+      step 'Still installing puppet enterprise'
+      sleep 60
     end
   end
   Process.wait(_install_pe)
-  Process.kill(2, progress)
+  Process.kill(15, progress)
   master = only_host_with_role(hosts, 'master')
   install_modules(master, modules, git_repos)
 else
