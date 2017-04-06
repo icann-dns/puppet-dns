@@ -4,6 +4,8 @@
 
 # dns
 
+# WARNING: 0.2.x is *NOT* backwards compatiple with 0.1.x
+
 #### Table of Contents
 
 1. [Overview](#overview)
