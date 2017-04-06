@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'dns' do
@@ -9,34 +11,28 @@ describe 'dns' do
   # include_context :hiera
   let(:node) { 'dns.example.com' }
 
-  # below is the facts hash that gives you the ability to mock
-  # facts on a per describe/context block.  If you use a fact in your
-  # manifest you should mock the facts below.
-  let(:facts) do
-    {}
-  end
-
   # below is a list of the resource parameters that you can override.
   # By default all non-required parameters are commented out,
   # while all required parameters will require you to add a value
   let(:params) do
     {
-      #:daemon => "$::dns::params::daemon",
-      #:slaves_target => "$::dns::params::slaves_target",
-      #:tsigs_target => "$::dns::params::tsigs_target",
-      #:nsid => "$::dns::params::nsid",
-      #:identity => "$::dns::params::identity",
-      #:ip_addresses => [],
-      #:master => false,
-      instance: 'test',
-      #:ensure => "present",
-      #:enable_zonecheck => true,
-      #:zones => {},
-      #:files => {},
-      #:tsig => {},
-      #:enable_nagios => false,
+      # :daemon => "$::dns::params::daemon",
+      # :slaves_target => "$::dns::params::slaves_target",
+      # :tsigs_target => "$::dns::params::tsigs_target",
+      # :nsid => "$::dns::params::nsid",
+      # :identity => "$::dns::params::identity",
+      # :ip_addresses => [],
+      # :exports => [],
+      # :imports => [],
+      # :ensure => "present",
+      # :enable_zonecheck => true,
+      # :zones => {},
+      # :files => {},
+      # :tsig => {},
+      # :enable_nagios => false,
     }
   end
+
   # add these two lines in a single test block to enable puppet and hiera debug mode
   # Puppet::Util::Log.level = :debug
   # Puppet::Util::Log.newdestination(:console)
@@ -44,11 +40,12 @@ describe 'dns' do
     context "on #{os}" do
       let(:facts) do
         facts.merge(
-          'dns_slave_tsigs' => {},
-          'dns_slave_addresses' => {},
-          'ipaddress' => '192.0.2.2'
+          environment: 'production',
+          ipaddress: '192.0.2.2',
+          networking: { 'ip' => '192.0.2.1', 'ip6' => '2001:DB8::1' }
         )
       end
+
       case facts[:operatingsystem]
       when 'Ubuntu'
         case facts['lsbdistcodename']
@@ -68,27 +65,9 @@ describe 'dns' do
       end
       describe 'check default config' do
         it { is_expected.to compile.with_all_deps }
+        it { is_expected.to contain_class('dns') }
         it { is_expected.to contain_class('dns::params') }
-        it do
-          is_expected.to contain_package('zonecheck').with(
-            'ensure' => '1.0.14',
-            'provider' => 'pip'
-          )
-        end
-        it do
-          is_expected.to contain_file('/usr/local/etc/zone_check.conf').with(
-            'ensure' => 'present'
-          ).with_content(
-            %r{192.0.2.2}
-          )
-        end
-        it do
-          is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
-            'ensure' => 'present',
-            'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -v',
-            'minute' => '*/15'
-          )
-        end
+        # it { is_expected.to contain_class('dns::zonecheck') }
         it do
           is_expected.to contain_file('/usr/local/bin/dns-control').with(
             'ensure' => 'link',
@@ -96,91 +75,44 @@ describe 'dns' do
           )
         end
         it do
-          expect(exported_resources).to contain_concat__fragment('dns_slave_tsig_yaml_foo.example.com').with(
-            'target' => '/etc/puppetlabs/facter/facts.d/dns_slave_tsigs.yaml',
-            'tag' => 'dns::test_slave_tsigs',
-            'order' => '10'
-          ).with_content(
-            %r{# foo.example.com}
-          ).with_content(
-            %r{algo:\s+$}
-          ).with_content(
-            %r{data:\s+''$}
-          )
-        end
-        it do
-          expect(exported_resources).to contain_concat__fragment('dns_slave_addresses_yaml_foo.example.com').with(
-            'target' => '/etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml',
-            'tag' => 'dns::test_slave_interface_yaml',
-            'content' => "# foo.example.com\n",
-            'order' => '10'
-          )
-        end
-        it do
           is_expected.to contain_class('nsd').with(
-            'enable' => nsd_enable,
-            'ip_addresses' => ['192.0.2.2'],
-            'tsigs' => {},
-            'slave_addresses' => {},
-            'zones' => {},
-            'tsig' => {},
-            'server_count' => 1,
-            'files' => {},
-            'nsid' => 'foo.example.com',
-            'identity' => 'foo.example.com'
+            enable: nsd_enable,
+            ip_addresses: ['192.0.2.2'],
+            server_count: 1,
+            nsid: 'foo.example.com',
+            identity: 'foo.example.com',
+            files: {},
+            zones: {},
+            tsigs: {},
+            remotes: {}
           )
         end
         it do
           is_expected.to contain_class('knot').with(
-            'enable' => knot_enable,
-            'ip_addresses' => ['192.0.2.2'],
-            'tsigs' => {},
-            'slave_addresses' => {},
-            'zones' => {},
-            'tsig' => {},
-            'server_count' => 1,
-            'files' => {},
-            'nsid' => 'foo.example.com',
-            'identity' => 'foo.example.com'
+            enable: knot_enable,
+            ip_addresses: ['192.0.2.2'],
+            server_count: 1,
+            nsid: 'foo.example.com',
+            identity: 'foo.example.com',
+            files: {},
+            zones: {},
+            tsigs: {},
+            remotes: {}
           )
         end
       end
       describe 'Change Defaults' do
-        context 'slaves_target' do
-          before { params.merge!(master: true, slaves_target: '/tmp') }
-          it { is_expected.to compile }
-          it { is_expected.to contain_concat('/tmp') }
-          it do
-            is_expected.to contain_concat__fragment('dns_slave_addresses_yaml_foo.example.com').with(
-              'target' => '/tmp',
-              'content' => "dns_slave_addresses:\n",
-              'order' => '01'
-            )
-          end
-        end
-        context 'tsigs_target' do
-          before { params.merge!(master: true, tsigs_target: '/tmp') }
-          it { is_expected.to compile }
-          it { is_expected.to contain_concat('/tmp') }
-          it do
-            is_expected.to contain_concat__fragment('dns_slave_tsigs_yaml_foo.example.com').with(
-              'target' => '/tmp',
-              'content' => "dns_slave_tsigs:\n",
-              'order' => '01'
-            )
-          end
-        end
         context 'nsid' do
           before { params.merge!(nsid: 'foobar') }
           it { is_expected.to compile }
-          it { is_expected.to contain_class('knot').with('nsid' => 'foobar') }
-          it { is_expected.to contain_class('nsd').with('nsid' => 'foobar') }
+          it { is_expected.to contain_class('knot').with_nsid('foobar') }
+          it { is_expected.to contain_class('nsd').with_nsid('foobar') }
         end
         context 'identity' do
           before { params.merge!(identity: 'foobar') }
           it { is_expected.to compile }
-          it { is_expected.to contain_class('knot').with('identity' => 'foobar') }
-          it { is_expected.to contain_class('nsd').with('identity' => 'foobar') }
+          it { is_expected.to contain_class('knot').with_identity('foobar') }
+          it { is_expected.to contain_class('nsd').with_identity('foobar') }
         end
         context 'ip_addresses' do
           before do
@@ -188,46 +120,27 @@ describe 'dns' do
           end
           it { is_expected.to compile }
           it do
-            is_expected.to contain_file('/usr/local/etc/zone_check.conf').with_content(
-              %r{192.0.2.2}
-            ).with_content(
-              %r{2001:DB8::1}
+            is_expected.to contain_class('nsd').with_ip_addresses(
+              ['192.0.2.2', '2001:DB8::1']
+            )
+          end
+          it do
+            is_expected.to contain_class('knot').with_ip_addresses(
+              ['192.0.2.2', '2001:DB8::1']
             )
           end
         end
-        context 'master' do
-          before { params.merge!(master: true) }
+        context 'exports' do
+          before { params.merge!(exports: ['foobar']) }
           it { is_expected.to compile }
           it do
-            is_expected.to contain_concat('/etc/puppetlabs/facter/facts.d/dns_slave_tsigs.yaml')
-          end
-          it do
-            is_expected.to contain_concat__fragment('dns_slave_tsigs_yaml_foo.example.com').with(
-              'target' => '/etc/puppetlabs/facter/facts.d/dns_slave_tsigs.yaml',
-              'content' => "dns_slave_tsigs:\n",
-              'order' => '01'
-            )
-          end
-          it do
-            is_expected.to contain_concat('/etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml')
-          end
-          it do
-            is_expected.to contain_concat__fragment('dns_slave_addresses_yaml_foo.example.com').with(
-              'target' => '/etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml',
-              'content' => "dns_slave_addresses:\n",
-              'order' => '01'
-            )
-          end
-        end
-        context 'instance' do
-          before { params.merge!(instance: 'foobar') }
-          it { is_expected.to compile }
-          it do
-            expect(exported_resources).to contain_concat__fragment('dns_slave_addresses_yaml_foo.example.com').with(
-              'target' => '/etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml',
-              'tag' => 'dns::foobar_slave_interface_yaml',
-              'content' => "# foo.example.com\n",
-              'order' => '10'
+            expect(exported_resources).to contain_dns__remote(
+              'dns__export_foobar_foo.example.com'
+            ).with(
+              address4: '192.0.2.1',
+              address6: '2001:DB8::1',
+              tsig_name: nil,
+              port: 53
             )
           end
         end
@@ -240,64 +153,24 @@ describe 'dns' do
         context 'enable_zonecheck' do
           before { params.merge!(enable_zonecheck: false) }
           it { is_expected.to compile }
-          it { is_expected.not_to contain_package('zonecheck') }
-          it do
-            is_expected.to contain_file('/usr/local/etc/zone_check.conf').with_ensure(
-              'absent'
-            )
-          end
-          it do
-            is_expected.to contain_cron('/usr/local/bin/zonecheck').with_ensure(
-              'absent'
-            )
-          end
-        end
-        context 'zone check log level critical' do
-          before { params.merge!(zonecheck_loglevel: 'critical') }
-          it { is_expected.to compile }
-          it do
-            is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
-              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts '
-            )
-          end
-        end
-        context 'zone check log level warn' do
-          before { params.merge!(zonecheck_loglevel: 'warn') }
-          it { is_expected.to compile }
-          it do
-            is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
-              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vv'
-            )
-          end
-        end
-        context 'zone check log level info' do
-          before { params.merge!(zonecheck_loglevel: 'info') }
-          it { is_expected.to compile }
-          it do
-            is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
-              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vvv'
-            )
-          end
-        end
-        context 'zone check log level debug' do
-          before { params.merge!(zonecheck_loglevel: 'debug') }
-          it { is_expected.to compile }
-          it do
-            is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
-              'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vvvv'
-            )
-          end
+          # it { is_expected.to contain_class('dns::zonecheck').with_enable(false) }
         end
         context 'zones' do
           before do
             params.merge!(
               zones: {
                 'example.com' => {
-                  'masters'          => ['192.0.2.1'],
-                  'notify_addresses' => ['192.0.2.1'],
-                  'allow_notify'     => ['192.0.2.1'],
-                  'provide_xfr'      => ['192.0.2.1'],
-                  'zones'            => ['example.com']
+                  'signed' => true,
+                  'masters' => ['master.example.com'],
+                  'provide_xfrs' => ['slave.example.com']
+                }
+              },
+              remotes: {
+                'master.example.com' => {
+                  'address4' => '192.0.2.1'
+                },
+                'slave.example.com' => {
+                  'address4' => '192.0.2.2'
                 }
               }
             )
@@ -307,26 +180,34 @@ describe 'dns' do
         context 'files' do
           before do
             params.merge!(
-              files: { 'test' => { 'source' => 'puppet:///source' } }
+              files: { 'test' => { 'source' => 'puppet:///modules/dns/source' } }
             )
           end
           it { is_expected.to compile }
         end
-        context 'tsig' do
-          before { params.merge!(tsig: { 'name' => 'test', 'data' => 'aaaa' }) }
+        context 'tsigs' do
+          before { params.merge!(tsigs: { 'test' => { 'data' => 'aaaa' } }) }
           it { is_expected.to compile }
+          it { is_expected.to contain_nsd__tsig('test') }
+          it { is_expected.to contain_knot__tsig('test') }
         end
-        context 'enable_nagios' do
+        context 'enable_nagios only v4' do
           before do
             params.merge!(
               enable_nagios: true,
               zones: {
                 'example.com' => {
-                  'masters'          => ['192.0.2.1'],
-                  'notify_addresses' => ['192.0.2.1'],
-                  'allow_notify'     => ['192.0.2.1'],
-                  'provide_xfr'      => ['192.0.2.1'],
-                  'zones'            => ['example.com']
+                  'signed'  => true,
+                  'masters' => ['master.example.com'],
+                  'provide_xfrs' => ['slave.example.com']
+                }
+              },
+              remotes: {
+                'master.example.com' => {
+                  'address4' => '192.0.2.1'
+                },
+                'slave.example.com' => {
+                  'address4' => '192.0.2.2'
                 }
               }
             )
@@ -343,6 +224,73 @@ describe 'dns' do
             )
           end
         end
+        context 'enable_nagios only v6' do
+          before do
+            params.merge!(
+              enable_nagios: true,
+              zones: {
+                'example.com' => {
+                  'signed'  => true,
+                  'masters' => ['master.example.com'],
+                  'provide_xfrs' => ['slave.example.com']
+                }
+              },
+              remotes: {
+                'master.example.com' => {
+                  'address6' => '2001:DB8::1'
+                },
+                'slave.example.com' => {
+                  'address4' => '192.0.2.2'
+                }
+              }
+            )
+          end
+          it { is_expected.to compile }
+          it do
+            expect(exported_resources).to contain_nagios_service(
+              'foo.example.com_DNS_ZONE_MASTERS_example.com'
+            ).with(
+              'use' => 'generic-service',
+              'host_name' => 'foo.example.com',
+              'service_description' => 'DNS_ZONE_MASTERS_example.com',
+              'check_command' => 'check_nrpe_args!check_dns!example.com!2001:DB8::1!192.0.2.2'
+            )
+          end
+        end
+        context 'enable_nagios only v4 and v6' do
+          before do
+            params.merge!(
+              enable_nagios: true,
+              zones: {
+                'example.com' => {
+                  'signed'  => true,
+                  'masters' => ['master.example.com'],
+                  'provide_xfrs' => ['slave.example.com']
+                }
+              },
+              remotes: {
+                'master.example.com' => {
+                  'address4' => '192.0.2.1',
+                  'address6' => '2001:DB8::1'
+                },
+                'slave.example.com' => {
+                  'address4' => '192.0.2.2'
+                }
+              }
+            )
+          end
+          it { is_expected.to compile }
+          it do
+            expect(exported_resources).to contain_nagios_service(
+              'foo.example.com_DNS_ZONE_MASTERS_example.com'
+            ).with(
+              'use' => 'generic-service',
+              'host_name' => 'foo.example.com',
+              'service_description' => 'DNS_ZONE_MASTERS_example.com',
+              'check_command' => 'check_nrpe_args!check_dns!example.com!192.0.2.1 2001:DB8::1!192.0.2.2'
+            )
+          end
+        end
       end
       describe 'check bad type' do
         context 'daemon' do
@@ -351,14 +299,6 @@ describe 'dns' do
         end
         context 'daemon bad option' do
           before { params.merge!(daemon: 'foobar') }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
-        end
-        context 'slaves_target' do
-          before { params.merge!(slaves_target: true) }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
-        end
-        context 'tsigs_target' do
-          before { params.merge!(tsigs_target: true) }
           it { expect { subject.call }.to raise_error(Puppet::Error) }
         end
         context 'nsid' do
@@ -373,12 +313,12 @@ describe 'dns' do
           before { params.merge!(ip_addresses: true) }
           it { expect { subject.call }.to raise_error(Puppet::Error) }
         end
-        context 'master' do
-          before { params.merge!(master: 'foobar') }
+        context 'exports' do
+          before { params.merge!(exports: true) }
           it { expect { subject.call }.to raise_error(Puppet::Error) }
         end
-        context 'instance' do
-          before { params.merge!(instance: true) }
+        context 'imports' do
+          before { params.merge!(imports: true) }
           it { expect { subject.call }.to raise_error(Puppet::Error) }
         end
         context 'ensure' do
@@ -401,12 +341,8 @@ describe 'dns' do
           before { params.merge!(files: true) }
           it { expect { subject.call }.to raise_error(Puppet::Error) }
         end
-        context 'tsig' do
-          before { params.merge!(tsig: true) }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
-        end
         context 'enable_nagios' do
-          before { params.merge!(tsig: '') }
+          before { params.merge!(enable_nagios: '') }
           it { expect { subject.call }.to raise_error(Puppet::Error) }
         end
       end

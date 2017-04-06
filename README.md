@@ -4,6 +4,8 @@
 
 # dns
 
+# WARNING: 0.2.x is *NOT* backwards compatiple with 0.1.x
+
 #### Table of Contents
 
 1. [Overview](#overview)
@@ -34,19 +36,20 @@ This module acts as an interface to icann-nsd and icann-knot to allow the same c
 * installs and manages icann-knot
 * installs and manages icann-nsd
 * dynamicly sets processor count based on installed processes
-* Optionaly install zonecheck python library and associated cron job.  if the is a problem mwith dns a custom fact is created which can be used by other modules (see icann-quagga)
+* Optionaly install zonecheck python library and associated cron job.  (if thier is a problem with dns a custom fact is created which can be used by other modules, see icann-quagga)
 
 ### Setup Requirements 
 
-* puppetlabs-stdlib 4.12.0 (may work with earlier versions)
+* puppetlabs-stdlib 4.12.0
 * puppetlabs-concat 1.2.0
-* icann-knot 0.1.3
-* icann-nsd 0.1.3
+* icann-knot 0.2.0
+* icann-nsd 0.2.0
+* icann-tea 0.2.8
 * stankevich-python 1.15.0
 
 ### Beginning with dns
 
-install either icann-nsd or -cann-knot depending on the operating system:
+install either a dns daemon, which one depends on OS:
 
 ```puppet 
 class { '::dns': }
@@ -75,11 +78,13 @@ dns::enable_zonecheck: false
 Add config with primary tsig key
 
 ```puppet
-class {'::dns': 
-  tsig => {
-    'name' => 'test',
-    'algo' => 'hmac-sha256',
-    'data' => 'adsasdasdasd='
+class {'::dns':
+  default_tsig_name: 'test',
+  tsigs => {
+    'test',=>  {
+      'algo' => 'hmac-sha256',
+      'data' => 'adsasdasdasd='
+    }
   }
 }
 ```
@@ -87,28 +92,34 @@ class {'::dns':
 or with hiera
 
 ```yaml
-dns::tsig:
-  name: test
-  algo: hmac-sha256
-  data: adsasdasdasd=
+nsd::default_tsig_name: test
+nsd::tsigs:
+  test:
+    algo: hmac-sha256
+    data: adsasdasdasd=
 ```
 
 add zone files.  zone files are added with sets of common config.
 
 ```puppet
-class {'::dns': 
+class {'::nsd':
+  remotes => {
+    master_v4 => { 'address4' => '192.0.2.1' },
+    master_v6 => { 'address6' => '2001:DB8::1' },
+    slave     => { 'address4' => '192.0.2.2' },
+  }
   zones => {
-    'master1_zones' => {
-      'allow_notify' => ['192.0.2.1'],
-      'masters'      => ['192.0.2.1'],
-      'provide_xfr'  => ['127.0.0.1'],
-      'zones'        => ['example.com', 'example.net']
+    'example.com' => {
+      'masters' => ['master_v4', 'master_v6']
+      'provide_xfrs'  => ['slave'],
     },
-    'master2_zones'  => {
-      'allow_notify' => ['192.0.2.2'],
-      'masters'      => ['192.0.2.2'],
-      'provide_xfr'  => ['127.0.0.2'],
-      'zones'        => ['example.org']
+    'example.net' => {
+      'masters' => ['master_v4', 'master_v6']
+      'provide_xfrs'  => ['slave'],
+    }
+    'example.org' => {
+      'masters' => ['master_v4', 'master_v6']
+      'provide_xfrs'  => ['slave'],
     }
   }
 }
@@ -117,185 +128,174 @@ class {'::dns':
 in hiera
 
 ```yaml
-dns::zones:
-  master1_zones:
-    allow_notify:
-    - 192.0.2.1
-    masters:
-    - 192.0.2.1
-    provide_xfr:
-    - 192.0.2.1
-    zones:
-    - example.com
-    - example.net
-  master2_zones:
-    allow_notify:
-    - 192.0.2.2
-    masters:
-    - 192.0.2.2
-    provide_xfr:
-    - 192.0.2.2
-    zones:
-    - example.org
+nsd::remotes:
+  master_v4:
+    address4: 192.0.2.1
+  master_v6:
+    address4: 2001:DB8::1
+  slave:
+    address4: 192.0.2.2
+nsd::zones:
+  example.com:
+    masters: &id001
+    - master_v4
+    - master_v6
+    provide_xfrs: &id002
+    - slave
+  example.net:
+    masters: *id001
+    slave: *id002
+  example.org:
+    masters: *id001
+    slave: *id002
 ```
 
-creat and as112 server also uses the dns::file resource
+create and as112 server
 
 ```puppet
-  class {'::dns': 
-    zones =>  {
-      'rfc1918' => { 
-        'zonefile' => 'db.dd-empty',
-        'zones' => [
-          '10.in-addr.arpa',
-          '16.172.in-addr.arpa',
-          '17.172.in-addr.arpa',
-          '18.172.in-addr.arpa',
-          '19.172.in-addr.arpa',
-          '20.172.in-addr.arpa',
-          '21.172.in-addr.arpa',
-          '22.172.in-addr.arpa',
-          '23.172.in-addr.arpa',
-          '24.172.in-addr.arpa',
-          '25.172.in-addr.arpa',
-          '26.172.in-addr.arpa',
-          '27.172.in-addr.arpa',
-          '28.172.in-addr.arpa',
-          '29.172.in-addr.arpa',
-          '30.172.in-addr.arpa',
-          '31.172.in-addr.arpa',
-          '168.192.in-addr.arpa',
-          '254.169.in-addr.arpa'
-        ]
-      },
-      'empty.as112.arpa' => {
-        'zonefile' => 'db.dr-empty',
-        'zones'    => ['empty.as112.arpa'],
-      },
-      'hostname.as112.net' => {
-        'zonefile' => 'hostname.as112.net.zone',
-        'zones'    =>  ['hostname.as112.net'],
-      }
-      'hostname.as112.arpa' => {
-        'zonefile' => 'hostname.as112.arpa.zone',
-        'zones'    => ['hostname.as112.arpa'],
-      },
-    },
-    files => {
-      'db.dd-empty' => {
-        source  => 'puppet:///modules/dns/etc/dns/db.dd-empty',
-      },
-      'db.dr-empty' => {
-        source  => 'puppet:///modules/dns/etc/dns/db.dr-empty',
-      }
-      'hostname.as112.net.zone' => {
-        content_template => 'dns/etc/dns/hostname.as112.net.zone.erb',
-      }
-      'hostname.as112.arpa.zone' => {
-        content_template => 'dns/etc/dns/hostname.as112.arpa.zone.erb',
-      }
-    }
-  }
-```
-
-```yaml
-dns::files:
-  db.dd-empty:
-    source: 'puppet:///modules/dns/etc/dns/db.dd-empty'
-  db.dr-empty:
-    source: 'puppet:///modules/dns/etc/dns/db.dr-empty'
-  hostname.as112.net.zone:
-    content_template: 'dns/etc/dns/hostname.as112.net.zone.erb'
-  hostname.as112.arpa.zone:
-    content_template: 'dns/etc/dns/hostname.as112.arpa.zone.erb'
-dns::zones:
-  rfc1918:
-    zonefile: db.dd-empty
-    zones:
-    - 10.in-addr.arpa
-    - 16.172.in-addr.arpa
-    - 17.172.in-addr.arpa
-    - 18.172.in-addr.arpa
-    - 19.172.in-addr.arpa
-    - 20.172.in-addr.arpa
-    - 21.172.in-addr.arpa
-    - 22.172.in-addr.arpa
-    - 23.172.in-addr.arpa
-    - 24.172.in-addr.arpa
-    - 25.172.in-addr.arpa
-    - 26.172.in-addr.arpa
-    - 27.172.in-addr.arpa
-    - 28.172.in-addr.arpa
-    - 29.172.in-addr.arpa
-    - 30.172.in-addr.arpa
-    - 31.172.in-addr.arpa
-    - 168.192.in-addr.arpa
-    - 254.169.in-addr.arpa
-  'empty.as112.arpa':
-    zonefile: db.dr-empty
-    zones:
-    - empty.as112.arpa
-  'hostname.as112.net':
-    zonefile: hostname.as112.net.zone
-    zones:
-    - hostname.as112.net
-  'hostname.as112.arpa':
-    zonefile: hostname.as112.arpa.zone
-    zones:
-    - hostname.as112.arpa
+class {'::nsd::as112': }
 ```
 
 #### Master Slave Config
 
-This module makes use of exported concat fragments so that we can configure slave IP address and TSIG keys on the master server.  This is done by managing the following files in the custom facts directory on the master server.
-  * /etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml
-  * /etc/puppetlabs/facter/facts.d/dns_slave_tsigs.yaml.
+This module makes exports dns::tsig and dns::remote objects from one set of servers and imports them into another set of servers to allow you to configure master slave relations
 
-As we are relying on custom facts this means that there will be a delay as to when the slave server is configurered on the master server the flow is as follows.  In a future release it is intended to remove the reliance on the custom facts dir (pull requests welcome)
-  1) Slave server runs puppet and exports slave configueration
-  2) Master server runs puppet and updates custom facts file
-  3) master server runs and now sees the new servers configuered by the custom facts
+The parameters `dns::imports` and `dns::exports` are used to create pairs.  if one server has `dns::exports = ['test']` then a master server would import this config by including `dns::imports = ['test']`.  The way that the importing and exporting works in the nsd and knot modules assumes you are running a monolithic install.  Other puppet configuerations will need some effort to get working.
 
-The parameter `dns::instance` is used to create pairs.  All slaves in the same instance will be configured on all masters with the same instance.
+####  Simple master server example
 
-puppet policy
+The following is an example where we have one server pull the root zones from xfr.dns.icann.org and then distributes the zones to a second layer of dns servers that use tsig keys, note the TSIG key was created specificly for this example it should not be used in a production environment.  the following examples will use hiera for config
+
+##### Distributions server
+Assume the ip address of this server is 192.0.2.1
+
 ```puppet
-#Master server ip address = 192.0.2.2
-#Slave server ip address = 192.0.2.3
 include dns
 ```
 
-Slave hiera config
 ```yaml
-dns::instance: example.com
-dns::tsig:
-    algo: hmac-sha256
-    data: AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA=
-    name: slave.example.com
+dns::imports: ['rootserver']
+dns::remotes:
+  lax.xfr.dns.icann.org:
+    address4: 192.0.32.132
+    address6: 2620:0:2d0:202::132
+  iad.xfr.dns.icann.org:
+    address4: 192.0.47.132
+    address6: 2620:0:2830:202::132
+dns::default_masters:
+- lax.xfr.dns.icann.org
+- iad.xfr.dns.icann.org
 dns::zones:
-  example:
-    allow_notify:
-    - 192.0.2.2
-    masters:
-    - 192.0.2.2
-    zones:
-    - example.com
-    - example.net
+  '.':
+    zonefile: root
+  'arpa.': {}
+  'root-servers.net.': {}
 ```
 
-Master hiera config
-```yaml
-dns::master: true
-dns::instance: example.com
-dns::tsig:
-    algo: hmac-sha256
-    data: BBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBBB=
-    name: master.example.com
+##### Edge server
+dns::exports: ['rootserver']
+dns::tsigs:
+  edge_tsig:
+    data: 'qneKJvaiXqVrfrS4v+Oi/9GpLqrkhSGLTCZkf0dyKZ0='
+dns::remotes:
+  distribution_server:
+    address4: 192.0.2.1
+dns::default_masters:
+- distribution_server
 dns::zones:
-  example.com:
-    zones:
-    - example.com
-    - example.net
+  '.':
+    zonefile: root
+  'arpa.': {}
+  'root-servers.net.': {}
+
+####  Complex master server example
+
+  The following is an example where we have three layers of server top layer -> middle -> edge.  The basics of this is to demonstrate how a server (middle) can both import and export configuration.  This example will also use hiera  with a hierarchy as follows, this allows you to configure the zones in one common locatio9ns and the relations ships in the node specific filess, this allows you to configure the zones in one common locatio9ns and the relations ships in the node specific files
+
+```yaml
+:hierarchy:
+  - "nodes/%{trusted.certname}"
+  - "common"
+```
+##### Common.yaml
+
+```yaml
+dns::zones:
+- in-addr.arpa
+- in-addr-servers.arpa
+- ip6.arpa
+- ip6-servers.arpa
+- mcast.net
+- as112.arpa
+- example.com
+- example.edu
+- example.net
+- example.org
+- ipv4only.arpa
+- 224.in-addr.arpa
+- 225.in-addr.arpa
+- 226.in-addr.arpa
+- 227.in-addr.arpa
+- 228.in-addr.arpa
+- 229.in-addr.arpa
+- 230.in-addr.arpa
+- 231.in-addr.arpa
+- 232.in-addr.arpa
+- 233.in-addr.arpa
+- 234.in-addr.arpa
+- 235.in-addr.arpa
+- 236.in-addr.arpa
+- 237.in-addr.arpa
+- 238.in-addr.arpa
+- 239.in-addr.arpa
+```
+#####  Top layer server:
+Assume the ip address of this server is 192.0.2.1
+
+```yaml
+dns::imports: ['top_layer']
+dns::daemon: nsd
+dns::remotes:
+  lax.xfr.dns.icann.org:
+    address4: 192.0.32.132
+    address6: 2620:0:2d0:202::132
+  iad.xfr.dns.icann.org:
+    address4: 192.0.47.132
+    address6: 2620:0:2830:202::132
+dns::default_masters:
+- lax.xfr.dns.icann.org
+- iad.xfr.dns.icann.org
+```
+
+#####  Mid layer server:
+Assume the ip address of this server is 192.0.2.2
+
+```yaml
+dns::exports: ['top_layer']
+dns::imports: ['mid_layer']
+dns::default_tsig_name: mid_layer_tsig
+dns::tsigs:
+  mid_layer_tsig:
+    data: qneKJvaiXqVrfrS4v+Oi/9GpLqrkhSGLTCZkf0dyKZ0=
+dns::remotes:
+  top_server:
+    address4: 192.0.2.1
+dns::default_masters:
+- top_server
+```
+
+##### Edge leyer server
+```yaml
+dns::exports: ['mid_layer']
+dns::default_tsig_name: edge_layer_key
+dns::tsigs:
+  edge_layer_key:
+    L7WLyxJGM5X8tfmzMKdfaQt369JWxAMTmm09ZFgMTc4=
+dns::remotes:
+  mid_layer_server:
+    address4: 192.0.2.2
+dns::default_masters:
+- mid_layer_server
 ```
 
 ## Reference
@@ -315,18 +315,20 @@ dns::zones:
   
 ##### Parameters (all optional)
 
+* `default_tsig_name` (Optional[String], Default: undef): the default tsig to use when fetching zone data. Knot::Tsig[$default_tsig_name] must exist
+* `default_masters` (Array[String], Default: []): Array of Knot::Remote names to use as the default master servers if none are specified in the zone hash
+* `default_provide_xfrs` (Array[String], Default: []): Array of Knot::Remote names to use as the provide_xfr servers if none are specified in the zone hash
 * `daemon` (/^(nsd|knot)$/, Default: os dependent): which daemon to use
-* `slaves_target` (Path, Default: /etc/puppetlabs/facter/facts.d/dns_slave_addresses.yaml) patch on master to store facts used for master/slave relationship
 * `nsid` (String, Default: FQDN): string to use for EDNS NSID queires
 * `identity` (String, Default: FQDN): string to use for hostname.bind queires
 * `ip_addresses` (Array, Default: [@ipaddress]): IP addresses that daemon should listen on
-* `master` (Boolean, Deafult: true): wheather the system is a master or a slave
-* `instance` (String, Default: 'default'): used for master/slave relationships
+* `imports` (Array, Deafult: []): Array of dns::exports to import
+* `exports` (Array, Default: []): Array of dns::imports to export to
 * `ensure` (Pattern[/^(present|absent)$/], Default: present): whether to install dns daemon
 * `enable_zonecheck` (Boolean, Default: true): Weather to install and manage zonecheck
 * `zones` (Hash, Default: {}): A hash of nsd::zone or knot::zone resourves
 * `files` (Hash, Default: {}): A hash of nsd::file or knot::file resourves
-* `tsig` (Hash, Default: {}): A hash of nsd::tsig or knot::tsig 
+* `tsigs` (Hash, Default: {}): A hash of nsd::tsig or knot::tsig 
 * `enable_nagios` (Boolean, Default: false): export nagios_Service definitions for each zone 
 
 ### Private Classes

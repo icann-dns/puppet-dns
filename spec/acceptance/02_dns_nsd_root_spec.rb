@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper_acceptance'
 
 describe 'nsd class' do
@@ -7,22 +9,32 @@ describe 'nsd class' do
       pp = <<-EOS
   class {'::dns':
     daemon => 'nsd',
-    zones => {
-      'root' => {
-        'masters'  => ['192.0.32.132', '192.0.47.132'],
-        'zonefile' => 'root',
-        'zones' => ['.'],
+	remotes => {
+      'lax.xfr.dns.icann.org' => {
+        'address4' => '192.0.32.132'
       },
-      'arpa_and_root_servers' => {
-        'masters'  => ['192.0.32.132', '192.0.47.132'],
-        'zones' => ['arpa.', 'root-servers.net.'],
+      'iad.xfr.dns.icann.org' => {
+        'address4' => '192.0.47.132'
       },
     },
+	zones => {
+      '.' => {
+        signed   => true,
+        masters  => ['lax.xfr.dns.icann.org', 'iad.xfr.dns.icann.org'],
+        zonefile => 'root'
+      },
+      'arpa.' => {
+        masters  => ['lax.xfr.dns.icann.org', 'iad.xfr.dns.icann.org']
+      },
+      'root-servers.net.' => {
+        masters  => ['lax.xfr.dns.icann.org', 'iad.xfr.dns.icann.org']
+      }
+    }
   }
       EOS
-      apply_manifest(pp, catch_failures: true)
-      apply_manifest(pp, catch_failures: true)
-      expect(apply_manifest(pp, catch_failures: true).exit_code).to eq 0
+      execute_manifest(pp, catch_failures: true)
+      execute_manifest(pp, catch_failures: true)
+      expect(execute_manifest(pp, catch_failures: true).exit_code).to eq 0
       # sleep to allow zone transfer (value probably to high)
       sleep(10)
     end

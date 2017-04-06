@@ -5,7 +5,7 @@
   - rvm: 2.3.1
     env:
     - BEAKER_set="docker/ubuntu-master-14.04"
-    - CHECK=beaker
+    - CHECK=beaker 
     - BEAKER_TESTMODE=agent
     sudo: required
     services:
