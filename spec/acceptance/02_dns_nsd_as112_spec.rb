@@ -6,7 +6,10 @@ describe 'nsd class' do
   ipaddress = fact('ipaddress')
   context 'as112' do
     it 'is_expected.to work with no errors' do
-      pp = 'class {\'::dns::as112\': daemon => \'nsd\' }'
+      pp = <<~END
+      class {'::dns': }
+      class {'::dns::as112': }
+      END
       execute_manifest(pp, catch_failures: true)
       execute_manifest(pp, catch_failures: true)
       expect(execute_manifest(pp, catch_failures: true).exit_code).to eq 0
