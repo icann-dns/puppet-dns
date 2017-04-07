@@ -7,7 +7,7 @@ describe 'nsd class' do
   context 'as112' do
     it 'is_expected.to work with no errors' do
       pp = <<~END
-      class {'::dns': }
+      class {'::dns': daemon => 'nsd' }
       class {'::dns::as112': }
       END
       execute_manifest(pp, catch_failures: true)
