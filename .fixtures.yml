@@ -7,6 +7,7 @@ fixtures:
         ref: 4.12.0
       concat:
         repo: https://github.com/puppetlabs/puppetlabs-concat.git
+        ref: 2.2.0
       nsd:
         repo: https://github.com/icann-dns/puppet-nsd.git
         branch: 0.1.x
