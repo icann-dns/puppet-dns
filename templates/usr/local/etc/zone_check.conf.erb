@@ -7,16 +7,16 @@ end.flatten.compact
 zones = { 
   'default_zoneset' => {
     'masters' => masters,
-    'zones' => @zones.reject{ |zone| zone.masters.any? }.keys
+    'zones' => @zones.reject{ |zone, config| config.include?('masters') }.keys
   }
 }
-@zones.each do |zone|
-  if masters.any?
+@zones.each do |zone, config|
+  if config.include?('masters')
     zones[zone] = {
       'masters' => [],
       'zones' => [zone]
     }
-    masters.each do |master|
+    config['masters'].each do |master|
       if @remotes[master].include?('address4')
         zones[zone]['masters'] += [@remotes[master]['address4']]
       end
