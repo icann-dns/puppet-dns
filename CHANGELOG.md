@@ -1,3 +1,6 @@
+### 2017-04-10 0.2.3
+* Fix spec tests
+
 ### 2017-04-10 0.2.2
 * change zonecheck format to deal with zones that dont use the default masters
 
