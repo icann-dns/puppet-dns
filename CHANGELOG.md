@@ -1,3 +1,6 @@
+### 2016-11-14 0.1.12
+* bump zonecheck version
+
 ### 2016-11-14 0.1.11
 * add ability to change logging level of zone check
 
