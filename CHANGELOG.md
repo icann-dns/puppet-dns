@@ -1,3 +1,6 @@
+### 2017-04-10 0.2.4
+* Add checks for none existent masters in erb template
+
 ### 2017-04-10 0.2.3
 * Fix spec tests
 
