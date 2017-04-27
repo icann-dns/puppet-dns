@@ -17,11 +17,15 @@ zones = {
       'zones' => [zone]
     }
     config['masters'].each do |master|
-      if @remotes[master].include?('address4')
-        zones[zone]['masters'] += [@remotes[master]['address4']]
-      end
-      if @remotes[master].include?('address6')
-        zones[zone]['masters'] += [@remotes[master]['address6']]
+      # Puppet should ensure that the following is always true 
+      # however compilation fails if its not
+      if @remotes.include?(master)
+        if @remotes[master].include?('address4')
+          zones[zone]['masters'] += [@remotes[master]['address4']]
+        end
+        if @remotes[master].include?('address6')
+          zones[zone]['masters'] += [@remotes[master]['address6']]
+        end
       end
     end
   end
