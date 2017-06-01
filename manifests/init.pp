@@ -51,8 +51,8 @@ class dns (
     $tmp
   }
   $imports.each |String $import| {
-    Dns::Tsig <<| tag == "dns__${environment}_${import}_slave_tsig" |>>
-    Dns::Remote <<| tag == "dns__${environment}_${import}_slave_remote" |>>
+    Dns::Tsig <<| tag == "dns__${import}_slave_tsig" |>>
+    Dns::Remote <<| tag == "dns__${import}_slave_remote" |>>
   }
   $exports.each |String $export| {
     $tsigs.each |String $tsig, Hash $config| {
@@ -60,7 +60,7 @@ class dns (
         algo     => pick($config['algo'], 'hmac-sha256'),
         data     => $config['data'],
         key_name => $tsig,
-        tag      => "dns__${environment}_${export}_slave_tsig",
+        tag      => "dns__${export}_slave_tsig",
       }
     }
     @@dns::remote {"dns__export_${export}_${::fqdn}":
@@ -69,7 +69,7 @@ class dns (
       tsig      => "dns__export_${export}_${default_tsig_name}",
       tsig_name => $default_tsig_name,
       port      => $port,
-      tag       => "dns__${environment}_${export}_slave_remote",
+      tag       => "dns__${export}_slave_remote",
     }
   }
 
