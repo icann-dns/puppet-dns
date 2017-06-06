@@ -16,16 +16,12 @@ class dns (
   Array[String]                 $exports              = [],
   Pattern[/^(present|absent)$/] $ensure               = 'present',
   Tea::Port                     $port                 = 53,
-  Boolean                       $enable_zonecheck     = true,
   Hash[String, Dns::Zone]       $zones                = {},
   Hash                          $files                = {},
   Hash                          $tsigs                = {},
   Hash                          $remotes              = {},
   Boolean                       $enable_nagios        = false,
 ) inherits dns::params {
-  #class { '::dns::zonecheck':
-  #  enable       => $enable_zonecheck,
-  #}
 
   if $daemon == 'nsd' {
     $nsd_enable  =  true
