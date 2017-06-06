@@ -41,10 +41,10 @@ class dns::zonecheck (
     ensure  => $ensure,
     content => template('dns/usr/local/etc/zone_check.conf.erb'),
   }
-  if $enable = 'true' {
+  if ! $enable {
     file {'/etc/puppetlabs/facter/facts.d/zone_status.txt':
-      ensure => present,
-      content => "zone_status_errors=false";
+      ensure  => file,
+      content => 'zone_status_errors=false';
     }
   }
   cron {'/usr/local/bin/zonecheck':
