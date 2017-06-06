@@ -150,11 +150,6 @@ describe 'dns' do
           it { is_expected.not_to contain_class('knot') }
           it { is_expected.not_to contain_class('nsd') }
         end
-        context 'enable_zonecheck' do
-          before { params.merge!(enable_zonecheck: false) }
-          it { is_expected.to compile }
-          # it { is_expected.to contain_class('dns::zonecheck').with_enable(false) }
-        end
         context 'zones' do
           before do
             params.merge!(
@@ -327,10 +322,6 @@ describe 'dns' do
         end
         context 'ensure bad option' do
           before { params.merge!(ensure: 'foobar') }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
-        end
-        context 'enable_zonecheck' do
-          before { params.merge!(enable_zonecheck: 'foobar') }
           it { expect { subject.call }.to raise_error(Puppet::Error) }
         end
         context 'zones' do

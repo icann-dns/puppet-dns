@@ -136,6 +136,11 @@ describe 'dns::zonecheck' do
               'absent'
             )
           end
+          it do
+            is_expected.to contain_file(
+              '/etc/puppetlabs/facter/facts.d/zone_status.txt'
+            ).with_content('zone_status_errors=false')
+          end
         end
         context 'version' do
           before { params.merge!(version: 'foobar') }
