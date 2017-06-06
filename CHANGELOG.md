@@ -1,3 +1,18 @@
+### 2017-04-10 0.2.5
+* Dont pin exports to environments
+
+### 2017-04-10 0.2.4
+* Add checks for none existent masters in erb template
+
+### 2017-04-10 0.2.3
+* Fix spec tests
+
+### 2017-04-10 0.2.2
+* change zonecheck format to deal with zones that dont use the default masters
+
+### 2017-04-10 0.2.1
+* update dependencies
+
 ### 2017-04-06 0.2.0
 * Complete rewrite of the zones hash.
 * depricated the old $tsig hash now all hashs have to be defined in $tsisg and then refrenced by name in the remotes

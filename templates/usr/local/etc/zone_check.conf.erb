@@ -4,18 +4,32 @@ masters = @remotes.map  do |key, remote|
     [remote['address4'], remote['address6']] 
   end
 end.flatten.compact
-provide_xfr = @remotes.map  do |key, remote|  
-  if @provide_xfrs.include?(key) 
-    [remote['address4'], remote['address6']] 
-  end
-end.flatten.compact
 zones = { 
-  'zoneset' => {
+  'default_zoneset' => {
     'masters' => masters,
-    'provide_xfr' => provide_xfr,
-    'zones' => @zones.keys
+    'zones' => @zones.reject{ |zone, config| config.include?('masters') }.keys
   }
 }
+@zones.each do |zone, config|
+  if config.include?('masters')
+    zones[zone] = {
+      'masters' => [],
+      'zones' => [zone]
+    }
+    config['masters'].each do |master|
+      # Puppet should ensure that the following is always true 
+      # however compilation fails if its not
+      if @remotes.include?(master)
+        if @remotes[master].include?('address4')
+          zones[zone]['masters'] += [@remotes[master]['address4']]
+        end
+        if @remotes[master].include?('address6')
+          zones[zone]['masters'] += [@remotes[master]['address6']]
+        end
+      end
+    end
+  end
+end
 @config = { 
   'zones' => zones, 
   'tsig' => @tsig, 

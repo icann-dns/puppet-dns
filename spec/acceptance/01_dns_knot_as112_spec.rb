@@ -6,7 +6,10 @@ describe 'knot class' do
   ipaddress = fact('ipaddress')
   context 'as112' do
     it 'work with no errors' do
-      pp = 'class {\'::dns::as112\': daemon => \'knot\' }'
+      pp = <<~END
+      class {'::dns': daemon => 'knot' }
+      class {'::dns::as112': }
+      END
       execute_manifest(pp, catch_failures: true)
       expect(execute_manifest(pp, catch_failures: true).exit_code).to eq 0
     end
