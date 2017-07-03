@@ -79,8 +79,8 @@ describe 'dns' do
             enable: nsd_enable,
             ip_addresses: ['192.0.2.2'],
             server_count: 1,
-            nsid: 'foo.example.com',
-            identity: 'foo.example.com',
+            nsid: 'dns.example.com',
+            identity: 'dns.example.com',
             files: {},
             zones: {},
             tsigs: {},
@@ -92,8 +92,8 @@ describe 'dns' do
             enable: knot_enable,
             ip_addresses: ['192.0.2.2'],
             server_count: 1,
-            nsid: 'foo.example.com',
-            identity: 'foo.example.com',
+            nsid: 'dns.example.com',
+            identity: 'dns.example.com',
             files: {},
             zones: {},
             tsigs: {},
@@ -135,7 +135,7 @@ describe 'dns' do
           it { is_expected.to compile }
           it do
             expect(exported_resources).to contain_dns__remote(
-              'dns__export_foobar_foo.example.com'
+              'dns__export_foobar_dns.example.com'
             ).with(
               address4: '192.0.2.1',
               address6: '2001:DB8::1',
@@ -215,10 +215,10 @@ describe 'dns' do
           it { is_expected.to compile }
           it do
             expect(exported_resources).to contain_nagios_service(
-              'foo.example.com_DNS_ZONE_MASTERS_example.com'
+              'dns.example.com_DNS_ZONE_MASTERS_example.com'
             ).with(
               'use' => 'generic-service',
-              'host_name' => 'foo.example.com',
+              'host_name' => 'dns.example.com',
               'service_description' => 'DNS_ZONE_MASTERS_example.com',
               'check_command' => 'check_nrpe_args!check_dns!example.com!192.0.2.1!192.0.2.2'
             )
@@ -248,10 +248,10 @@ describe 'dns' do
           it { is_expected.to compile }
           it do
             expect(exported_resources).to contain_nagios_service(
-              'foo.example.com_DNS_ZONE_MASTERS_example.com'
+              'dns.example.com_DNS_ZONE_MASTERS_example.com'
             ).with(
               'use' => 'generic-service',
-              'host_name' => 'foo.example.com',
+              'host_name' => 'dns.example.com',
               'service_description' => 'DNS_ZONE_MASTERS_example.com',
               'check_command' => 'check_nrpe_args!check_dns!example.com!2001:DB8::1!192.0.2.2'
             )
@@ -282,10 +282,10 @@ describe 'dns' do
           it { is_expected.to compile }
           it do
             expect(exported_resources).to contain_nagios_service(
-              'foo.example.com_DNS_ZONE_MASTERS_example.com'
+              'dns.example.com_DNS_ZONE_MASTERS_example.com'
             ).with(
               'use' => 'generic-service',
-              'host_name' => 'foo.example.com',
+              'host_name' => 'dns.example.com',
               'service_description' => 'DNS_ZONE_MASTERS_example.com',
               'check_command' => 'check_nrpe_args!check_dns!example.com!192.0.2.1 2001:DB8::1!192.0.2.2'
             )
