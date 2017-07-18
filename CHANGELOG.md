@@ -1,3 +1,6 @@
+### 2017-04-10 0.2.6
+* FIX: ensure enable\_nagios works with default\_masters
+
 ### 2017-04-10 0.2.5
 * Dont pin exports to environments
 
