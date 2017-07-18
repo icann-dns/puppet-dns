@@ -101,28 +101,28 @@ class dns (
   }
   if $enable_nagios {
     $_ip_addresses_list = join($ip_addresses, ' ')
-
     $zones.each |String $zone, Hash $config| {
       if has_key($config, 'masters') {
         $_masters = flatten($config['masters'].map |String $master| {
-          if ! has_key($remotes, $master) {
-            fail(
-              "Dns::Server[${master}] configured for ${zone} but does not exist"
-            )
-          }
           delete_undef_values(
             [$remotes[$master]['address4'], $remotes[$master]['address6']]
           )
         })
-        if ! empty($_masters) {
-          $master_check_args = join($_masters, ' ')
-          @@nagios_service{ "${::fqdn}_DNS_ZONE_MASTERS_${zone}":
-            ensure              => present,
-            use                 => 'generic-service',
-            host_name           => $::fqdn,
-            service_description => "DNS_ZONE_MASTERS_${zone}",
-            check_command       => "check_nrpe_args!check_dns!${zone}!${master_check_args}!${_ip_addresses_list}",
-          }
+      } else {
+        $_masters = flatten($default_masters.map |String $master| {
+          delete_undef_values(
+            [$remotes[$master]['address4'], $remotes[$master]['address6']]
+          )
+        })
+      }
+      if ! empty($_masters) {
+        $master_check_args = join($_masters, ' ')
+        @@nagios_service{ "${::fqdn}_DNS_ZONE_MASTERS_${zone}":
+          ensure              => present,
+          use                 => 'generic-service',
+          host_name           => $::fqdn,
+          service_description => "DNS_ZONE_MASTERS_${zone}",
+          check_command       => "check_nrpe_args!check_dns!${zone}!${master_check_args}!${_ip_addresses_list}",
         }
       }
     }
