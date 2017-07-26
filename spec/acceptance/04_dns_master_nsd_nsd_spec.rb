@@ -78,8 +78,6 @@ EOS
         execute_manifest_on(dnstop, master_pp, catch_failures: true)
         execute_manifest_on(dnsedge, dnsedge_pp, catch_failures: true)
         execute_manifest_on(dnstop, master_pp, catch_failures: true)
-        execute_manifest_on(dnsedge, dnsedge_pp, catch_failures: true)
-        execute_manifest_on(dnstop, master_pp, catch_failures: true)
       end
       it 'clean puppet run on dns master' do
         expect(execute_manifest_on(dnstop, master_pp, catch_failures: true).exit_code).to eq 0

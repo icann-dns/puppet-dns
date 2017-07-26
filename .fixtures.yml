@@ -9,8 +9,10 @@ fixtures:
         repo: https://github.com/puppetlabs/puppetlabs-concat.git
       nsd:
         repo: https://github.com/icann-dns/puppet-nsd.git
+        branch: 0.2.x
       knot:
         repo: https://github.com/icann-dns/puppet-knot.git
+        branch: 0.2.x
       tea:
         repo: https://github.com/icann-dns/puppet-tea.git
       python:

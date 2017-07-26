@@ -3,7 +3,7 @@
 require 'spec_helper_acceptance'
 
 if ENV['BEAKER_TESTMODE'] == 'agent'
-  describe 'basic master (knot) dnsedge (nsd) config' do
+  describe 'basic master (knot) dnsedge (knot) config' do
     context 'defaults' do
       dnstop     = find_host_with_role('dnstop')
       dnstop_ip  = fact_on(dnstop, 'ipaddress')
@@ -75,8 +75,6 @@ EOS
 EOS
 
       it 'run puppet a bunch of times' do
-        execute_manifest_on(dnstop, master_pp, catch_failures: true)
-        execute_manifest_on(dnsedge, dnsedge_pp, catch_failures: true)
         execute_manifest_on(dnstop, master_pp, catch_failures: true)
         execute_manifest_on(dnsedge, dnsedge_pp, catch_failures: true)
         execute_manifest_on(dnstop, master_pp, catch_failures: true)

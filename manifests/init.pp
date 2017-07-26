@@ -85,6 +85,8 @@ class dns (
       tsigs                => $tsigs,
       zones                => $_zones,
       remotes              => $remotes,
+      imports              => $imports,
+      exports              => $exports,
     }
     class { '::knot':
       enable               => $knot_enable,
@@ -99,6 +101,8 @@ class dns (
       tsigs                => $tsigs,
       zones                => $_zones,
       remotes              => $remotes,
+      imports              => $imports,
+      exports              => $exports,
     }
   }
   if $enable_nagios {

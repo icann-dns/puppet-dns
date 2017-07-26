@@ -10,19 +10,19 @@ modules = [
   'puppetlabs-concat',
   'stankevich-python',
   'icann-tea',
-  'icann-nsd'
+  #'icann-nsd'
   # 'icann-knot'
 ]
 # git_repos = []
 git_repos = [
-  # {
-  #   mod: 'nsd',
-  #   branch: 'refactor_zone',
-  #   repo: 'https://github.com/icann-dns/puppet-nsd'
-  # },
+  {
+    mod: 'nsd',
+    branch: '0.2.x',
+    repo: 'https://github.com/icann-dns/puppet-nsd'
+  },
   {
     mod: 'knot',
-    branch: 'knot_2.0',
+    branch: '0.2.x',
     repo: 'https://github.com/icann-dns/puppet-knot'
   }
 ]
