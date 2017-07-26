@@ -4,8 +4,6 @@
 # https://github.com/voxpupuli/modulesync_config
 HOSTS:
   ubuntu-1404-x64:
-    roles: 
-    - masterless
     platform: ubuntu-14.04-amd64
     hypervisor: docker
     image: ubuntu:14.04
