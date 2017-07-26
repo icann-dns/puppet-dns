@@ -47,19 +47,21 @@ class dns (
     $tmp
   }
   $imports.each |String $import| {
-    Dns::Tsig <<| tag == "dns__${import}_slave_tsig" |>>
-    Dns::Remote <<| tag == "dns__${import}_slave_remote" |>>
+    Knot::Tsig <<| tag == "dns__${import}_slave_tsig" |>>
+    Knot::Remote <<| tag == "dns__${import}_slave_remote" |>>
+    Nsd::Tsig <<| tag == "dns__${import}_slave_tsig" |>>
+    Nsd::Remote <<| tag == "dns__${import}_slave_remote" |>>
   }
   $exports.each |String $export| {
     $tsigs.each |String $tsig, Hash $config| {
-      @@dns::tsig {"dns__export_${export}_${tsig}":
+      dns::tsig {"dns__export_${export}_${tsig}":
         algo     => pick($config['algo'], 'hmac-sha256'),
         data     => $config['data'],
         key_name => $tsig,
         tag      => "dns__${export}_slave_tsig",
       }
     }
-    @@dns::remote {"dns__export_${export}_${::fqdn}":
+    dns::remote {"dns__export_${export}_${::fqdn}":
       address4  => $default_ipv4,
       address6  => $default_ipv6,
       tsig      => "dns__export_${export}_${default_tsig_name}",

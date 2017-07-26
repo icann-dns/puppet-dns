@@ -7,14 +7,14 @@ define dns::remote (
   Optional[String]                             $tsig_name = undef,
   Tea::Port                                    $port      = 53,
 ) {
-  nsd::remote { $name:
+  @@nsd::remote { $name:
     address4  => $address4,
     address6  => $address6,
     tsig      => $tsig,
     tsig_name => $tsig_name,
     port      => $port,
   }
-  knot::remote { $name:
+  @@knot::remote { $name:
     address4  => $address4,
     address6  => $address6,
     tsig      => $tsig,
