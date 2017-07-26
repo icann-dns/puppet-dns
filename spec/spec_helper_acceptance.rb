@@ -10,7 +10,7 @@ modules = [
   'puppetlabs-concat',
   'stankevich-python',
   'icann-tea',
-  #'icann-nsd'
+  # 'icann-nsd'
   # 'icann-knot'
 ]
 # git_repos = []
