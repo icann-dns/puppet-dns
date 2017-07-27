@@ -138,7 +138,7 @@ describe 'dns' do
             ).with(
               address4: '192.0.2.1',
               address6: '2001:DB8::1',
-              tsig_name: nil,
+              tsig_name: 'NOKEY',
               port: 53
             )
           end
@@ -148,7 +148,7 @@ describe 'dns' do
             ).with(
               address4: '192.0.2.1',
               address6: '2001:DB8::1',
-              tsig_name: nil,
+              tsig_name: 'NOKEY',
               port: 53
             )
           end
@@ -158,7 +158,7 @@ describe 'dns' do
             ).with(
               address4: '192.0.2.1',
               address6: '2001:DB8::1',
-              tsig_name: nil,
+              tsig_name: 'NOKEY',
               port: 53
             )
           end
