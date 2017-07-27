@@ -107,11 +107,11 @@ class dns (
     # when switching from one deamon to the other we need to make sure
     # the old one is stoped before the new one starts
     if $daemon == 'nsd' {
-      Service[$::knot::service_name] {
+      Service <| title == $::knot::service_name |> {
         before => Service[$::nsd::service_name]
       }
     } else {
-      Service[$::nsd::service_name] {
+      Service <| title == $::nsd::service_name |> {
         before => Service[$::knot::service_name]
       }
     }
