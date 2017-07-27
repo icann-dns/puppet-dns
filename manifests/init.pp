@@ -2,7 +2,7 @@
 #
 # Using custom types untill next stdlib release
 class dns (
-  Optional[String]              $default_tsig_name    = undef,
+  Optional[String]              $default_tsig_name    = 'NOKEY',
   Array[String]                 $default_masters      = [],
   Array[String]                 $default_provide_xfrs = [],
   Optional[Tea::Ipv4]           $default_ipv4         = $::dns::params::default_ipv4,
