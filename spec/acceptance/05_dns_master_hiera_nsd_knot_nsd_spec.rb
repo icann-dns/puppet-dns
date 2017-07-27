@@ -115,6 +115,8 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
         execute_manifest_on(dnsedge, pp, catch_failures: true)
         execute_manifest_on(dnstop, pp, catch_failures: true)
         execute_manifest_on(dnsmiddle, pp, catch_failures: true)
+        # we run this an extra time so that is shutdown before knot starts
+        execute_manifest_on(dnsmiddle, pp, catch_failures: true)
         execute_manifest_on(dnsedge, pp, catch_failures: true)
       end
       it 'clean puppet run on dns master' do
