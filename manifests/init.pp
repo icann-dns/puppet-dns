@@ -104,6 +104,17 @@ class dns (
       imports              => $imports,
       exports              => $exports,
     }
+    # when switching from one deamon to the other we need to make sure
+    # the old one is stoped before the new one starts
+    if $daemon == 'nsd' {
+      Service[$::knot::service_name] {
+        before => Service[$::nsd::service_name]
+      }
+    } else {
+      Service[$::nsd::service_name] {
+        before => Service[$::knot::service_name]
+      }
+    }
   }
   if $enable_nagios {
     $_ip_addresses_list = join($ip_addresses, ' ')
