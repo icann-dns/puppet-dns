@@ -54,11 +54,11 @@ EOS
         execute_manifest_on(dnsedge, dnsedge_pp, catch_failures: true)
         execute_manifest_on(dnstop, dnstop_pp, catch_failures: true)
       end
-      it 'clean puppet run on dns top' do
-        expect(execute_manifest_on(dnstop, dnstop_pp, catch_failures: true).exit_code).to eq 0
-      end
       it 'clean puppet run on dns dnsedge' do
         expect(execute_manifest_on(dnsedge, dnsedge_pp, catch_failures: true).exit_code).to eq 0
+      end
+      it 'clean puppet run on dns top' do
+        expect(execute_manifest_on(dnstop, dnstop_pp, catch_failures: true).exit_code).to eq 0
       end
       describe service('knot'), node: dnstop do
         it { is_expected.to be_running }
@@ -92,13 +92,19 @@ EOS
         its(:exit_status) { is_expected.to eq 0 }
       end
       sleep(10)
-      describe execute_manifest_on(dnstop, dnstop_pp, catch_failures: true) do
+      describe command('puppet agent -t --detailed-exitcodes'), node: dnstop do
         its(:exit_status) { is_expected.to eq 2 }
+      end
+      describe command('grep -q dns__export_nofiy_test /etc/knot/knot.conf'), node: dnstop do
+        its(:exit_status) { is_expected.to eq 1 }
+      end
+      describe command('grep -q dns__export_nofiy_test /etc/nsd/nsd.conf'), node: dnstop do
+        its(:exit_status) { is_expected.to eq 1 }
       end
       describe command('knotc -c /etc/knot/knot.conf checkconf'), node: dnstop do
         its(:exit_status) { is_expected.to eq 0 }
       end
-      describe command('nsd-checkconf /usr/local/etc/nsd/nsd.conf'), node: dnstop do
+      describe command('nsd-checkconf /etc/nsd/nsd.conf'), node: dnstop do
         its(:exit_status) { is_expected.to eq 0 }
       end
     end
