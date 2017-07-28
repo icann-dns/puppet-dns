@@ -91,10 +91,14 @@ EOS
       describe command("puppet node deactivate #{dnsedge}"), node: master do
         its(:exit_status) { is_expected.to eq 0 }
       end
-      it 'clean puppet run on dns top' do
-        expect(execute_manifest_on(dnstop, dnstop_pp, catch_failures: true).exit_code).to eq 2
+      sleep(10)
+      describe execute_manifest_on(dnstop, dnstop_pp, catch_failures: true) do
+        its(:exit_status) { is_expected.to eq 2 }
       end
       describe command('knotc -c /etc/knot/knot.conf checkconf'), node: dnstop do
+        its(:exit_status) { is_expected.to eq 0 }
+      end
+      describe command('nsd-checkconf /usr/local/etc/nsd/nsd.conf'), node: dnstop do
         its(:exit_status) { is_expected.to eq 0 }
       end
     end
