@@ -2,11 +2,11 @@
 #
 # Using custom types untill next stdlib release
 class dns (
-  Optional[String]              $default_tsig_name    = undef,
+  Optional[String]              $default_tsig_name    = 'NOKEY',
   Array[String]                 $default_masters      = [],
   Array[String]                 $default_provide_xfrs = [],
-  Tea::Ipv4                     $default_ipv4         = $::dns::params::default_ipv4,
-  Tea::Ipv6                     $default_ipv6         = $::dns::params::default_ipv6,
+  Optional[Tea::Ipv4]           $default_ipv4         = $::dns::params::default_ipv4,
+  Optional[Tea::Ipv6]           $default_ipv6         = $::dns::params::default_ipv6,
   Integer[1,256]                $server_count         = $::dns::params::server_count,
   Pattern[/^(nsd|knot)$/]       $daemon               = $::dns::params::daemon,
   String                        $nsid                 = $::dns::params::nsid,
@@ -47,19 +47,21 @@ class dns (
     $tmp
   }
   $imports.each |String $import| {
-    Dns::Tsig <<| tag == "dns__${import}_slave_tsig" |>>
-    Dns::Remote <<| tag == "dns__${import}_slave_remote" |>>
+    Knot::Tsig <<| tag == "dns__${import}_slave_tsig" |>>
+    Knot::Remote <<| tag == "dns__${import}_slave_remote" |>>
+    Nsd::Tsig <<| tag == "dns__${import}_slave_tsig" |>>
+    Nsd::Remote <<| tag == "dns__${import}_slave_remote" |>>
   }
   $exports.each |String $export| {
     $tsigs.each |String $tsig, Hash $config| {
-      @@dns::tsig {"dns__export_${export}_${tsig}":
+      dns::tsig {"dns__export_${export}_${tsig}":
         algo     => pick($config['algo'], 'hmac-sha256'),
         data     => $config['data'],
         key_name => $tsig,
         tag      => "dns__${export}_slave_tsig",
       }
     }
-    @@dns::remote {"dns__export_${export}_${::fqdn}":
+    dns::remote {"dns__export_${export}_${::fqdn}":
       address4  => $default_ipv4,
       address6  => $default_ipv6,
       tsig      => "dns__export_${export}_${default_tsig_name}",
@@ -83,6 +85,8 @@ class dns (
       tsigs                => $tsigs,
       zones                => $_zones,
       remotes              => $remotes,
+      imports              => $imports,
+      exports              => $exports,
     }
     class { '::knot':
       enable               => $knot_enable,
@@ -97,32 +101,45 @@ class dns (
       tsigs                => $tsigs,
       zones                => $_zones,
       remotes              => $remotes,
+      imports              => $imports,
+      exports              => $exports,
+    }
+    # when switching from one deamon to the other we need to make sure
+    # the old one is stoped before the new one starts
+    if $daemon == 'nsd' {
+      Service <| title == $::knot::service_name |> {
+        before => Service[$::nsd::service_name]
+      }
+    } else {
+      Service <| title == $::nsd::service_name |> {
+        before => Service[$::knot::service_name]
+      }
     }
   }
   if $enable_nagios {
     $_ip_addresses_list = join($ip_addresses, ' ')
-
     $zones.each |String $zone, Hash $config| {
       if has_key($config, 'masters') {
         $_masters = flatten($config['masters'].map |String $master| {
-          if ! has_key($remotes, $master) {
-            fail(
-              "Dns::Server[${master}] configured for ${zone} but does not exist"
-            )
-          }
           delete_undef_values(
             [$remotes[$master]['address4'], $remotes[$master]['address6']]
           )
         })
-        if ! empty($_masters) {
-          $master_check_args = join($_masters, ' ')
-          @@nagios_service{ "${::fqdn}_DNS_ZONE_MASTERS_${zone}":
-            ensure              => present,
-            use                 => 'generic-service',
-            host_name           => $::fqdn,
-            service_description => "DNS_ZONE_MASTERS_${zone}",
-            check_command       => "check_nrpe_args!check_dns!${zone}!${master_check_args}!${_ip_addresses_list}",
-          }
+      } else {
+        $_masters = flatten($default_masters.map |String $master| {
+          delete_undef_values(
+            [$remotes[$master]['address4'], $remotes[$master]['address6']]
+          )
+        })
+      }
+      if ! empty($_masters) {
+        $master_check_args = join($_masters, ' ')
+        @@nagios_service{ "${::fqdn}_DNS_ZONE_MASTERS_${zone}":
+          ensure              => present,
+          use                 => 'generic-service',
+          host_name           => $::fqdn,
+          service_description => "DNS_ZONE_MASTERS_${zone}",
+          check_command       => "check_nrpe_args!check_dns!${zone}!${master_check_args}!${_ip_addresses_list}",
         }
       }
     }

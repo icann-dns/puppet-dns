@@ -10,22 +10,22 @@ modules = [
   'puppetlabs-concat',
   'stankevich-python',
   'icann-tea',
-  'icann-nsd',
-  'icann-knot'
+  # 'icann-nsd'
+  # 'icann-knot'
 ]
-git_repos = []
-# git_repos = [
-#  {
-#    mod: 'nsd',
-#    branch: 'refactor_zone',
-#    repo: 'https://github.com/icann-dns/puppet-nsd'
-#  },
-#  {
-#    mod: 'knot',
-#    branch: 'refactor_zone',
-#    repo: 'https://github.com/icann-dns/puppet-knot'
-#  }
-# ]
+# git_repos = []
+git_repos = [
+  {
+    mod: 'nsd',
+    branch: '0.2.x',
+    repo: 'https://github.com/icann-dns/puppet-nsd'
+  },
+  {
+    mod: 'knot',
+    branch: '0.2.x',
+    repo: 'https://github.com/icann-dns/puppet-knot'
+  }
+]
 def install_modules(host, modules, git_repos)
   module_root = File.expand_path(File.join(File.dirname(__FILE__), '..'))
   install_dev_puppet_module_on(host, source: module_root)

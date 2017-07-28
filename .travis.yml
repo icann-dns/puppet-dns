@@ -3,7 +3,7 @@ sudo: false
 dist: trusty
 language: ruby
 cache: bundler
-bundler_args: --without development
+bundler_args: --without system_tests development
 before_install:
   - bundle -v
   - rm Gemfile.lock || true
@@ -22,14 +22,20 @@ matrix:
   - rvm: 2.2
     env: CHECK=rubocop
   include:
-  - rvm: 2.3.1
-    env: ["BEAKER_set=\"docker/ubuntu-master-14.04\"", "CHECK=beaker", "BEAKER_TESTMODE=agent"]
-    services: ["docker"]
+  - rvm: 2.3
+    bundler_args: --without development
+    dist: trusty
+    env: BEAKER_TESTMODE=apply BEAKER_set=docker/ubuntu-14.04 CHECK=beaker
+    services: docker
     sudo: required
-  - rvm: 2.3.1
-    env: ["BEAKER_set=\"docker/ubuntu-14.04\"", "CHECK=beaker", "BEAKER_TESTMODE=apply"]
-    services: ["docker"]
+  - rvm: 2.3
+    bundler_args: --without development
+    dist: trusty
+    env: BEAKER_TESTMODE=agent BEAKER_set=docker/ubuntu-master-14.04 CHECK=beaker
+    services: docker
     sudo: required
+  - rvm: 2.4.0
+    env: PUPPET_VERSION="~> 4.0" CHECK=build DEPLOY_TO_FORGE=yes
 notifications:
   email: false
 deploy:

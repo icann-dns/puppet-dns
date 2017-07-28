@@ -87,7 +87,7 @@ describe 'dns::zonecheck' do
         it { is_expected.to contain_class('dns::zonecheck') }
         it do
           is_expected.to contain_package('zonecheck').with(
-            'ensure'   => '1.0.16',
+            'ensure'   => '1.0.17',
             'provider' => 'pip'
           )
         end
@@ -135,6 +135,11 @@ describe 'dns::zonecheck' do
             is_expected.to contain_cron('/usr/local/bin/zonecheck').with_ensure(
               'absent'
             )
+          end
+          it do
+            is_expected.to contain_file(
+              '/etc/puppetlabs/facter/facts.d/zone_status.txt'
+            ).with_content('zone_status_errors=false')
           end
         end
         context 'version' do
