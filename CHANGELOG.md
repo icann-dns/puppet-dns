@@ -1,3 +1,9 @@
+### 2017-07-31 0.2.7
+* Add additional spec tests to test notifies and deactivating nodes
+* Update how resources are exported to fix #4
+* Change the way we restart daemons to fix #5
+
+
 ### 2017-04-10 0.2.6
 * FIX: ensure enable\_nagios works with default\_masters
 
