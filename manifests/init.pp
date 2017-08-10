@@ -61,7 +61,7 @@ class dns (
         algo     => pick($tsigs[$default_tsig_name]['algo'], 'hmac-sha256'),
         data     => $tsigs[$default_tsig_name]['data'],
         key_name => $default_tsig_name,
-        tag      => "dns__${import}_slave_tsig",
+        tag      => "dns__${export}_slave_tsig",
       }
     } else {
       $_export_tsig      = undef
@@ -72,7 +72,7 @@ class dns (
       tsig      => $_export_tsig,
       tsig_name => $default_tsig_name,
       port      => $port,
-      tag       => "dns__${import}_slave_remote",
+      tag       => "dns__${export}_slave_remote",
     }
   }
 
