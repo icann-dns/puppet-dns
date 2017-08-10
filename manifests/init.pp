@@ -51,6 +51,8 @@ class dns (
     Knot::Remote <<| tag == "dns__${import}_slave_remote" |>>
     Nsd::Tsig <<| tag == "dns__${import}_slave_tsig" |>>
     Nsd::Remote <<| tag == "dns__${import}_slave_remote" |>>
+    Dns::Tsig <<| tag == "dns__${import}_slave_tsig" |>>
+    Dns::Remote <<| tag == "dns__${import}_slave_remote" |>>
   }
   $exports.each |String $export| {
     if $default_tsig_name != 'NOKEY' {
