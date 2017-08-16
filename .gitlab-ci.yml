@@ -31,13 +31,13 @@ beaker_trusty_apply:
   script:
     -  bundle exec rake beaker
 
-beaker_xenial_apply:
-  stage: beaker_apply
-  variables:
-    BEAKER_set: docker/ubuntu-16.04
-    BEAKER_TESTMODE: apply
-  script:
-    -  bundle exec rake beaker
+# beaker_xenial_apply:
+#  stage: beaker_apply
+#  variables:
+#    BEAKER_set: docker/ubuntu-16.04
+#    BEAKER_TESTMODE: apply
+#  script:
+#    -  bundle exec rake beaker
 
 beaker_trusty_agent:
   stage: beaker_agent
@@ -47,11 +47,11 @@ beaker_trusty_agent:
   script:
     -  bundle exec rake beaker
 
-beaker_xenial_agent:
-  stage: beaker_agent
-  variables:
-    BEAKER_set: docker/ubuntu-master-16.04
-    BEAKER_TESTMODE: agent
-    BEAKER_debug: 'on'
-  script:
-    -  bundle exec rake beaker
+# beaker_xenial_agent:
+#  stage: beaker_agent
+#  variables:
+#    BEAKER_set: docker/ubuntu-master-16.04
+#    BEAKER_TESTMODE: agent
+#    BEAKER_debug: 'on'
+#  script:
+#    -  bundle exec rake beaker
