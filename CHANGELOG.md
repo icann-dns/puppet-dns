@@ -1,3 +1,7 @@
+### 2017-08-17 0.2.8
+* Add sleeps in spec test
+* also import dns resources for transition
+
 ### 2017-08-16 0.2.7
 * Add backwards compatibilitry to use for mirgartion
 * updated spec test
