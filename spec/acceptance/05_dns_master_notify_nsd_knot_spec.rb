@@ -92,10 +92,10 @@ EOS
       end
       describe command('service nsd restart'), node: dnstop do
         its(:exit_status) { is_expected.to eq 0 }
-        # sleep a bit to let the transfer happen
-        sleep(2)
       end
       describe command("dig +short soa example.com. @#{dnstop_ip}"), node: dnstop do
+        let(:pre_command) { 'sleep 5'  }
+
         its(:exit_status) { is_expected.to eq 0 }
         its(:stdout) do
           is_expected.to match(

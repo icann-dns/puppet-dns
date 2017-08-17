@@ -38,7 +38,7 @@ class dns (
       target => '/usr/sbin/knotc',
     }
   }
-  # Currently nsd and knot dont support signed 
+  # Currently nsd and knot dont support signed
   # and signed policy so we remove them
   $_zones = $zones.reduce({}) |$reduce_store, $value| {
     $zone = $value[0]
@@ -51,20 +51,25 @@ class dns (
     Knot::Remote <<| tag == "dns__${import}_slave_remote" |>>
     Nsd::Tsig <<| tag == "dns__${import}_slave_tsig" |>>
     Nsd::Remote <<| tag == "dns__${import}_slave_remote" |>>
+    Dns::Tsig <<| tag == "dns__${import}_slave_tsig" |>>
+    Dns::Remote <<| tag == "dns__${import}_slave_remote" |>>
   }
   $exports.each |String $export| {
-    $tsigs.each |String $tsig, Hash $config| {
-      dns::tsig {"dns__export_${export}_${tsig}":
-        algo     => pick($config['algo'], 'hmac-sha256'),
-        data     => $config['data'],
-        key_name => $tsig,
+    if $default_tsig_name != 'NOKEY' {
+      $_export_tsig      = "dns__export_${export}_${default_tsig_name}"
+      dns::tsig {$_export_tsig:
+        algo     => pick($tsigs[$default_tsig_name]['algo'], 'hmac-sha256'),
+        data     => $tsigs[$default_tsig_name]['data'],
+        key_name => $default_tsig_name,
         tag      => "dns__${export}_slave_tsig",
       }
+    } else {
+      $_export_tsig      = undef
     }
     dns::remote {"dns__export_${export}_${::fqdn}":
       address4  => $default_ipv4,
       address6  => $default_ipv6,
-      tsig      => "dns__export_${export}_${default_tsig_name}",
+      tsig      => $_export_tsig,
       tsig_name => $default_tsig_name,
       port      => $port,
       tag       => "dns__${export}_slave_remote",
