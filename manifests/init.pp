@@ -57,7 +57,13 @@ class dns (
   $exports.each |String $export| {
     if $default_tsig_name != 'NOKEY' {
       $_export_tsig      = "dns__export_${export}_${default_tsig_name}"
-      dns::tsig {$_export_tsig:
+      knot::tsig {$_export_tsig:
+        algo     => pick($tsigs[$default_tsig_name]['algo'], 'hmac-sha256'),
+        data     => $tsigs[$default_tsig_name]['data'],
+        key_name => $default_tsig_name,
+        tag      => "dns__${export}",
+      }
+      nsd::tsig {$_export_tsig:
         algo     => pick($tsigs[$default_tsig_name]['algo'], 'hmac-sha256'),
         data     => $tsigs[$default_tsig_name]['data'],
         key_name => $default_tsig_name,
@@ -66,7 +72,15 @@ class dns (
     } else {
       $_export_tsig      = undef
     }
-    dns::remote {"dns__export_${export}_${::fqdn}":
+    knot::remote {"dns__export_${export}_${::fqdn}":
+      address4  => $default_ipv4,
+      address6  => $default_ipv6,
+      tsig      => $_export_tsig,
+      tsig_name => $default_tsig_name,
+      port      => $port,
+      tag       => "dns__${export}",
+    }
+    nsd::remote {"dns__export_${export}_${::fqdn}":
       address4  => $default_ipv4,
       address6  => $default_ipv6,
       tsig      => $_export_tsig,
