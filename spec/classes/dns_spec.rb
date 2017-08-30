@@ -133,16 +133,6 @@ describe 'dns' do
           before { params.merge!(exports: ['foobar']) }
           it { is_expected.to compile }
           it do
-            is_expected.to contain_dns__remote(
-              'dns__export_foobar_dns.example.com'
-            ).with(
-              address4: '192.0.2.1',
-              address6: '2001:DB8::1',
-              tsig_name: 'NOKEY',
-              port: 53
-            )
-          end
-          it do
             expect(exported_resources).to contain_nsd__remote(
               'dns__export_foobar_dns.example.com'
             ).with(
