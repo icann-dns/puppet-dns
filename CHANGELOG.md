@@ -1,3 +1,6 @@
+### 2017-08-30 0.2.9
+* change imp[ort/export tags to ovoid conflicts
+
 ### 2017-08-17 0.2.8
 * Add sleeps in spec test
 * also import dns resources for transition
