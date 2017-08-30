@@ -6,6 +6,7 @@ stages:
 
 before_script:
   - rvm -v
+  - rvm get stable --auto-dotfiles
   - ruby -v
   - bundle --version
   - gem --version
