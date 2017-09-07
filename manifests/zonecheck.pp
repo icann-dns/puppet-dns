@@ -2,7 +2,7 @@
 #
 class dns::zonecheck (
   Boolean                 $enable       = true,
-  String                  $version      = '1.0.17',
+  String                  $version      = '1.0.18',
   Tea::Syslog_level       $syslog_level = 'error',
 ) {
   include ::dns
