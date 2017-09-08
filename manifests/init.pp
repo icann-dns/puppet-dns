@@ -21,8 +21,17 @@ class dns (
   Hash                          $tsigs                = {},
   Hash                          $remotes              = {},
   Boolean                       $enable_nagios        = false,
+  Boolean                       $reject_private_ip    = true,
 ) inherits dns::params {
 
+  $_default_ipv4 =  ($reject_private_ip and $default_ipv4 =~ Tea::Rfc1918) ? {
+    true    => undef,
+    default => $default_ipv4,
+  }
+  $_default_ipv6 =  ($reject_private_ip and $default_ipv6 =~ Pattern[/(?i:^fe80:)/]) ? {
+    true    => undef,
+    default => $default_ipv6,
+  }
   if $daemon == 'nsd' {
     $nsd_enable  =  true
     $knot_enable =  false
@@ -73,16 +82,16 @@ class dns (
       $_export_tsig      = undef
     }
     @@knot::remote {"dns__export_${export}_${::fqdn}":
-      address4  => $default_ipv4,
-      address6  => $default_ipv6,
+      address4  => $_default_ipv4,
+      address6  => $_default_ipv6,
       tsig      => $_export_tsig,
       tsig_name => $default_tsig_name,
       port      => $port,
       tag       => "dns__${export}",
     }
     @@nsd::remote {"dns__export_${export}_${::fqdn}":
-      address4  => $default_ipv4,
-      address6  => $default_ipv6,
+      address4  => $_default_ipv4,
+      address6  => $_default_ipv6,
       tsig      => $_export_tsig,
       tsig_name => $default_tsig_name,
       port      => $port,

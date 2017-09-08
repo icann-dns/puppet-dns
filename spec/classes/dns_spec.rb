@@ -153,6 +153,95 @@ describe 'dns' do
             )
           end
         end
+        context 'reject_private_ip reject ipv4' do
+          before do
+            params.merge!(
+              exports: ['foobar'],
+              default_ipv4: '192.168.0.1'
+            )
+          end
+          it { is_expected.to compile }
+          it do
+            expect(exported_resources).to contain_nsd__remote(
+              'dns__export_foobar_dns.example.com'
+            ).with(
+              address4: nil,
+              address6: '2001:DB8::1',
+              tsig_name: 'NOKEY',
+              port: 53
+            )
+          end
+          it do
+            expect(exported_resources).to contain_knot__remote(
+              'dns__export_foobar_dns.example.com'
+            ).with(
+              address4: nil,
+              address6: '2001:DB8::1',
+              tsig_name: 'NOKEY',
+              port: 53
+            )
+          end
+        end
+        context 'reject_private_ip reject ipv6' do
+          before do
+            params.merge!(
+              exports: ['foobar'],
+              default_ipv6: 'fE80::250:56ff:feae:ae83'
+            )
+          end
+          it { is_expected.to compile }
+          it do
+            expect(exported_resources).to contain_nsd__remote(
+              'dns__export_foobar_dns.example.com'
+            ).with(
+              address4: '192.0.2.1',
+              address6: nil,
+              tsig_name: 'NOKEY',
+              port: 53
+            )
+          end
+          it do
+            expect(exported_resources).to contain_knot__remote(
+              'dns__export_foobar_dns.example.com'
+            ).with(
+              address4: '192.0.2.1',
+              address6: nil,
+              tsig_name: 'NOKEY',
+              port: 53
+            )
+          end
+        end
+        context 'reject_private_ip allow private addresses' do
+          before do
+            params.merge!(
+              exports: ['foobar'],
+              default_ipv4: '192.168.0.1',
+              default_ipv6: 'fE80::250:56ff:feae:ae83',
+              reject_private_ip: false
+            )
+          end
+          it { is_expected.to compile }
+          it do
+            expect(exported_resources).to contain_nsd__remote(
+              'dns__export_foobar_dns.example.com'
+            ).with(
+              address4: '192.168.0.1',
+              address6: 'fE80::250:56ff:feae:ae83',
+              tsig_name: 'NOKEY',
+              port: 53
+            )
+          end
+          it do
+            expect(exported_resources).to contain_knot__remote(
+              'dns__export_foobar_dns.example.com'
+            ).with(
+              address4: '192.168.0.1',
+              address6: 'fE80::250:56ff:feae:ae83',
+              tsig_name: 'NOKEY',
+              port: 53
+            )
+          end
+        end
         context 'ensure' do
           before { params.merge!(ensure: 'absent') }
           it { is_expected.to compile }
