@@ -15,6 +15,6 @@ log/
 .librarian/
 Puppetfile.lock
 *.iml
-.*.sw?
+*.sw?
 .yardoc/
 Guardfile
