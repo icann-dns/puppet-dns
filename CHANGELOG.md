@@ -1,8 +1,11 @@
+### 2017-09-07 0.2.11
+* iadd flag to reject privat ip addresses.  this allows us to remove link-local ipv6 addresses when using facts['address6'] for the default\_ipv6 address
+
 ### 2017-09-07 0.2.10
-* change imp[ort/export tags to ovoid conflicts
+* bump zonecheck
 
 ### 2017-08-30 0.2.9
-* change imp[ort/export tags to ovoid conflicts
+* change importexport tags to ovoid conflicts
 
 ### 2017-08-17 0.2.8
 * Add sleeps in spec test
