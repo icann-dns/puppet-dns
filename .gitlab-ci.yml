@@ -11,7 +11,7 @@ before_script:
   - gem --version
   - rvm use 2.3
   - rm Gemfile.lock || true
-  - bundle install
+  - bundle install --path=${BUNDLE_PATH:-vendor/bundle}
 
 rspec:
   stage: rspec
