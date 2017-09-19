@@ -74,8 +74,8 @@ class dns (
       $_export_tsig      = undef
     }
     dns::remote {"dns__export_${export}_${::fqdn}":
-      address4  => $default_ipv4,
-      address6  => $default_ipv6,
+      address4  => $_default_ipv4,
+      address6  => $_default_ipv6,
       tsig      => $_export_tsig,
       tsig_name => $default_tsig_name,
       port      => $port,
