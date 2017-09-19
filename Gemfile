@@ -23,7 +23,6 @@ group :test do
   gem 'puppet-lint-classes_and_types_beginning_with_digits-check',  :require => false
   gem 'puppet-lint-unquoted_string-check',                          :require => false
   gem 'puppet-lint-variable_contains_upcase',                       :require => false
-  gem 'semantic_puppet',                                            :require => false
   gem 'metadata-json-lint',                                         :require => false
   gem 'puppet-blacksmith',                                          :require => false
   gem 'pry',                                                        :require => false
@@ -68,7 +67,6 @@ group :system_tests do
   gem 'beaker-testmode_switcher',      :require => false
   gem 'beaker-pe',                     :require => false
   gem 'beaker-answers',                :require => false
-  gem 'vagrant-wrapper',               :require => false
 end
 
 
