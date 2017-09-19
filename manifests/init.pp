@@ -21,8 +21,17 @@ class dns (
   Hash                          $tsigs                = {},
   Hash                          $remotes              = {},
   Boolean                       $enable_nagios        = false,
+  Boolean                       $reject_private_ip    = true,
 ) inherits dns::params {
 
+  $_default_ipv4 =  ($reject_private_ip and $default_ipv4 =~ Tea::Rfc1918) ? {
+    true    => undef,
+    default => $default_ipv4,
+  }
+  $_default_ipv6 =  ($reject_private_ip and $default_ipv6 =~ Pattern[/(?i:^fe80:)/]) ? {
+    true    => undef,
+    default => $default_ipv6,
+  }
   if $daemon == 'nsd' {
     $nsd_enable  =  true
     $knot_enable =  false
