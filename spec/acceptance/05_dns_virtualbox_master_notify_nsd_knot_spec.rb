@@ -17,6 +17,8 @@ EOS
       dnsmaster_pp = <<-EOS
       class {'::dns':
         daemon  => 'nsd',
+        ip_addresses => ['#{dnsmaster_ip}'],
+        reject_private_ip => false,
         imports => ['nofiy_test'],
         zones   => {
           'example.com' => {},
@@ -31,6 +33,9 @@ EOS
       dnsslave_pp = <<-EOS
       class {'::dns':
         daemon  => 'knot',
+        ip_addresses => ['#{dnsslave_ip}'],
+        default_ipv4 => '#{dnsslave_ip}',
+        reject_private_ip => false,
         exports => ['nofiy_test'],
         default_tsig_name => '#{dnsslave}-test',
         tsigs    => {
