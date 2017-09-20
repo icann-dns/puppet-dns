@@ -64,10 +64,10 @@ class dns (
   $exports.each |String $export| {
     if $default_tsig_name != 'NOKEY' {
       $_export_tsig      = "dns__export_${export}_${default_tsig_name}"
-      dns::tsig {$export_tsig_name:
+      dns::tsig {$_export_tsig:
         algo     => pick($tsigs[$default_tsig_name]['algo'], 'hmac-sha256'),
         data     => $tsigs[$default_tsig_name]['data'],
-        key_name => $tsig,
+        key_name => $default_tsig_name,
         tag      => $export,
       }
     } else {
