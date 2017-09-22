@@ -23,7 +23,7 @@ git_repos = [
   },
   {
     mod: 'knot',
-    branch: 'knot_2.0',
+    branch: '0.3.x',
     repo: 'https://github.com/icann-dns/puppet-knot'
   }
 ]
