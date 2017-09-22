@@ -1,3 +1,7 @@
+### 2017-09-22 0.3.0
+* changed the way we manage exported resources 
+* update so that we support icann-knot 0.3.x
+
 ### 2017-09-07 0.2.11
 * iadd flag to reject privat ip addresses.  this allows us to remove link-local ipv6 addresses when using facts['address6'] for the default\_ipv6 address
 
