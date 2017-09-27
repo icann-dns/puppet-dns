@@ -1,3 +1,16 @@
+### 2017-09-22 0.3.0
+* changed the way we manage exported resources 
+* update so that we support icann-knot 0.3.x
+
+### 2017-09-07 0.2.11
+* iadd flag to reject privat ip addresses.  this allows us to remove link-local ipv6 addresses when using facts['address6'] for the default\_ipv6 address
+
+### 2017-09-07 0.2.10
+* bump zonecheck
+
+### 2017-08-30 0.2.9
+* change importexport tags to ovoid conflicts
+
 ### 2017-08-17 0.2.8
 * Add sleeps in spec test
 * also import dns resources for transition

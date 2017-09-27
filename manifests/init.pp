@@ -21,8 +21,17 @@ class dns (
   Hash                          $tsigs                = {},
   Hash                          $remotes              = {},
   Boolean                       $enable_nagios        = false,
+  Boolean                       $reject_private_ip    = true,
 ) inherits dns::params {
 
+  $_default_ipv4 =  ($reject_private_ip and $default_ipv4 =~ Tea::Rfc1918) ? {
+    true    => undef,
+    default => $default_ipv4,
+  }
+  $_default_ipv6 =  ($reject_private_ip and $default_ipv6 =~ Pattern[/(?i:^fe80:)/]) ? {
+    true    => undef,
+    default => $default_ipv6,
+  }
   if $daemon == 'nsd' {
     $nsd_enable  =  true
     $knot_enable =  false
@@ -47,12 +56,10 @@ class dns (
     $tmp
   }
   $imports.each |String $import| {
-    Knot::Tsig <<| tag == "dns__${import}_slave_tsig" |>>
-    Knot::Remote <<| tag == "dns__${import}_slave_remote" |>>
-    Nsd::Tsig <<| tag == "dns__${import}_slave_tsig" |>>
-    Nsd::Remote <<| tag == "dns__${import}_slave_remote" |>>
-    Dns::Tsig <<| tag == "dns__${import}_slave_tsig" |>>
-    Dns::Remote <<| tag == "dns__${import}_slave_remote" |>>
+    Knot::Tsig <<| tag == $import |>>
+    Knot::Remote <<| tag == $import |>>
+    Nsd::Tsig <<| tag == $import |>>
+    Nsd::Remote <<| tag == $import |>>
   }
   $exports.each |String $export| {
     if $default_tsig_name != 'NOKEY' {
@@ -61,18 +68,18 @@ class dns (
         algo     => pick($tsigs[$default_tsig_name]['algo'], 'hmac-sha256'),
         data     => $tsigs[$default_tsig_name]['data'],
         key_name => $default_tsig_name,
-        tag      => "dns__${export}_slave_tsig",
+        tag      => $export,
       }
     } else {
       $_export_tsig      = undef
     }
     dns::remote {"dns__export_${export}_${::fqdn}":
-      address4  => $default_ipv4,
-      address6  => $default_ipv6,
+      address4  => $_default_ipv4,
+      address6  => $_default_ipv6,
       tsig      => $_export_tsig,
       tsig_name => $default_tsig_name,
       port      => $port,
-      tag       => "dns__${export}_slave_remote",
+      tag       => $export,
     }
   }
 

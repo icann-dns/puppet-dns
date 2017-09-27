@@ -11,8 +11,9 @@ def location_for(place, fake_version = nil)
 end
 
 group :test do
-  gem 'puppetlabs_spec_helper', '~> 2.1.1',                         :require => false
+  gem 'puppetlabs_spec_helper', '~> 2.2.0',                         :require => false
   gem 'rspec-puppet', '~> 2.5',                                     :require => false
+  gem 'semantic_puppet',                                            :require => false
   gem 'rspec-puppet-facts',                                         :require => false
   gem 'rspec-puppet-utils',                                         :require => false
   gem 'puppet-lint-absolute_classname-check',                       :require => false
@@ -22,7 +23,6 @@ group :test do
   gem 'puppet-lint-classes_and_types_beginning_with_digits-check',  :require => false
   gem 'puppet-lint-unquoted_string-check',                          :require => false
   gem 'puppet-lint-variable_contains_upcase',                       :require => false
-  gem 'semantic_puppet',                                            :require => false
   gem 'metadata-json-lint',                                         :require => false
   gem 'puppet-blacksmith',                                          :require => false
   gem 'pry',                                                        :require => false
@@ -31,7 +31,7 @@ group :test do
   gem 'redcarpet',                                                  :require => false
   gem 'gettext-setup',                                              :require => false
   gem 'xmlrpc',                                                     :require => false if RUBY_VERSION >= '2.4.0'
-  gem 'rubocop', '~> 0.48.0',                                       :require => false if RUBY_VERSION >= '2.3.0'
+  gem 'rubocop', '~> 0.49.1',                                       :require => false if RUBY_VERSION >= '2.3.0'
   gem 'rubocop-rspec', '~> 1.15.0',                                 :require => false if RUBY_VERSION >= '2.3.0'
   gem 'mocha', '>= 1.2.1',                                          :require => false
   gem 'coveralls',                                                  :require => false
@@ -47,10 +47,11 @@ group :development do
   gem 'travis',                   :require => false
   gem 'travis-lint',              :require => false
   gem 'guard-rake',               :require => false
-  gem 'overcommit', '~> 0.39.1',  :require => false
+  gem 'overcommit', '>= 0.39.1',  :require => false
 end
 
 group :system_tests do
+  gem 'vagrant-wrapper',               :require => false
   gem 'beaker', '<= 2.51.0',           :require => false if RUBY_VERSION < '2.2.5'
   gem 'progressbar',                   :require => false
   if beaker_version = ENV['BEAKER_VERSION']
@@ -64,6 +65,7 @@ group :system_tests do
   gem 'serverspec',                    :require => false
   gem 'beaker-puppet_install_helper',  :require => false
   gem 'beaker-testmode_switcher',      :require => false
+  gem 'scooter',                       :require => false
   gem 'beaker-pe',                     :require => false
   gem 'beaker-answers',                :require => false
 end

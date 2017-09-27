@@ -1,5 +1,6 @@
 # frozen_string_literal: true
 
+require 'puppet'
 require 'beaker-rspec'
 require 'beaker/testmode_switcher/dsl'
 require 'beaker-pe'
@@ -22,7 +23,7 @@ git_repos = [
   },
   {
     mod: 'knot',
-    branch: '0.2.x',
+    branch: '0.3.x',
     repo: 'https://github.com/icann-dns/puppet-knot'
   }
 ]
