@@ -8,7 +8,7 @@ class dns (
   Optional[Tea::Ipv4]           $default_ipv4         = $::dns::params::default_ipv4,
   Optional[Tea::Ipv6]           $default_ipv6         = $::dns::params::default_ipv6,
   Integer[1,256]                $server_count         = $::dns::params::server_count,
-  Pattern[/^(nsd|knot)$/]       $daemon               = $::dns::params::daemon,
+  Dns::Daemon                   $daemon               = $::dns::params::daemon,
   String                        $nsid                 = $::dns::params::nsid,
   String                        $identity             = $::dns::params::identity,
   Array[Tea::Ip_address]        $ip_addresses         = $::dns::params::ip_addresses,
@@ -84,47 +84,58 @@ class dns (
   }
 
   if $ensure == 'present' {
-    class { '::nsd':
-      enable               => $nsd_enable,
-      ip_addresses         => $ip_addresses,
-      server_count         => $server_count,
-      nsid                 => $nsid,
-      identity             => $identity,
-      default_tsig_name    => $default_tsig_name,
-      default_masters      => $default_masters,
-      default_provide_xfrs => $default_provide_xfrs,
-      files                => $files,
-      tsigs                => $tsigs,
-      zones                => $_zones,
-      remotes              => $remotes,
-      imports              => $imports,
-      exports              => $exports,
-    }
-    class { '::knot':
-      enable               => $knot_enable,
-      ip_addresses         => $ip_addresses,
-      server_count         => $server_count,
-      nsid                 => $nsid,
-      identity             => $identity,
-      default_tsig_name    => $default_tsig_name,
-      default_masters      => $default_masters,
-      default_provide_xfrs => $default_provide_xfrs,
-      files                => $files,
-      tsigs                => $tsigs,
-      zones                => $_zones,
-      remotes              => $remotes,
-      imports              => $imports,
-      exports              => $exports,
-    }
-    # when switching from one deamon to the other we need to make sure
-    # the old one is stoped before the new one starts
-    if $daemon == 'nsd' {
-      Service <| title == $::knot::service_name |> {
-        before => Service[$::nsd::service_name]
+    if $daemon == 'opendnssec' {
+      class {'::opendnssec':
+        default_tsig_name    => $default_tsig_name,
+        default_masters      => $default_masters,
+        default_provide_xfrs => $default_provide_xfrs,
+        tsigs                => $tsigs,
+        zones                => $zones,
+        remotes              => $remotes,
       }
     } else {
-      Service <| title == $::nsd::service_name |> {
-        before => Service[$::knot::service_name]
+      class { '::nsd':
+        enable               => $nsd_enable,
+        ip_addresses         => $ip_addresses,
+        server_count         => $server_count,
+        nsid                 => $nsid,
+        identity             => $identity,
+        default_tsig_name    => $default_tsig_name,
+        default_masters      => $default_masters,
+        default_provide_xfrs => $default_provide_xfrs,
+        files                => $files,
+        tsigs                => $tsigs,
+        zones                => $_zones,
+        remotes              => $remotes,
+        imports              => $imports,
+        exports              => $exports,
+      }
+      class { '::knot':
+        enable               => $knot_enable,
+        ip_addresses         => $ip_addresses,
+        server_count         => $server_count,
+        nsid                 => $nsid,
+        identity             => $identity,
+        default_tsig_name    => $default_tsig_name,
+        default_masters      => $default_masters,
+        default_provide_xfrs => $default_provide_xfrs,
+        files                => $files,
+        tsigs                => $tsigs,
+        zones                => $_zones,
+        remotes              => $remotes,
+        imports              => $imports,
+        exports              => $exports,
+      }
+      # when switching from one deamon to the other we need to make sure
+      # the old one is stoped before the new one starts
+      if $daemon == 'nsd' {
+        Service <| title == $::knot::service_name |> {
+          before => Service[$::nsd::service_name]
+        }
+      } else {
+        Service <| title == $::nsd::service_name |> {
+          before => Service[$::knot::service_name]
+        }
       }
     }
   }

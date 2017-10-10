@@ -10,12 +10,20 @@ modules = [
   'puppetlabs-stdlib',
   'puppetlabs-concat',
   'stankevich-python',
+  'puppetlabs-apt',
+  'puppetlabs-mysql',
   'icann-tea',
+  'icann-softhsm'
   # 'icann-nsd'
   # 'icann-knot'
 ]
 # git_repos = []
 git_repos = [
+  {
+    mod: 'opendnssec',
+    branch: 'master',
+    repo: 'https://github.com/icann-dns/puppet-opendnssec'
+  },
   {
     mod: 'nsd',
     branch: '0.2.x',
