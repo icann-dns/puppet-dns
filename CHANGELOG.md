@@ -1,3 +1,6 @@
+### 2017-09-22 0.4.0
+* add opendnssec support
+
 ### 2017-09-22 0.3.0
 * changed the way we manage exported resources 
 * update so that we support icann-knot 0.3.x
