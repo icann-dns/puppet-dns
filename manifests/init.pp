@@ -22,6 +22,7 @@ class dns (
   Hash                          $remotes              = {},
   Boolean                       $enable_nagios        = false,
   Boolean                       $reject_private_ip    = true,
+  Optional[String]              $monitor_class        = undef,
 ) inherits dns::params {
 
   $_default_ipv4 =  ($reject_private_ip and $default_ipv4 =~ Tea::Rfc1918) ? {
@@ -32,19 +33,21 @@ class dns (
     true    => undef,
     default => $default_ipv6,
   }
-  if $daemon == 'nsd' {
-    $nsd_enable  =  true
-    $knot_enable =  false
-    file {'/usr/local/bin/dns-control':
-      ensure => link,
-      target => '/usr/sbin/nsd-control',
-    }
-  } else {
-    $nsd_enable  =  false
-    $knot_enable =  true
-    file {'/usr/local/bin/dns-control':
-      ensure => link,
-      target => '/usr/sbin/knotc',
+  if $ensure == 'present' {
+    if $daemon == 'nsd' {
+      $nsd_enable  =  true
+      $knot_enable =  false
+      file {'/usr/local/bin/dns-control':
+        ensure => link,
+        target => '/usr/sbin/nsd-control',
+      }
+    } else {
+      $nsd_enable  =  false
+      $knot_enable =  true
+      file {'/usr/local/bin/dns-control':
+        ensure => link,
+        target => '/usr/sbin/knotc',
+      }
     }
   }
   # Currently nsd and knot dont support signed
@@ -55,11 +58,13 @@ class dns (
     $tmp = merge($reduce_store, {$zone => $config})
     $tmp
   }
-  $imports.each |String $import| {
-    Knot::Tsig <<| tag == $import |>>
-    Knot::Remote <<| tag == $import |>>
-    Nsd::Tsig <<| tag == $import |>>
-    Nsd::Remote <<| tag == $import |>>
+  if $ensure == 'present' {
+    $imports.each |String $import| {
+      Knot::Tsig <<| tag == $import |>>
+      Knot::Remote <<| tag == $import |>>
+      Nsd::Tsig <<| tag == $import |>>
+      Nsd::Remote <<| tag == $import |>>
+    }
   }
   $exports.each |String $export| {
     if $default_tsig_name != 'NOKEY' {
@@ -165,6 +170,16 @@ class dns (
           check_command       => "check_nrpe_args!check_dns!${zone}!${master_check_args}!${_ip_addresses_list}",
         }
       }
+    }
+  }
+  if $monitor_class {
+    class { $monitor_class:
+      tsigs                => $tsigs,
+      remotes              => $remotes,
+      zones                => $zones,
+      default_masters      => $default_masters,
+      default_provide_xfrs => $default_provide_xfrs,
+      default_tsig_name    => $default_tsig_name,
     }
   }
 }

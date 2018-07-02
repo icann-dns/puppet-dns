@@ -330,6 +330,7 @@ dns::default_masters:
 * `files` (Hash, Default: {}): A hash of nsd::file or knot::file resourves
 * `tsigs` (Hash, Default: {}): A hash of nsd::tsig or knot::tsig 
 * `enable_nagios` (Boolean, Default: false): export nagios_Service definitions for each zone 
+* `monitor_class` (String, Default: undef): if present the DNS module will; call this class passing in the zones, tsigs, remotes and default_{tsig,masters,provide_xfrs} data structrues enableing you toi create a monitoring module which uses the same data structures
 
 ### Private Classes
 
