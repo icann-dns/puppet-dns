@@ -1,3 +1,6 @@
+### 2018-07-02 0.4.1
+* add support for monitoring class
+
 ### 2017-09-22 0.4.0
 * add opendnssec support
 
