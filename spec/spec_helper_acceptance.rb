@@ -85,7 +85,7 @@ else
     install_puppet_on(
       host,
       version: '4',
-      puppet_agent_version: '1.6.1',
+      puppet_agent_version: '1.9.1',
       default_action: 'gem_install'
     )
     install_modules(host, modules, git_repos)
