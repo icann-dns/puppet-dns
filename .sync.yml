@@ -3,8 +3,8 @@
   docker_sets:
   - set: 'docker/ubuntu-14.04'
     testmode: apply
-  - set: 'docker/ubuntu-16.04'
-    testmode: apply
+  # - set: 'docker/ubuntu-16.04'
+  #  testmode: apply
   - set: 'docker/ubuntu-master-14.04'
     testmode: agent
   # - set: 'docker/ubuntu-master-16.04'
