@@ -13,10 +13,10 @@ modules = [
   'puppetlabs-apt',
   'puppetlabs-mysql',
   'icann-tea',
-  'icann-softhsm'
-  'icann-nsd'
-  'icann-knot'
-  'icann-opendnssec'
+  'icann-softhsm',
+  'icann-nsd',
+  'icann-knot',
+  'icann-opendnssec',
 ]
 git_repos = []
 #git_repos = [
