@@ -56,7 +56,7 @@ hosts.each do |host|
     host.install_package('sysutils/puppet4')
     host.install_package('dns/bind-tools')
   else
-    host.install_package('ping')
+    host.install_package('iputils-ping')
     host.install_package('vim')
     host.install_package('dnsutils')
   end
