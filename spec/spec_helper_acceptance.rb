@@ -14,27 +14,28 @@ modules = [
   'puppetlabs-mysql',
   'icann-tea',
   'icann-softhsm'
-  # 'icann-nsd'
-  # 'icann-knot'
+  'icann-nsd'
+  'icann-knot'
+  'icann-opendnssec'
 ]
-# git_repos = []
-git_repos = [
-  {
-    mod: 'opendnssec',
-    branch: 'master',
-    repo: 'https://github.com/icann-dns/puppet-opendnssec'
-  },
-  {
-    mod: 'nsd',
-    branch: '0.2.x',
-    repo: 'https://github.com/icann-dns/puppet-nsd'
-  },
-  {
-    mod: 'knot',
-    branch: '0.3.x',
-    repo: 'https://github.com/icann-dns/puppet-knot'
-  }
-]
+git_repos = []
+#git_repos = [
+#  {
+#    mod: 'opendnssec',
+#    branch: 'master',
+#    repo: 'https://github.com/icann-dns/puppet-opendnssec'
+#  },
+#  {
+#    mod: 'nsd',
+#    branch: '0.2.x',
+#    repo: 'https://github.com/icann-dns/puppet-nsd'
+#  },
+#  {
+#    mod: 'knot',
+#    branch: '0.3.x',
+#    repo: 'https://github.com/icann-dns/puppet-knot'
+#  }
+#]
 def install_modules(host, modules, git_repos)
   module_root = File.expand_path(File.join(File.dirname(__FILE__), '..'))
   install_dev_puppet_module_on(host, source: module_root)
@@ -63,20 +64,7 @@ hosts.each do |host|
 end
 if ENV['BEAKER_TESTMODE'] == 'agent'
   step 'install puppet enterprise'
-  # install_pe takes longer then 10 minutes so we create a bit of a hack
-  # to ensure we keep sending output so travis doesn't kill us
-  progress = fork do
-    trap 'INT' do
-      step 'Finished installing puppet enterprise'
-      exit
-    end
-    loop do
-      step 'Still installing puppet enterprise'
-      sleep 60
-    end
-  end
   install_pe
-  Process.kill(2, progress)
   master = only_host_with_role(hosts, 'master')
   install_modules(master, modules, git_repos)
 else
