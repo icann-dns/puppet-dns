@@ -1,3 +1,6 @@
+### 2018-07-03 0.4.2
+* update spec tests
+
 ### 2018-07-02 0.4.1
 * add support for monitoring class
 
