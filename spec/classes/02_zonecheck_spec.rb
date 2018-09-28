@@ -83,7 +83,7 @@ describe 'dns::zonecheck' do
         it { is_expected.to contain_class('dns::zonecheck') }
         it do
           is_expected.to contain_python__pip('zonecheck').with(
-            'ensure'   => 'latest',
+            'ensure' => 'latest'
           )
         end
         it do
