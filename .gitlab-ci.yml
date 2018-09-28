@@ -12,6 +12,7 @@ before_script:
   - bundle --version
   - gem --version
   - rm Gemfile.lock || true
+  - rm -rf vendor/bundle || true
   - bundle install --path=${BUNDLE_PATH:-vendor/bundle}
 
 lint:

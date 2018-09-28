@@ -59,6 +59,8 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
   master = only_host_with_role(hosts, 'master')
   install_module_on(master)
   install_module_dependencies_on(master)
+  on(master, puppet('module', 'install', 'icann-softhsm'))
+  on(master, puppet('module', 'install', 'icann-opendnssec'))
 else
   step 'install masterless'
   # run_puppet_install_helper()
@@ -72,6 +74,9 @@ else
   end
   install_module_on(hosts)
   install_module_dependencies_on(hosts)
+  signer = only_host_with_role(hosts, 'dnssigner')
+  on(signer, puppet('module', 'install', 'icann-softhsm'))
+  on(signer, puppet('module', 'install', 'icann-opendnssec'))
 end
 RSpec.configure do |c|
   c.formatter = :documentation
