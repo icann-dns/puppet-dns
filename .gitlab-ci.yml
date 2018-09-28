@@ -12,11 +12,11 @@ before_script:
   - bundle --version
   - gem --version
   - rm Gemfile.lock || true
-  - rm -rf vendor/bundle || true
+  - rm -rf ./vendor || true
   - bundle install --path=${BUNDLE_PATH:-vendor/bundle}
 
 lint:
-  stage: rspec
+  stage: lint
   script:
     - bundle exec rake validate lint
 
