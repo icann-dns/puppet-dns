@@ -41,7 +41,7 @@ describe 'dns' do
         facts.merge(
           environment: 'production',
           ipaddress: '192.0.2.2',
-          networking: { 'ip' => '192.0.2.1', 'ip6' => '2001:DB8::1' }
+          networking: { 'ip' => '192.0.2.1', 'ip6' => '2001:DB8::1' },
         )
       end
 
@@ -70,7 +70,7 @@ describe 'dns' do
         it do
           is_expected.to contain_file('/usr/local/bin/dns-control').with(
             'ensure' => 'link',
-            'target' => dns_control
+            'target' => dns_control,
           )
         end
         it do
@@ -83,7 +83,7 @@ describe 'dns' do
             files: {},
             zones: {},
             tsigs: {},
-            remotes: {}
+            remotes: {},
           )
         end
         it do
@@ -96,353 +96,353 @@ describe 'dns' do
             files: {},
             zones: {},
             tsigs: {},
-            remotes: {}
+            remotes: {},
           )
         end
       end
       describe 'Change Defaults' do
         context 'nsid' do
-          before { params.merge!(nsid: 'foobar') }
+          before(:each) { params.merge!(nsid: 'foobar') }
           it { is_expected.to compile }
           it { is_expected.to contain_class('knot').with_nsid('foobar') }
           it { is_expected.to contain_class('nsd').with_nsid('foobar') }
         end
         context 'identity' do
-          before { params.merge!(identity: 'foobar') }
+          before(:each) { params.merge!(identity: 'foobar') }
           it { is_expected.to compile }
           it { is_expected.to contain_class('knot').with_identity('foobar') }
           it { is_expected.to contain_class('nsd').with_identity('foobar') }
         end
         context 'ip_addresses' do
-          before do
+          before(:each) do
             params.merge!(ip_addresses: ['192.0.2.2', '2001:DB8::1'])
           end
           it { is_expected.to compile }
           it do
             is_expected.to contain_class('nsd').with_ip_addresses(
-              ['192.0.2.2', '2001:DB8::1']
+              ['192.0.2.2', '2001:DB8::1'],
             )
           end
           it do
             is_expected.to contain_class('knot').with_ip_addresses(
-              ['192.0.2.2', '2001:DB8::1']
+              ['192.0.2.2', '2001:DB8::1'],
             )
           end
         end
         context 'exports' do
-          before { params.merge!(exports: ['foobar']) }
+          before(:each) { params.merge!(exports: ['foobar']) }
           it { is_expected.to compile }
           it do
             is_expected.to contain_dns__remote(
-              'dns__export_foobar_dns.example.com'
+              'dns__export_foobar_dns.example.com',
             ).with(
               address4: '192.0.2.1',
               address6: '2001:DB8::1',
               tsig_name: 'NOKEY',
-              port: 53
+              port: 53,
             )
           end
           it do
             expect(exported_resources).to contain_nsd__remote(
-              'dns__export_foobar_dns.example.com'
+              'dns__export_foobar_dns.example.com',
             ).with(
               address4: '192.0.2.1',
               address6: '2001:DB8::1',
               tsig_name: 'NOKEY',
-              port: 53
+              port: 53,
             )
           end
           it do
             expect(exported_resources).to contain_knot__remote(
-              'dns__export_foobar_dns.example.com'
+              'dns__export_foobar_dns.example.com',
             ).with(
               address4: '192.0.2.1',
               address6: '2001:DB8::1',
               tsig_name: 'NOKEY',
-              port: 53
+              port: 53,
             )
           end
         end
         context 'reject_private_ip reject ipv4' do
-          before do
+          before(:each) do
             params.merge!(
               exports: ['foobar'],
-              default_ipv4: '192.168.0.1'
+              default_ipv4: '192.168.0.1',
             )
           end
           it { is_expected.to compile }
           it do
             expect(exported_resources).to contain_nsd__remote(
-              'dns__export_foobar_dns.example.com'
+              'dns__export_foobar_dns.example.com',
             ).with(
               address4: nil,
               address6: '2001:DB8::1',
               tsig_name: 'NOKEY',
-              port: 53
+              port: 53,
             )
           end
           it do
             expect(exported_resources).to contain_knot__remote(
-              'dns__export_foobar_dns.example.com'
+              'dns__export_foobar_dns.example.com',
             ).with(
               address4: nil,
               address6: '2001:DB8::1',
               tsig_name: 'NOKEY',
-              port: 53
+              port: 53,
             )
           end
         end
         context 'reject_private_ip reject ipv6' do
-          before do
+          before(:each) do
             params.merge!(
               exports: ['foobar'],
-              default_ipv6: 'fE80::250:56ff:feae:ae83'
+              default_ipv6: 'fE80::250:56ff:feae:ae83',
             )
           end
           it { is_expected.to compile }
           it do
             expect(exported_resources).to contain_nsd__remote(
-              'dns__export_foobar_dns.example.com'
+              'dns__export_foobar_dns.example.com',
             ).with(
               address4: '192.0.2.1',
               address6: nil,
               tsig_name: 'NOKEY',
-              port: 53
+              port: 53,
             )
           end
           it do
             expect(exported_resources).to contain_knot__remote(
-              'dns__export_foobar_dns.example.com'
+              'dns__export_foobar_dns.example.com',
             ).with(
               address4: '192.0.2.1',
               address6: nil,
               tsig_name: 'NOKEY',
-              port: 53
+              port: 53,
             )
           end
         end
         context 'reject_private_ip allow private addresses' do
-          before do
+          before(:each) do
             params.merge!(
               exports: ['foobar'],
               default_ipv4: '192.168.0.1',
               default_ipv6: 'fE80::250:56ff:feae:ae83',
-              reject_private_ip: false
+              reject_private_ip: false,
             )
           end
           it { is_expected.to compile }
           it do
             expect(exported_resources).to contain_nsd__remote(
-              'dns__export_foobar_dns.example.com'
+              'dns__export_foobar_dns.example.com',
             ).with(
               address4: '192.168.0.1',
               address6: 'fE80::250:56ff:feae:ae83',
               tsig_name: 'NOKEY',
-              port: 53
+              port: 53,
             )
           end
           it do
             expect(exported_resources).to contain_knot__remote(
-              'dns__export_foobar_dns.example.com'
+              'dns__export_foobar_dns.example.com',
             ).with(
               address4: '192.168.0.1',
               address6: 'fE80::250:56ff:feae:ae83',
               tsig_name: 'NOKEY',
-              port: 53
+              port: 53,
             )
           end
         end
         context 'ensure' do
-          before { params.merge!(ensure: 'absent') }
+          before(:each) { params.merge!(ensure: 'absent') }
           it { is_expected.to compile }
           it { is_expected.not_to contain_class('knot') }
           it { is_expected.not_to contain_class('nsd') }
         end
         context 'zones' do
-          before do
+          before(:each) do
             params.merge!(
               zones: {
                 'example.com' => {
                   'signed' => true,
                   'masters' => ['master.example.com'],
-                  'provide_xfrs' => ['slave.example.com']
-                }
+                  'provide_xfrs' => ['slave.example.com'],
+                },
               },
               remotes: {
                 'master.example.com' => {
-                  'address4' => '192.0.2.1'
+                  'address4' => '192.0.2.1',
                 },
                 'slave.example.com' => {
-                  'address4' => '192.0.2.2'
-                }
-              }
+                  'address4' => '192.0.2.2',
+                },
+              },
             )
           end
           it { is_expected.to compile }
         end
         context 'files' do
-          before do
+          before(:each) do
             params.merge!(
-              files: { 'test' => { 'source' => 'puppet:///modules/dns/source' } }
+              files: { 'test' => { 'source' => 'puppet:///modules/dns/source' } },
             )
           end
           it { is_expected.to compile }
         end
         context 'tsigs' do
-          before { params.merge!(tsigs: { 'test' => { 'data' => 'aaaa' } }) }
+          before(:each) { params.merge!(tsigs: { 'test' => { 'data' => 'aaaa' } }) }
           it { is_expected.to compile }
           it { is_expected.to contain_nsd__tsig('test') }
           it { is_expected.to contain_knot__tsig('test') }
         end
         context 'enable_nagios only v4' do
-          before do
+          before(:each) do
             params.merge!(
               enable_nagios: true,
               zones: {
                 'example.com' => {
                   'signed'  => true,
                   'masters' => ['master.example.com'],
-                  'provide_xfrs' => ['slave.example.com']
-                }
-              },
-              remotes: {
-                'master.example.com' => {
-                  'address4' => '192.0.2.1'
+                  'provide_xfrs' => ['slave.example.com'],
                 },
-                'slave.example.com' => {
-                  'address4' => '192.0.2.2'
-                }
-              }
-            )
-          end
-          it { is_expected.to compile }
-          it do
-            expect(exported_resources).to contain_nagios_service(
-              'dns.example.com_DNS_ZONE_MASTERS_example.com'
-            ).with(
-              'use' => 'generic-service',
-              'host_name' => 'dns.example.com',
-              'service_description' => 'DNS_ZONE_MASTERS_example.com',
-              'check_command' => 'check_nrpe_args!check_dns!example.com!192.0.2.1!192.0.2.2'
-            )
-          end
-        end
-        context 'enable_nagios only v6' do
-          before do
-            params.merge!(
-              enable_nagios: true,
-              zones: {
-                'example.com' => {
-                  'signed'  => true,
-                  'masters' => ['master.example.com'],
-                  'provide_xfrs' => ['slave.example.com']
-                }
-              },
-              remotes: {
-                'master.example.com' => {
-                  'address6' => '2001:DB8::1'
-                },
-                'slave.example.com' => {
-                  'address4' => '192.0.2.2'
-                }
-              }
-            )
-          end
-          it { is_expected.to compile }
-          it do
-            expect(exported_resources).to contain_nagios_service(
-              'dns.example.com_DNS_ZONE_MASTERS_example.com'
-            ).with(
-              'use' => 'generic-service',
-              'host_name' => 'dns.example.com',
-              'service_description' => 'DNS_ZONE_MASTERS_example.com',
-              'check_command' => 'check_nrpe_args!check_dns!example.com!2001:DB8::1!192.0.2.2'
-            )
-          end
-        end
-        context 'enable_nagios only v4 and v6' do
-          before do
-            params.merge!(
-              enable_nagios: true,
-              zones: {
-                'example.com' => {
-                  'signed'  => true,
-                  'masters' => ['master.example.com'],
-                  'provide_xfrs' => ['slave.example.com']
-                }
               },
               remotes: {
                 'master.example.com' => {
                   'address4' => '192.0.2.1',
-                  'address6' => '2001:DB8::1'
                 },
                 'slave.example.com' => {
-                  'address4' => '192.0.2.2'
-                }
-              }
+                  'address4' => '192.0.2.2',
+                },
+              },
             )
           end
           it { is_expected.to compile }
           it do
             expect(exported_resources).to contain_nagios_service(
-              'dns.example.com_DNS_ZONE_MASTERS_example.com'
+              'dns.example.com_DNS_ZONE_MASTERS_example.com',
             ).with(
               'use' => 'generic-service',
               'host_name' => 'dns.example.com',
               'service_description' => 'DNS_ZONE_MASTERS_example.com',
-              'check_command' => 'check_nrpe_args!check_dns!example.com!192.0.2.1 2001:DB8::1!192.0.2.2'
+              'check_command' => 'check_nrpe_args!check_dns!example.com!192.0.2.1!192.0.2.2',
+            )
+          end
+        end
+        context 'enable_nagios only v6' do
+          before(:each) do
+            params.merge!(
+              enable_nagios: true,
+              zones: {
+                'example.com' => {
+                  'signed'  => true,
+                  'masters' => ['master.example.com'],
+                  'provide_xfrs' => ['slave.example.com'],
+                },
+              },
+              remotes: {
+                'master.example.com' => {
+                  'address6' => '2001:DB8::1',
+                },
+                'slave.example.com' => {
+                  'address4' => '192.0.2.2',
+                },
+              },
+            )
+          end
+          it { is_expected.to compile }
+          it do
+            expect(exported_resources).to contain_nagios_service(
+              'dns.example.com_DNS_ZONE_MASTERS_example.com',
+            ).with(
+              'use' => 'generic-service',
+              'host_name' => 'dns.example.com',
+              'service_description' => 'DNS_ZONE_MASTERS_example.com',
+              'check_command' => 'check_nrpe_args!check_dns!example.com!2001:DB8::1!192.0.2.2',
+            )
+          end
+        end
+        context 'enable_nagios only v4 and v6' do
+          before(:each) do
+            params.merge!(
+              enable_nagios: true,
+              zones: {
+                'example.com' => {
+                  'signed'  => true,
+                  'masters' => ['master.example.com'],
+                  'provide_xfrs' => ['slave.example.com'],
+                },
+              },
+              remotes: {
+                'master.example.com' => {
+                  'address4' => '192.0.2.1',
+                  'address6' => '2001:DB8::1',
+                },
+                'slave.example.com' => {
+                  'address4' => '192.0.2.2',
+                },
+              },
+            )
+          end
+          it { is_expected.to compile }
+          it do
+            expect(exported_resources).to contain_nagios_service(
+              'dns.example.com_DNS_ZONE_MASTERS_example.com',
+            ).with(
+              'use' => 'generic-service',
+              'host_name' => 'dns.example.com',
+              'service_description' => 'DNS_ZONE_MASTERS_example.com',
+              'check_command' => 'check_nrpe_args!check_dns!example.com!192.0.2.1 2001:DB8::1!192.0.2.2',
             )
           end
         end
       end
       describe 'check bad type' do
         context 'daemon' do
-          before { params.merge!(daemon: true) }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
+          before(:each) { params.merge!(daemon: true) }
+          it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'daemon bad option' do
-          before { params.merge!(daemon: 'foobar') }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
+          before(:each) { params.merge!(daemon: 'foobar') }
+          it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'nsid' do
-          before { params.merge!(nsid: true) }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
+          before(:each) { params.merge!(nsid: true) }
+          it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'identity' do
-          before { params.merge!(identity: true) }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
+          before(:each) { params.merge!(identity: true) }
+          it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'ip_addresses' do
-          before { params.merge!(ip_addresses: true) }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
+          before(:each) { params.merge!(ip_addresses: true) }
+          it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'exports' do
-          before { params.merge!(exports: true) }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
+          before(:each) { params.merge!(exports: true) }
+          it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'imports' do
-          before { params.merge!(imports: true) }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
+          before(:each) { params.merge!(imports: true) }
+          it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'ensure' do
-          before { params.merge!(ensure: true) }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
+          before(:each) { params.merge!(ensure: true) }
+          it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'ensure bad option' do
-          before { params.merge!(ensure: 'foobar') }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
+          before(:each) { params.merge!(ensure: 'foobar') }
+          it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'zones' do
-          before { params.merge!(zones: true) }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
+          before(:each) { params.merge!(zones: true) }
+          it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'files' do
-          before { params.merge!(files: true) }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
+          before(:each) { params.merge!(files: true) }
+          it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'enable_nagios' do
-          before { params.merge!(enable_nagios: '') }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
+          before(:each) { params.merge!(enable_nagios: '') }
+          it { is_expected.to raise_error(Puppet::Error) }
         end
       end
     end

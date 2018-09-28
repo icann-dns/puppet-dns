@@ -7,11 +7,11 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
     context 'defaults' do
       in_addr_zones = [
         'in-addr.arpa',
-        'in-addr-servers.arpa'
+        'in-addr-servers.arpa',
       ]
       ip6_zones = [
         'ip6.arpa',
-        'ip6-servers.arpa'
+        'ip6-servers.arpa',
       ]
       other_zones = [
         'mcast.net',
@@ -36,7 +36,7 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
         '236.in-addr.arpa',
         '237.in-addr.arpa',
         '238.in-addr.arpa',
-        '239.in-addr.arpa'
+        '239.in-addr.arpa',
       ]
       allzones = in_addr_zones + ip6_zones + other_zones
       dnstop         = find_host_with_role('dnstop')

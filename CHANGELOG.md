@@ -1,3 +1,9 @@
+### 2018-09-28 0.5.0
+* use stdlib types instead of tea types where possible
+* use python::pip to install packages
+* convert PDK
+* update spec\_helper\_acceptance to work with beaker v4
+
 ### 2018-07-03 0.4.2
 * update spec tests
 

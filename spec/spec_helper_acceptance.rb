@@ -1,24 +1,14 @@
 # frozen_string_literal: true
 
-require 'puppet'
 require 'beaker-rspec'
+require 'beaker-puppet'
 require 'beaker/testmode_switcher/dsl'
 require 'beaker-pe'
 require 'progressbar'
+require 'beaker/puppet_install_helper'
+require 'beaker/module_install_helper'
 
-modules = [
-  'puppetlabs-stdlib',
-  'puppetlabs-concat',
-  'stankevich-python',
-  'puppetlabs-apt',
-  'puppetlabs-mysql',
-  'icann-tea',
-  'icann-softhsm',
-  'icann-nsd',
-  'icann-knot',
-  'icann-opendnssec'
-]
-git_repos = []
+# git_repos = []
 # git_repos = [
 #  {
 #    mod: 'opendnssec',
@@ -36,17 +26,17 @@ git_repos = []
 #    repo: 'https://github.com/icann-dns/puppet-knot'
 #  }
 # ]
-def install_modules(host, modules, git_repos)
-  module_root = File.expand_path(File.join(File.dirname(__FILE__), '..'))
-  install_dev_puppet_module_on(host, source: module_root)
-  modules.each do |m|
-    on(host, puppet('module', 'install', m))
-  end
-  git_repos.each do |g|
-    step "Installing puppet module \'#{g[:repo]}\' from git on #{host} to #{default['distmoduledir']}"
-    on(host, "git clone -b #{g[:branch]} --single-branch #{g[:repo]} #{default['distmoduledir']}/#{g[:mod]}")
-  end
-end
+# def install_modules(host, modules, git_repos)
+#   module_root = File.expand_path(File.join(File.dirname(__FILE__), '..'))
+#   install_dev_puppet_module_on(host, source: module_root)
+#   modules.each do |m|
+#     on(host, puppet('module', 'install', m))
+#   end
+#   git_repos.each do |g|
+#     step "Installing puppet module \'#{g[:repo]}\' from git on #{host} to #{default['distmoduledir']}"
+#     on(host, "git clone -b #{g[:branch]} --single-branch #{g[:repo]} #{default['distmoduledir']}/#{g[:mod]}")
+#   end
+# end
 # Install Puppet on all hosts
 hosts.each do |host|
   step "install packages on #{host}"
@@ -67,18 +57,21 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
   step 'install puppet enterprise'
   install_pe
   master = only_host_with_role(hosts, 'master')
-  install_modules(master, modules, git_repos)
+  install_module_on(master)
+  install_module_dependencies_on(master)
 else
   step 'install masterless'
+  # run_puppet_install_helper()
   hosts.each do |host|
     install_puppet_on(
       host,
       version: '4',
       puppet_agent_version: '1.9.1',
-      default_action: 'gem_install'
+      default_action: 'gem_install',
     )
-    install_modules(host, modules, git_repos)
   end
+  install_module_on(hosts)
+  install_module_dependencies_on(hosts)
 end
 RSpec.configure do |c|
   c.formatter = :documentation

@@ -39,7 +39,7 @@ describe 'dns::zonecheck' do
         facts.merge(
           environment: 'production',
           ipaddress: '192.0.2.2',
-          networking: { 'ip' => '192.0.2.1', 'ip6' => '2001:DB8::1' }
+          networking: { 'ip' => '192.0.2.1', 'ip6' => '2001:DB8::1' },
         )
       end
       let(:pre_condition) do
@@ -83,12 +83,12 @@ describe 'dns::zonecheck' do
         it { is_expected.to contain_class('dns::zonecheck') }
         it do
           is_expected.to contain_python__pip('zonecheck').with(
-            'ensure' => 'latest'
+            'ensure' => 'latest',
           )
         end
         it do
           is_expected.to contain_file('/usr/local/etc/zone_check.conf').with_ensure(
-            'present'
+            'present',
           ).with_content(
             %r{
               zones:
@@ -106,86 +106,86 @@ describe 'dns::zonecheck' do
                 \s+data:\sasdasd
               \s+ip_addresses:
                 \s+-\s192.0.2.2
-            }x
+            }x,
           )
         end
         it do
           is_expected.to contain_cron('/usr/local/bin/zonecheck').with(
             'ensure' => 'present',
             'command' => '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -v',
-            'minute' => '*/15'
+            'minute' => '*/15',
           )
         end
       end
       describe 'Change Defaults' do
         context 'enable' do
-          before { params.merge!(enable: false) }
+          before(:each) { params.merge!(enable: false) }
           it { is_expected.to compile }
           it do
             is_expected.to contain_file(
-              '/usr/local/etc/zone_check.conf'
+              '/usr/local/etc/zone_check.conf',
             ).with_ensure('absent')
           end
           it do
             is_expected.to contain_cron('/usr/local/bin/zonecheck').with_ensure(
-              'absent'
+              'absent',
             )
           end
           it do
             is_expected.to contain_file(
-              '/etc/puppetlabs/facter/facts.d/zone_status.txt'
+              '/etc/puppetlabs/facter/facts.d/zone_status.txt',
             ).with_content('zone_status_errors=false')
           end
         end
         context 'syslog_level critical' do
-          before { params.merge!(syslog_level: 'critical') }
+          before(:each) { params.merge!(syslog_level: 'critical') }
           it { is_expected.to compile }
           it do
             is_expected.to contain_cron('/usr/local/bin/zonecheck').with_command(
-              '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts '
+              '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts ',
             )
           end
         end
         context 'syslog_level warn' do
-          before { params.merge!(syslog_level: 'warn') }
+          before(:each) { params.merge!(syslog_level: 'warn') }
           it { is_expected.to compile }
           it do
             is_expected.to contain_cron('/usr/local/bin/zonecheck').with_command(
-              '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vv'
+              '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vv',
             )
           end
         end
         context 'syslog_level info' do
-          before { params.merge!(syslog_level: 'info') }
+          before(:each) { params.merge!(syslog_level: 'info') }
           it { is_expected.to compile }
           it do
             is_expected.to contain_cron('/usr/local/bin/zonecheck').with_command(
-              '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vvv'
+              '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vvv',
             )
           end
         end
         context 'syslog_level debug' do
-          before { params.merge!(syslog_level: 'debug') }
+          before(:each) { params.merge!(syslog_level: 'debug') }
           it { is_expected.to compile }
           it do
             is_expected.to contain_cron('/usr/local/bin/zonecheck').with_command(
-              '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vvvv'
+              '/usr/bin/flock -n /var/lock/zonecheck.lock /usr/local/bin/zonecheck --puppet-facts -vvvv',
             )
           end
         end
       end
       describe 'check bad type' do
         context 'enable' do
-          before { params.merge!(enable: 'foobar') }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
+          before(:each) { params.merge!(enable: 'foobar') }
+          it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'syslog_level' do
-          before { params.merge!(syslog_level: true) }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
+          before(:each) { params.merge!(syslog_level: true) }
+          it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'syslog_bad string' do
-          before { params.merge!(syslog_level: 'foobar') }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
+          before(:each) { params.merge!(syslog_level: 'foobar') }
+          it { is_expected.to raise_error(Puppet::Error) }
         end
       end
     end

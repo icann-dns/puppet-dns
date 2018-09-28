@@ -75,7 +75,7 @@ EOS
         its(:exit_status) { is_expected.to eq 0 }
         its(:stdout) do
           is_expected.to match(
-            %r{sns.dns.icann.org. noc.dns.icann.org. 1 7200 3600 1209600 3600}
+            %r{sns.dns.icann.org. noc.dns.icann.org. 1 7200 3600 1209600 3600},
           )
         end
       end
@@ -83,7 +83,7 @@ EOS
         its(:exit_status) { is_expected.to eq 0 }
         its(:stdout) do
           is_expected.to match(
-            %r{sns.dns.icann.org. noc.dns.icann.org. 1 7200 3600 1209600 3600}
+            %r{sns.dns.icann.org. noc.dns.icann.org. 1 7200 3600 1209600 3600},
           )
         end
       end
@@ -99,7 +99,7 @@ EOS
         its(:exit_status) { is_expected.to eq 0 }
         its(:stdout) do
           is_expected.to match(
-            %r{sns.dns.icann.org. noc.dns.icann.org. 2 7200 3600 1209600 3600}
+            %r{sns.dns.icann.org. noc.dns.icann.org. 2 7200 3600 1209600 3600},
           )
         end
       end
@@ -107,7 +107,7 @@ EOS
         its(:exit_status) { is_expected.to eq 0 }
         its(:stdout) do
           is_expected.to match(
-            %r{sns.dns.icann.org. noc.dns.icann.org. 2 7200 3600 1209600 3600}
+            %r{sns.dns.icann.org. noc.dns.icann.org. 2 7200 3600 1209600 3600},
           )
         end
       end
