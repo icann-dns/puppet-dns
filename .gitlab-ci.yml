@@ -1,3 +1,5 @@
+cache:
+  untracked: false
 stages:
   - lint
   - rubocop
