@@ -33,14 +33,6 @@ rspec:
   script:
     - bundle exec rake spec
 
-beaker_trusty_apply:
-  stage: beaker_apply
-  variables:
-    BEAKER_set: docker/ubuntu-multi-14.04
-    BEAKER_TESTMODE: apply
-  script:
-    -  bundle exec rake beaker
-
 beaker_xenial_apply:
  stage: beaker_apply
  variables:
