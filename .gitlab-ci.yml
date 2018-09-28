@@ -9,7 +9,6 @@ variables:
   PUPPET_GEM_VERSION: "~> 5.0"
 before_script:
   - pwd
-  - gem install bundle
   - ruby -v
   - bundle --version
   - gem --version
