@@ -24,11 +24,7 @@ describe 'dns::zonecheck' do
   let(:params) do
     {
       #:enable => true,
-      #:version => "1.0.14",
       #:syslog_level => "error",
-      #:ip_addresses => [],
-      #:zones => {},
-      #:tsig => {},
     }
   end
 
@@ -86,9 +82,8 @@ describe 'dns::zonecheck' do
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_class('dns::zonecheck') }
         it do
-          is_expected.to contain_package('zonecheck').with(
-            'ensure'   => '1.0.18',
-            'provider' => 'pip'
+          is_expected.to contain_python__pip('zonecheck').with(
+            'ensure'   => 'latest',
           )
         end
         it do
@@ -142,11 +137,6 @@ describe 'dns::zonecheck' do
             ).with_content('zone_status_errors=false')
           end
         end
-        context 'version' do
-          before { params.merge!(version: 'foobar') }
-          it { is_expected.to compile }
-          it { is_expected.to contain_package('zonecheck').with_ensure('foobar') }
-        end
         context 'syslog_level critical' do
           before { params.merge!(syslog_level: 'critical') }
           it { is_expected.to compile }
@@ -187,10 +177,6 @@ describe 'dns::zonecheck' do
       describe 'check bad type' do
         context 'enable' do
           before { params.merge!(enable: 'foobar') }
-          it { expect { subject.call }.to raise_error(Puppet::Error) }
-        end
-        context 'version' do
-          before { params.merge!(version: true) }
           it { expect { subject.call }.to raise_error(Puppet::Error) }
         end
         context 'syslog_level' do

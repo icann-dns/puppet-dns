@@ -1,19 +1,10 @@
 fixtures:
     symlinks:
       dns: "#{source_dir}"
-    repositories:
-      stdlib:
-        repo: https://github.com/puppetlabs/puppetlabs-stdlib.git
-        ref: 4.25.1
-      concat:
-        repo: https://github.com/puppetlabs/puppetlabs-concat.git
-      nsd:
-        repo: https://github.com/icann-dns/puppet-nsd.git
-        branch: 0.2.x
-      knot:
-        repo: https://github.com/icann-dns/puppet-knot.git
-        branch: 0.2.x
-      tea:
-        repo: https://github.com/icann-dns/puppet-tea.git
-      python:
-        repo: https://github.com/stankevich/puppet-python.git
+    forge_modules:
+      stdlib: "puppetlabs/stdlib"
+      concat: "puppetlabs/concat"
+      knot: "icann/knot"
+      nsd: "icann/nsd"
+      tea: "icann/tea"
+      python: "puppet/python"
