@@ -82,7 +82,7 @@ describe 'dns::zonecheck' do
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_class('dns::zonecheck') }
         it do
-          is_expected.to contain_python__pip('zonecheck').with(
+          is_expected.to contain_package('zonecheck').with(
             'ensure' => 'latest',
           )
         end
