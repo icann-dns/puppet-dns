@@ -1,6 +1,6 @@
 {
   "name": "icann-dns",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "author": "john.bond@icann.org",
   "summary": "puppet meta module to manage NSD and Knot modules",
   "license": "Apache-2.0",

@@ -1,3 +1,6 @@
+### 2018-11-16 0.5.1
+* revert back to using provider => pip
+
 ### 2018-09-28 0.5.0
 * use stdlib types instead of tea types where possible
 * use python::pip to install packages
