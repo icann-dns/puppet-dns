@@ -29,8 +29,9 @@ class dns::zonecheck (
     'debug'    => '-vvvv',
     default    => '-v'
   }
-  python::pip {'zonecheck':
+  package {'zonecheck':
     ensure   => latest,
+    provider => pip,
   }
   if $::kernel != 'FreeBSD' {
     include ::python
