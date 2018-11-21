@@ -3,6 +3,7 @@
 class dns::zonecheck (
   Boolean                 $enable       = true,
   Tea::Syslog_level       $syslog_level = 'error',
+  String                  $version      = '1.2.0',
 ) {
   include ::dns
   $zones        = $::dns::zones
@@ -30,7 +31,7 @@ class dns::zonecheck (
     default    => '-v'
   }
   package {'zonecheck':
-    ensure   => latest,
+    ensure   => $version,
     provider => pip,
   }
   if $::kernel != 'FreeBSD' {
