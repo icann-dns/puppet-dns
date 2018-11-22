@@ -1,3 +1,6 @@
+### 2018-11-22 0.5.2
+* revert back to specifiying a version.  using latest causes pip to search pypi on each puppet run and pypi is not that stable
+
 ### 2018-11-16 0.5.1
 * revert back to using provider => pip
 
