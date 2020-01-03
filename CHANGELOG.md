@@ -1,3 +1,6 @@
+### 2020-01-02 0.5.3
+* setup the zone_check.conf file always for monitoring purposes
+
 ### 2018-11-16 0.5.1
 * revert back to using provider => pip
 

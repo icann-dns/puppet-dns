@@ -37,7 +37,7 @@ class dns::zonecheck (
     include ::python
   }
   file {'/usr/local/etc/zone_check.conf':
-    ensure  => $ensure,
+    ensure  => present,
     content => template('dns/usr/local/etc/zone_check.conf.erb'),
   }
   if ! $enable {
