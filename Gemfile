@@ -62,7 +62,6 @@ group :system_tests do
   gem 'simplecov-console'
   gem 'puppet', puppet_version
   gem 'puppetlabs_spec_helper', '>= 1.0.0'
-  gem "puppet-blacksmith"
   gem 'puppet-lint', '>= 1.0.0'
   gem "puppet-module-posix-system-r#{minor_version}",                                    require: false, platforms: [:ruby]
   gem "progressbar",                                                                     require: false
