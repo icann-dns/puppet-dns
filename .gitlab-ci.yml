@@ -18,17 +18,16 @@ before_script:
 
 stages:
   - syntax
-  - rubocop      
   - rspec
   - beaker
 
 lint:
-  stage: lint
+  stage: syntax
   script:
     - bundle exec rake validate lint
 
 rubocop:
-  stage: lint
+  stage: syntax
   script:
     - bundle exec rake rubocop
 
