@@ -1,14 +1,12 @@
+image: ruby:2.4
+
 cache:
   untracked: false
-stages:
-  - lint
-  - rubocop
-  - rspec
-  - beaker_apply
-  - beaker_agent
+
 variables:
   BEAKER_PUPPET_COLLECTION: puppet5
   PUPPET_GEM_VERSION: "~> 5.0"
+
 before_script:
   - pwd
   - ruby -v
@@ -18,13 +16,19 @@ before_script:
   - rm -rf ./vendor || true
   - bundle install --path=${BUNDLE_PATH:-vendor/bundle}
 
+stages:
+  - syntax
+  - rubocop      
+  - rspec
+  - beaker
+
 lint:
   stage: lint
   script:
     - bundle exec rake validate lint
 
 rubocop:
-  stage: rubocop
+  stage: lint
   script:
     - bundle exec rake rubocop
 
@@ -34,7 +38,7 @@ rspec:
     - bundle exec rake spec
 
 beaker_xenial_apply:
- stage: beaker_apply
+ stage: beaker
  variables:
    BEAKER_set: docker/ubuntu-multi-18.04
    BEAKER_TESTMODE: apply
@@ -42,7 +46,7 @@ beaker_xenial_apply:
    -  bundle exec rake beaker
 
 beaker_xenial_agent:
- stage: beaker_agent
+ stage: beaker
  variables:
    BEAKER_set: docker/ubuntu-master-18.04
    BEAKER_TESTMODE: agent
