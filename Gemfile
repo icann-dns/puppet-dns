@@ -13,6 +13,16 @@ def location_for(place_or_version, fake_version = nil)
   end
 end
 
+def gem_type(place_or_version)
+  if place_or_version =~ %r{\Agit[:@]}
+    :git
+  elsif !place_or_version.nil? && place_or_version.start_with?('file:')
+    :file
+  else
+    :gem
+  end
+end
+
 ruby_version_segments = Gem::Version.new(RUBY_VERSION.dup).segments
 minor_version = ruby_version_segments[0..1].join('.')
 
