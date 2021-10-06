@@ -1,6 +1,7 @@
 ---
+os: linux
 sudo: false
-dist: trusty
+dist: bionic
 language: ruby
 cache: bundler
 before_install:
@@ -13,10 +14,10 @@ script:
   - 'bundle exec rake $CHECK'
 bundler_args: --without system_tests
 rvm:
-  - 2.5.0
+  - 2.4.10
 env:
   global:
-    - BEAKER_PUPPET_COLLECTION=puppet6 PUPPET_GEM_VERSION="~> 6.0"
+    - BEAKER_PUPPET_COLLECTION=puppet5 PUPPET_GEM_VERSION="~> 5.0" BEAKER_debug=true
 jobs:
   fast_finish: true
   include:
@@ -26,28 +27,22 @@ jobs:
       env: CHECK=parallel_spec
     - stage: spec and lint
       env: PUPPET_GEM_VERSION="~> 5.0" CHECK=parallel_spec
-      rvm: 2.4.4
-    - stage: spec and lint
-      env: PUPPET_GEM_VERSION="~> 4.0" CHECK=parallel_spec
-      rvm: 2.1.9
-    - stage: acceptence
+    - stage: acceptance
       bundler_args: 
-      dist: trusty
-      env: PUPPET_INSTALL_TYPE=agent BEAKER_debug=true BEAKER_PUPPET_COLLECTION=puppet6 BEAKER_set=docker/ubuntu-14.04 BEAKER_TESTMODE=apply
-      rvm: 2.5.0
+      dist: xenial
+      env: PUPPET_INSTALL_TYPE=agent BEAKER_debug=true BEAKER_PUPPET_COLLECTION=puppet5 BEAKER_set=docker/ubuntu-16.04 BEAKER_TESTMODE=apply
       script: bundle exec rake beaker
       services: docker
       sudo: required
-    - stage: acceptence
+    - stage: acceptance
       bundler_args: 
-      dist: trusty
-      env: PUPPET_INSTALL_TYPE=agent BEAKER_debug=true BEAKER_PUPPET_COLLECTION=puppet6 BEAKER_set=docker/ubuntu-master-14.04 BEAKER_TESTMODE=agent
-      rvm: 2.5.0
+      dist: bionic
+      env: PUPPET_INSTALL_TYPE=agent BEAKER_debug=true BEAKER_PUPPET_COLLECTION=puppet5 BEAKER_set=docker/ubuntu-18.04 BEAKER_TESTMODE=apply
       script: bundle exec rake beaker
       services: docker
       sudo: required
-    - stage: deploy
-      env: PUPPET_VERSION="~> 4.0" CHECK=build DEPLOY_TO_FORGE=yes
+   - stage: deploy
+      env: PUPPET_VERSION="~> 5.0" CHECK=build DEPLOY_TO_FORGE=yes
 notifications:
   email: false
 deploy:
