@@ -43,13 +43,17 @@ group :development do
 end
 group :system_tests do
   gem "puppet-module-posix-system-r#{minor_version}",                            require: false, platforms: [:ruby]
-  gem "beaker", *location_for(ENV['BEAKER_VERSION'] || '>= 3.13')
+  gem "beaker", *location_for(ENV['BEAKER_VERSION'] || '>= 4.2.0')
   gem "beaker-hostgenerator"
   gem "beaker-docker",                                                           require: false
   gem "beaker-pe"
   gem "beaker-puppet"
   gem "beaker-puppet_install_helper"
-  gem "beaker-rspec"
+  if beaker_rspec_version = ENV['BEAKER_RSPEC_VERSION']
+    gem 'beaker-rspec', *location_for(beaker_rspec_version)
+  else
+    gem 'beaker-rspec',  :require => false
+  end
   gem "beaker-testmode_switcher",                                                require: false
   gem "beaker-vagrant",                                                          require: false
   gem "progressbar",                                                             require: false
