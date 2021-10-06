@@ -42,29 +42,18 @@ group :development do
   gem "puppet-lint-version_comparison-check",          require: false
 end
 group :system_tests do
-  gem "beaker", *location_for(ENV['BEAKER_VERSION'] || '~> 3.13')
-  gem "beaker-docker",                                                                   require: false
-  gem "beaker-hostgenerator",                                                            require: false
-  gem "beaker-module_install_helper"
-  gem "beaker-pe",                                                                       require: false
+  gem "puppet-module-posix-system-r#{minor_version}",                            require: false, platforms: [:ruby]
+  gem "beaker", *location_for(ENV['BEAKER_VERSION'] || '>= 3.13')
+  gem "beaker-hostgenerator"
+  gem "beaker-docker",                                                           require: false
+  gem "beaker-pe"
   gem "beaker-puppet"
-  gem "beaker-puppet_install_helper",                                                    require: false
+  gem "beaker-puppet_install_helper"
   gem "beaker-rspec"
-  gem "beaker-testmode_switcher",                                                        require: false
-  gem "beaker-vagrant",                                                                  require: false
-  gem 'beaker-vmware'
-  gem 'facter', '>= 1.7.0'
-  gem 'metadata-json-lint'
-  gem 'rspec-puppet'
-  gem 'rspec-puppet-facts'
-  gem 'rspec-puppet-utils'
-  gem 'rubocop'
-  gem 'simplecov-console'
-  gem 'puppet', puppet_version
-  gem 'puppetlabs_spec_helper', '>= 1.0.0'
-  gem 'puppet-lint', '>= 1.0.0'
-  gem "puppet-module-posix-system-r#{minor_version}",                                    require: false, platforms: [:ruby]
-  gem "progressbar",                                                                     require: false
+  gem "beaker-testmode_switcher",                                                require: false
+  gem "beaker-vagrant",                                                          require: false
+  gem "progressbar",                                                             require: false
+  gem "puppet", puppet_version
 end
 
 
