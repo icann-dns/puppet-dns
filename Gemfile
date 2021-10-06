@@ -26,6 +26,11 @@ end
 ruby_version_segments = Gem::Version.new(RUBY_VERSION.dup).segments
 minor_version = ruby_version_segments[0..1].join('.')
 
+puppet_version = ENV['PUPPET_GEM_VERSION']
+puppet_type = gem_type(puppet_version)
+facter_version = ENV['FACTER_GEM_VERSION']
+hiera_version = ENV['HIERA_GEM_VERSION']
+
 group :development do
   gem "fast_gettext", '1.1.0',                         require: false if Gem::Version.new(RUBY_VERSION.dup) < Gem::Version.new('2.1.0')
   gem "fast_gettext",                                  require: false if Gem::Version.new(RUBY_VERSION.dup) >= Gem::Version.new('2.1.0')
@@ -37,28 +42,34 @@ group :development do
   gem "puppet-lint-version_comparison-check",          require: false
 end
 group :system_tests do
-  gem "puppet-module-posix-system-r#{minor_version}",                                    require: false, platforms: [:ruby]
   gem "beaker", *location_for(ENV['BEAKER_VERSION'] || '~> 3.13')
-  gem "beaker-vagrant",                                                                  require: false
   gem "beaker-docker",                                                                   require: false
-  gem "beaker-pe",                                                                       require: false
   gem "beaker-hostgenerator",                                                            require: false
+  gem "beaker-module_install_helper"
+  gem "beaker-pe",                                                                       require: false
   gem "beaker-puppet"
   gem "beaker-puppet_install_helper",                                                    require: false
-  gem "beaker-module_install_helper"
   gem "beaker-rspec"
   gem "beaker-testmode_switcher",                                                        require: false
+  gem "beaker-vagrant",                                                                  require: false
+  gem 'beaker-vmware'
+  gem 'facter', '>= 1.7.0'
+  gem 'metadata-json-lint'
+  gem 'rspec-puppet'
+  gem 'rspec-puppet-facts'
+  gem 'rspec-puppet-utils'
+  gem 'rubocop'
+  gem 'simplecov-console'
+  gem 'puppet', puppet_version
+  gem 'puppetlabs_spec_helper', '>= 1.0.0'
+  gem "puppet-blacksmith"
+  gem 'puppet-lint', '>= 1.0.0'
+  gem "puppet-module-posix-system-r#{minor_version}",                                    require: false, platforms: [:ruby]
   gem "progressbar",                                                                     require: false
 end
 
-puppet_version = ENV['PUPPET_GEM_VERSION']
-puppet_type = gem_type(puppet_version)
-facter_version = ENV['FACTER_GEM_VERSION']
-hiera_version = ENV['HIERA_GEM_VERSION']
 
 gems = {}
-
-gems['puppet'] = location_for(puppet_version)
 
 # If facter or hiera versions have been specified via the environment
 # variables

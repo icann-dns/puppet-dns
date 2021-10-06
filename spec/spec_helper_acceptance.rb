@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
-require 'beaker-rspec'
 require 'beaker-puppet'
+require 'puppet'
+require 'beaker-rspec'
+require 'beaker/puppet_install_helper'
+require 'beaker/testmode_switcher'
 require 'beaker/testmode_switcher/dsl'
 require 'beaker-pe'
 require 'progressbar'
-require 'beaker/puppet_install_helper'
 require 'beaker/module_install_helper'
 
 # git_repos = []
