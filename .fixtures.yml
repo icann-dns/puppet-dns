@@ -8,3 +8,9 @@ fixtures:
       nsd: "icann/nsd"
       tea: "icann/tea"
       python: "puppet/python"
+      cron_core:
+        repo: "puppetlabs/cron_core"
+        ref: "1.0.0"
+        puppet_version: ">= 6.0.0"
+    repositories:
+      augeas: "https://github.com/camptocamp/puppet-augeas.git"
