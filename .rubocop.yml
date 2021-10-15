@@ -353,6 +353,8 @@ RSpec/RepeatedExampleGroupDescription:
   Enabled: false
 RSpec/RepeatedIncludeExample:
   Enabled: false
+RSpec/RepeatedDescription:
+  Enabled: false
 RSpec/ReturnFromStub:
   Enabled: false
 RSpec/SharedExamples:
