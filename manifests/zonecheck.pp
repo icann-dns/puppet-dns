@@ -36,14 +36,18 @@ class dns::zonecheck (
   if $::kernel != 'FreeBSD' {
     include ::python
   }
-  file {'/usr/local/etc/zone_check.conf':
-    ensure  => present,
-    content => template('dns/usr/local/etc/zone_check.conf.erb'),
-  }
-  if ! $enable {
+  if $enable {
+    file {'/usr/local/etc/zone_check.conf':
+      ensure  => present,
+      content => template('dns/usr/local/etc/zone_check.conf.erb'),
+    }
+  } else {
     file {'/etc/puppetlabs/facter/facts.d/zone_status.txt':
       ensure  => file,
       content => 'zone_status_errors=false';
+    }
+    file {'/usr/local/etc/zone_check.conf':
+      ensure  => absent,
     }
   }
   cron {'/usr/local/bin/zonecheck':

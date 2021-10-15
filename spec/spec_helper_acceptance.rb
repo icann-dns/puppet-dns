@@ -1,11 +1,13 @@
 # frozen_string_literal: true
 
-require 'beaker-rspec'
 require 'beaker-puppet'
+require 'puppet'
+require 'beaker-rspec'
+require 'beaker/puppet_install_helper'
+require 'beaker/testmode_switcher'
 require 'beaker/testmode_switcher/dsl'
 require 'beaker-pe'
 require 'progressbar'
-require 'beaker/puppet_install_helper'
 require 'beaker/module_install_helper'
 
 # git_repos = []
@@ -41,7 +43,7 @@ require 'beaker/module_install_helper'
 hosts.each do |host|
   step "install packages on #{host}"
   host.install_package('git')
-  if host['platform'] =~ %r{freebsd}
+  if 'freebsd'.match?(host['platform'])
     # default installs incorect version
     host.install_package('sysutils/puppet4')
     host.install_package('dns/bind-tools')

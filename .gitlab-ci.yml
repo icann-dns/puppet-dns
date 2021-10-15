@@ -1,50 +1,53 @@
-cache:
-  untracked: false
+---
 stages:
-  - lint
-  - rubocop
-  - rspec
-  - beaker_apply
-  - beaker_agent
-variables:
-  BEAKER_PUPPET_COLLECTION: puppet5
-  PUPPET_GEM_VERSION: "~> 5.0"
-before_script:
-  - pwd
-  - ruby -v
-  - bundle --version
-  - gem --version
-  - rm Gemfile.lock || true
-  - rm -rf ./vendor || true
-  - bundle install --path=${BUNDLE_PATH:-vendor/bundle}
+  - syntax
+  - unit
 
-lint:
-  stage: lint
+default:
+  cache:
+    paths:
+      - vendor/bundle
+
+  before_script: &before_script
+    - bundle -v
+    - rm Gemfile.lock || true
+    - "# Update system gems if requested. This is useful to temporarily workaround troubles in the test runner"
+    - "# Set `rubygems_version` in the .sync.yml to set a value"
+    - "# Ignore exit code of SIGPIPE'd yes to not fail with shell's pipefail set"
+    - '[ -z "$RUBYGEMS_VERSION" ] || (yes || true) | gem update --system $RUBYGEMS_VERSION'
+    - gem --version
+    - bundle -v
+    - bundle install --without system_tests --path vendor/bundle --jobs $(nproc)
+
+validate lint check rubocop-Ruby 2.5.7-Puppet ~> 6:
+  stage: syntax
+  image: ruby:2.5.7
   script:
-    - bundle exec rake validate lint
+    - bundle exec rake validate lint check rubocop
+  variables:
+    PUPPET_GEM_VERSION: '~> 6'
 
-rubocop:
-  stage: rubocop
+parallel_spec-Ruby 2.5.7-Puppet ~> 6:
+  stage: unit
+  image: ruby:2.5.7
   script:
-    - bundle exec rake rubocop
+    - bundle exec rake parallel_spec
+  variables:
+    PUPPET_GEM_VERSION: '~> 6'
 
-rspec:
-  stage: rspec
+validate lint check rubocop-Ruby 2.7.2-Puppet ~> 7:
+  stage: syntax
+  image: ruby:2.7.2
   script:
-    - bundle exec rake spec
+    - bundle exec rake validate lint check rubocop
+  variables:
+    PUPPET_GEM_VERSION: '~> 7'
 
-beaker_xenial_apply:
- stage: beaker_apply
- variables:
-   BEAKER_set: docker/ubuntu-multi-16.04
-   BEAKER_TESTMODE: apply
- script:
-   -  bundle exec rake beaker
+parallel_spec-Ruby 2.7.2-Puppet ~> 7:
+  stage: unit
+  image: ruby:2.7.2
+  script:
+    - bundle exec rake parallel_spec
+  variables:
+    PUPPET_GEM_VERSION: '~> 7'
 
-beaker_xenial_agent:
- stage: beaker_agent
- variables:
-   BEAKER_set: docker/ubuntu-master-16.04
-   BEAKER_TESTMODE: agent
- script:
-   -  bundle exec rake beaker
