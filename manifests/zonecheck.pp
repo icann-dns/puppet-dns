@@ -5,7 +5,6 @@ class dns::zonecheck (
   Tea::Syslog_level       $syslog_level = 'error',
 ) {
   include ::dns
-  include cron
   $zones        = $::dns::zones
   $ip_addresses = $::dns::ip_addresses
   $masters      = $::dns::default_masters
