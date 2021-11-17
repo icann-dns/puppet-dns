@@ -25,6 +25,8 @@ describe 'dns::zonecheck' do
     {
       #:enable => true,
       #:syslog_level => "error",
+      #:zonecheck_enable  => $::dns::zonecheck_enable,
+      #:zonecheck_version => $::dns::zonecheck_version,
     }
   end
 
@@ -84,7 +86,6 @@ describe 'dns::zonecheck' do
         it do
           is_expected.to contain_package('zonecheck').with(
             'ensure'   => '1.3.0',
-            'pkgname'  => 'zonecheck',
             'provider' => 'pip3',
           )
         end

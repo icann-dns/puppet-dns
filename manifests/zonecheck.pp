@@ -32,10 +32,9 @@ class dns::zonecheck (
     default    => '-v'
   }
   if $zonecheck_enable {
-    python::pip { 'zonecheck':
-      ensure       => $zonecheck_version,
-      pkgname      => 'zonecheck',
-      pip_provider => 'pip3'
+    package { 'zonecheck':
+      ensure   => $zonecheck_version,
+      provider => 'pip3'
     }
   }
   if $::kernel != 'FreeBSD' {

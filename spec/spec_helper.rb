@@ -5,15 +5,12 @@ RSpec.configure do |c|
 end
 
 RSpec.configure do |conf|
-  conf.before(:each) do
-    Puppet::Util::Log.level = :debug
-    Puppet::Util::Log.newdestination(:console)
+  if ENV['PUPPET_DEBUG']
+    conf.before(:each) do
+      Puppet::Util::Log.level = :debug
+      Puppet::Util::Log.newdestination(:console)
+    end
   end
-end
-
-if ENV['PUPPET_DEBUG']
-  Puppet::Util::Log.level = :debug
-  Puppet::Util::Log.newdestination(:console)
 end
 
 require 'puppetlabs_spec_helper/module_spec_helper'
