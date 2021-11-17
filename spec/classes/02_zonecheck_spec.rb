@@ -83,7 +83,9 @@ describe 'dns::zonecheck' do
         it { is_expected.to contain_class('dns::zonecheck') }
         it do
           is_expected.to contain_package('zonecheck').with(
-            'ensure' => 'latest',
+            'ensure'   => '1.3.0',
+            'pkgname'  => 'zonecheck',
+            'provider' => 'pip3',
           )
         end
         it do

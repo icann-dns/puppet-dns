@@ -5,11 +5,13 @@ class dns::zonecheck (
   Tea::Syslog_level       $syslog_level = 'error',
 ) {
   include ::dns
-  $zones        = $::dns::zones
-  $ip_addresses = $::dns::ip_addresses
-  $masters      = $::dns::default_masters
-  $provide_xfrs = $::dns::default_provide_xfrs
-  $remotes      = $::dns::remotes
+  $zones             = $::dns::zones
+  $ip_addresses      = $::dns::ip_addresses
+  $masters           = $::dns::default_masters
+  $provide_xfrs      = $::dns::default_provide_xfrs
+  $remotes           = $::dns::remotes
+  $zonecheck_enable  = $::dns::zonecheck_enable
+  $zonecheck_version = $::dns::zonecheck_version
   if has_key($::dns::tsigs, $::dns::default_tsig_name) {
     $tsig = {
       'algo' => 'hmac-sha256',
@@ -29,9 +31,12 @@ class dns::zonecheck (
     'debug'    => '-vvvv',
     default    => '-v'
   }
-  package {'zonecheck':
-    ensure   => latest,
-    provider => pip,
+  if $zonecheck_enable {
+    python::pip { 'zonecheck':
+      ensure       => $zonecheck_version,
+      pkgname      => 'zonecheck',
+      pip_provider => 'pip3'
+    }
   }
   if $::kernel != 'FreeBSD' {
     include ::python
