@@ -23,8 +23,6 @@ class dns (
   Boolean                       $enable_nagios        = false,
   Boolean                       $reject_private_ip    = true,
   Optional[String]              $monitor_class        = undef,
-  Boolean                       $zonecheck_enable     = true,
-  String                        $zonecheck_version    = '1.3.0',
 ) inherits dns::params {
 
   $_default_ipv4 =  ($reject_private_ip and $default_ipv4 =~ Tea::Rfc1918) ? {
