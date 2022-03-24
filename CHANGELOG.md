@@ -1,3 +1,6 @@
+### 2022-03-24 0.5.4
+* setup zonemd support including zonemd-generate and zonemd-verify for KNOT 
+
 ### 2020-01-02 0.5.3
 * setup the zone_check.conf file always for monitoring purposes
 

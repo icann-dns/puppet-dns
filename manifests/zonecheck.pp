@@ -10,8 +10,6 @@ class dns::zonecheck (
   $masters           = $::dns::default_masters
   $provide_xfrs      = $::dns::default_provide_xfrs
   $remotes           = $::dns::remotes
-  $zonecheck_enable  = $::dns::zonecheck_enable
-  $zonecheck_version = $::dns::zonecheck_version
   if has_key($::dns::tsigs, $::dns::default_tsig_name) {
     $tsig = {
       'algo' => 'hmac-sha256',
@@ -31,11 +29,9 @@ class dns::zonecheck (
     'debug'    => '-vvvv',
     default    => '-v'
   }
-  if $zonecheck_enable {
-    package { 'zonecheck':
-      ensure   => $zonecheck_version,
-      provider => 'pip3'
-    }
+  package {'zonecheck':
+    ensure   => latest,
+    provider => pip,
   }
   if $::kernel != 'FreeBSD' {
     include ::python
