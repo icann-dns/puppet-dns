@@ -7,4 +7,6 @@ type Dns::Zone = Struct[{
   zonefile               => Optional[String],
   allow_notify_additions => Optional[Array[String]],
   send_notify_additions  => Optional[Array[String]],
+  zonemd_verify          => Optional[Enum['on','off']],
+  zonemd_generate        => Optional[Enum['none','zonemd-sha384','zonemd-sha512','remove']],
 }]
