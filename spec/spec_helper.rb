@@ -4,6 +4,15 @@ RSpec.configure do |c|
   c.mock_with :rspec
 end
 
+RSpec.configure do |conf|
+  if ENV['PUPPET_DEBUG']
+    conf.before(:each) do
+      Puppet::Util::Log.level = :debug
+      Puppet::Util::Log.newdestination(:console)
+    end
+  end
+end
+
 require 'puppetlabs_spec_helper/module_spec_helper'
 require 'rspec-puppet-facts'
 
@@ -46,6 +55,7 @@ RSpec.configure do |c|
   end
   c.filter_run_excluding(bolt: true) unless ENV['GEM_BOLT']
   c.after(:suite) do
+    RSpec::Puppet::Coverage.report!
   end
 
   # Filter backtrace noise

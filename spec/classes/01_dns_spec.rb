@@ -16,6 +16,7 @@ describe 'dns' do
   # while all required parameters will require you to add a value
   let(:params) do
     {
+      # :default_tsig_name => "NOKEY",
       # :daemon => "$::dns::params::daemon",
       # :slaves_target => "$::dns::params::slaves_target",
       # :tsigs_target => "$::dns::params::tsigs_target",
@@ -130,6 +131,8 @@ describe 'dns' do
           end
         end
         context 'exports' do
+          Puppet::Util::Log.level = :debug
+          Puppet::Util::Log.newdestination(:console)
           before(:each) { params.merge!(exports: ['foobar']) }
           it { is_expected.to compile }
           it do

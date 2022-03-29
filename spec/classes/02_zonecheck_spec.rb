@@ -25,8 +25,8 @@ describe 'dns::zonecheck' do
     {
       #:enable => true,
       #:syslog_level => "error",
-      #:zonecheck_enable  => $::dns::zonecheck_enable,
-      #:zonecheck_version => $::dns::zonecheck_version,
+      #:version => '1.3.0',
+      #:provider => 'pip',
     }
   end
 
@@ -85,12 +85,13 @@ describe 'dns::zonecheck' do
         it { is_expected.to contain_class('dns::zonecheck') }
         it do
           is_expected.to contain_package('zonecheck').with(
-            'ensure' => 'latest',
+            'ensure'   => 'latest',
+            'provider' => 'pip',
           )
         end
         it do
           is_expected.to contain_file('/usr/local/etc/zone_check.conf').with_ensure(
-            'present',
+            'file',
           ).with_content(
             %r{
               zones:
@@ -126,7 +127,7 @@ describe 'dns::zonecheck' do
           it do
             is_expected.to contain_file(
               '/usr/local/etc/zone_check.conf',
-            ).with_ensure('absent')
+            ).with_ensure('file')
           end
           it do
             is_expected.to contain_cron('/usr/local/bin/zonecheck').with_ensure(

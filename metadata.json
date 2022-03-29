@@ -1,6 +1,6 @@
 {
   "name": "icann-dns",
-  "version": "0.5.4",
+  "version": "0.6.2",
   "author": "noc@dns.icann.org",
   "summary": "puppet meta module to manage NSD and Knot modules",
   "license": "Apache-2.0",
@@ -17,17 +17,18 @@
     { "name": "pegas-cron",        "version_requirement": ">= 0.6.0 <0.10.0" }
   ],
   "operatingsystem_support": [
-    { "operatingsystem": "Ubuntu",    "operatingsystemrelease": [ "18.04" ] }
+    { "operatingsystem": "Ubuntu", "operatingsystemrelease": [ "18.04" ] }
   ],
   "requirements": [
-    { "name": "puppet",      "version_requirement": ">= 6.21.0 < 8.0.0" } ],
+    { "name": "puppet", "version_requirement": ">= 6.21.0 < 8.0.0" }
+  ],
   "tags": [
     "knot",
     "nsd",
     "dns",
     "network"
   ],
-  "pdk-version": "2.2.0",
-  "template-url": "https://github.com/puppetlabs/pdk-templates",
-  "template-ref": "heads/main-0-g8aaceff"
+  "pdk-version": "2.4.0",
+  "template-url": "https://github.com/puppetlabs/pdk-templates#main",
+  "template-ref": "heads/main-0-gf3911d3"
 }
