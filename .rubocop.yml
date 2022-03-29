@@ -4,7 +4,7 @@ require:
 - rubocop-rspec
 AllCops:
   DisplayCopNames: true
-  TargetRubyVersion: '2.4'
+  TargetRubyVersion: '2.5'
   Include:
   - "**/*.rb"
   Exclude:
@@ -349,11 +349,11 @@ RSpec/ReceiveNever:
   Enabled: false
 RSpec/RepeatedExampleGroupBody:
   Enabled: false
+RSpec/RepeatedDescription:
+  Enabled: false
 RSpec/RepeatedExampleGroupDescription:
   Enabled: false
 RSpec/RepeatedIncludeExample:
-  Enabled: false
-RSpec/RepeatedDescription:
   Enabled: false
 RSpec/ReturnFromStub:
   Enabled: false

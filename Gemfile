@@ -23,6 +23,8 @@ group :development do
   gem "json", '= 2.3.0',                                         require: false if Gem::Requirement.create(['>= 2.7.0', '< 2.8.0']).satisfied_by?(Gem::Version.new(RUBY_VERSION.dup))
   gem "puppet-module-posix-default-r#{minor_version}", '~> 1.0', require: false, platforms: [:ruby]
   gem "puppet-module-posix-dev-r#{minor_version}", '~> 1.0',     require: false, platforms: [:ruby]
+  #gem 'parallel_tests', '<=3.7.3',                               require: false, platforms: [:ruby]
+  gem "voxpupuli-puppet-lint-plugins", '>= 3.0',                 require: false, platforms: [:ruby]
 end
 group :system_tests do
   gem "puppet-module-posix-system-r#{minor_version}", '~> 1.0', require: false, platforms: [:ruby]

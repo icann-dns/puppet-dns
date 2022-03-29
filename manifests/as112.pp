@@ -1,10 +1,10 @@
 # dns::as112
 #
 class dns::as112 {
-  include ::dns
+  include dns
   if $dns::daemon == 'nsd' {
-    class { '::nsd::as112': }
+    class { 'nsd::as112': }
   } else {
-    class { '::knot::as112': }
+    class { 'knot::as112': }
   }
 }
