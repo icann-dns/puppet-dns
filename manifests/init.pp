@@ -47,6 +47,7 @@ class dns (
   Hash                          $remotes              = {},
   Boolean                       $reject_private_ip    = true,
   Optional[String]              $monitor_class        = undef,
+  Array[String]                 $required_services   = [],
 ) inherits dns::params {
   $_default_ipv4 =  ($reject_private_ip and $default_ipv4 =~ Tea::Rfc1918) ? {
     true    => undef,
@@ -169,6 +170,9 @@ class dns (
         }
       }
     }
+  }
+  unless $required_services.empty {
+    Service[$required_services] -> Service[$daemon]
   }
 
   if $monitor_class {
