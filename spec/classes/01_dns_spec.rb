@@ -297,6 +297,23 @@ describe 'dns' do
           it { is_expected.to contain_nsd__tsig('test') }
           it { is_expected.to contain_knot__tsig('test') }
         end
+        context 'required_services' do
+          let(:pre_condition) { "service { 'networking': }" }
+          let(:params) { super().merge!(required_services: ['networking']) }
+
+          it { is_expected.to compile }
+        end
+        context 'multiple required_services' do
+          let(:pre_condition) do
+            <<-EOS
+            service { 'networking': }
+            service { 'iptables': }
+            EOS
+          end
+          let(:params) { super().merge!(required_services: ['networking', 'iptables']) }
+
+          it { is_expected.to compile }
+        end
       end
       describe 'check bad type' do
         context 'daemon' do
