@@ -4,8 +4,6 @@
 
 # dns
 
-# WARNING: 0.2.x is *NOT* backwards compatiple with 0.1.x
-
 #### Table of Contents
 
 1. [Overview](#overview)
@@ -37,15 +35,6 @@ This module acts as an interface to icann-nsd and icann-knot to allow the same c
 * installs and manages icann-nsd
 * dynamicly sets processor count based on installed processes
 * Optionaly install zonecheck python library and associated cron job.  (if thier is a problem with dns a custom fact is created which can be used by other modules, see icann-quagga)
-
-### Setup Requirements 
-
-* puppetlabs-stdlib 4.12.0
-* puppetlabs-concat 1.2.0
-* icann-knot 0.2.0
-* icann-nsd 0.2.0
-* icann-tea 0.2.8
-* stankevich-python 1.15.0
 
 ### Beginning with dns
 
@@ -210,7 +199,7 @@ dns::zones:
 
 ####  Complex master server example
 
-  The following is an example where we have three layers of server top layer -> middle -> edge.  The basics of this is to demonstrate how a server (middle) can both import and export configuration.  This example will also use hiera  with a hierarchy as follows, this allows you to configure the zones in one common locatio9ns and the relations ships in the node specific filess, this allows you to configure the zones in one common locatio9ns and the relations ships in the node specific files
+  The following is an example where we have three layers of server top layer -> middle -> edge.  The basics of this is to demonstrate how a server (middle) can both import and export configuration.  This example will also use hiera  with a hierarchy as follows, this allows you to configure the zones in one common locations and the relations ships in the node specific files, this allows you to configure the zones in one common locations and the relations ships in the node specific files
 
 ```yaml
 :hierarchy:
@@ -284,7 +273,7 @@ dns::default_masters:
 - top_server
 ```
 
-##### Edge leyer server
+##### Edge layer server
 ```yaml
 dns::exports: ['mid_layer']
 dns::default_tsig_name: edge_layer_key
@@ -297,53 +286,6 @@ dns::remotes:
 dns::default_masters:
 - mid_layer_server
 ```
-
-## Reference
-
-
-- [**Public Classes**](#public-classes)
-    - [`dns`](#class-dns)
-- [**Private Classes**](#private-classes)
-    - [`dns::params`](#class-dnsparams)
-
-### Classes
-
-### Public Classes
-
-#### Class: `dns`
-  Guides the basic setup and installation of KNOT on your system
-  
-##### Parameters (all optional)
-
-* `default_tsig_name` (Optional[String], Default: undef): the default tsig to use when fetching zone data. Knot::Tsig[$default_tsig_name] must exist
-* `default_masters` (Array[String], Default: []): Array of Knot::Remote names to use as the default master servers if none are specified in the zone hash
-* `default_provide_xfrs` (Array[String], Default: []): Array of Knot::Remote names to use as the provide_xfr servers if none are specified in the zone hash
-* `daemon` (/^(nsd|knot)$/, Default: os dependent): which daemon to use
-* `nsid` (String, Default: FQDN): string to use for EDNS NSID queires
-* `identity` (String, Default: FQDN): string to use for hostname.bind queires
-* `ip_addresses` (Array, Default: [@ipaddress]): IP addresses that daemon should listen on
-* `imports` (Array, Deafult: []): Array of dns::exports to import
-* `exports` (Array, Default: []): Array of dns::imports to export to
-* `ensure` (Pattern[/^(present|absent)$/], Default: present): whether to install dns daemon
-* `enable_zonecheck` (Boolean, Default: true): Weather to install and manage zonecheck
-* `zones` (Hash, Default: {}): A hash of nsd::zone or knot::zone resourves
-* `files` (Hash, Default: {}): A hash of nsd::file or knot::file resourves
-* `tsigs` (Hash, Default: {}): A hash of nsd::tsig or knot::tsig 
-* `enable_nagios` (Boolean, Default: false): export nagios_Service definitions for each zone 
-* `monitor_class` (String, Default: undef): if present the DNS module will; call this class passing in the zones, tsigs, remotes and default_{tsig,masters,provide_xfrs} data structrues enableing you toi create a monitoring module which uses the same data structures
-
-### Private Classes
-
-#### Class `dns::params`
-
-Set os specific parameters
-
-## Limitations
-
-This module has been tested on:
-
-* Ubuntu 12.04, 14.04
-* FreeBSD 10
 
 ## Development
 

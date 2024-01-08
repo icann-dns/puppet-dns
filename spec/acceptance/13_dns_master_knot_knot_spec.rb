@@ -97,16 +97,10 @@ EOS
       describe port(53), node: dnsedge do
         it { is_expected.to be_listening }
       end
-      describe command('knotc -c /etc/knot/knot.conf checkconf || cat /etc/knot/knot.conf'), if: os[:family] == 'ubuntu', node: dnstop do
+      describe command('knotc -c /etc/knot/knot.conf checkconf || cat /etc/knot/knot.conf'), node: dnstop do
         its(:stdout) { is_expected.to match %r{} }
       end
-      describe command('knotc -c /usr/local/etc/knot/knot.conf checkconf || cat /usr/local/etc/knot/knot.conf'), if: os[:family] == 'freebsd', node: dnstop do
-        its(:stdout) { is_expected.to match %r{} }
-      end
-      describe command('knotc -c /etc/knot/knot.conf checkconf || cat /etc/knot/knot.conf'), if: os[:family] == 'ubuntu', node: dnsedge do
-        its(:stdout) { is_expected.to match %r{} }
-      end
-      describe command('knotc -c /usr/local/etc/knot/knot.conf checkconf || cat /usr/local/etc/knot/knot.conf'), if: os[:family] == 'freebsd', node: dnsedge do
+      describe command('knotc -c /etc/knot/knot.conf checkconf || cat /etc/knot/knot.conf'), node: dnsedge do
         its(:stdout) { is_expected.to match %r{} }
       end
       describe command("dig +short soa . @#{dnsedge_ip}"), node: dnsedge do

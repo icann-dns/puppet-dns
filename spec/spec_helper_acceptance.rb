@@ -43,15 +43,9 @@ require 'beaker/module_install_helper'
 hosts.each do |host|
   step "install packages on #{host}"
   host.install_package('git')
-  if 'freebsd'.match?(host['platform'])
-    # default installs incorect version
-    host.install_package('sysutils/puppet4')
-    host.install_package('dns/bind-tools')
-  else
-    host.install_package('iputils-ping')
-    host.install_package('vim')
-    host.install_package('dnsutils')
-  end
+  host.install_package('iputils-ping')
+  host.install_package('vim')
+  host.install_package('dnsutils')
   # remove search list and domain from resolve.conf
   on(host, 'echo $(grep nameserver /etc/resolv.conf) > /etc/resolv.conf')
 end

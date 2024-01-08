@@ -1,3 +1,10 @@
+### 2024-01-09 1.0.01
+* Fix typo introduced in 6.0.0
+* drop support for FreeBSD
+* drop support for ubuntu < 18.04
+* Use puppet-strings format for docs and generate REFERENCES.md
+* drop params.pp file
+
 ### 2024-01-08 0.7.0
 * Update module to allow users to pass required services
 

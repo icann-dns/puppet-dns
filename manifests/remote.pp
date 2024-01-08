@@ -1,12 +1,9 @@
-# dns::remote
-#
-# === Parameters:
-#
-# $address4::  '192.168.1.1'
-# $address6::  '2000:abcd::ba'
-# $tsig::      'tsig_value'
-# $tsig_name:: 'tsig_name'
-# $port::       53
+# @summary define for configuering remotes
+# @param address4 The IPv4 address of the remote
+# @param address6 The IPv4 address of the remote
+# @param tsig The name tsig key
+# @param tsig_name The name of the tsig key
+# @param port The port to contact the remote
 #
 define dns::remote (
   Optional[Stdlib::IP::Address::V4] $address4  = undef,

@@ -14,24 +14,7 @@ describe 'dns' do
   # below is a list of the resource parameters that you can override.
   # By default all non-required parameters are commented out,
   # while all required parameters will require you to add a value
-  let(:params) do
-    {
-      # :default_tsig_name => "NOKEY",
-      # :daemon => "$::dns::params::daemon",
-      # :slaves_target => "$::dns::params::slaves_target",
-      # :tsigs_target => "$::dns::params::tsigs_target",
-      # :nsid => "$::dns::params::nsid",
-      # :identity => "$::dns::params::identity",
-      # :ip_addresses => [],
-      # :exports => [],
-      # :imports => [],
-      # :ensure => "present",
-      # :zones => {},
-      # :files => {},
-      # :tsig => {},
-      # :enable_nagios => false,
-    }
-  end
+  let(:params) { {} }
 
   # add these two lines in a single test block to enable puppet and hiera debug mode
   # Puppet::Util::Log.level = :debug
@@ -41,32 +24,20 @@ describe 'dns' do
       let(:facts) do
         facts.merge(
           environment: 'production',
-          ipaddress: '192.0.2.2',
-          networking: { 'ip' => '192.0.2.1', 'ip6' => '2001:DB8::1' },
+          networking: facts[:networking].merge(
+            { 'ip' => '192.0.2.1', 'ip6' => '2001:DB8::1' },
+          ),
         )
       end
 
-      case facts[:operatingsystem]
-      when 'Ubuntu'
-        case facts['lsbdistcodename']
-        when 'precise'
-          let(:nsd_enable) { true }
-          let(:knot_enable) { false }
-          let(:dns_control) { '/usr/sbin/nsd-control' }
-        else
-          let(:nsd_enable) { false }
-          let(:knot_enable) { true }
-          let(:dns_control) { '/usr/sbin/knotc' }
-        end
-      else
-        let(:nsd_enable) { true }
-        let(:knot_enable) { false }
-        let(:dns_control) { '/usr/sbin/nsd-control' }
-      end
+      let(:nsd_enable) { false }
+      let(:knot_enable) { true }
+      let(:dns_control) { '/usr/sbin/knotc' }
+      let(:daemon) { 'knot' }
+
       describe 'check default config' do
         it { is_expected.to compile.with_all_deps }
         it { is_expected.to contain_class('dns') }
-        it { is_expected.to contain_class('dns::params') }
         # it { is_expected.to contain_class('dns::zonecheck') }
         it do
           is_expected.to contain_file('/usr/local/bin/dns-control').with(
@@ -77,7 +48,7 @@ describe 'dns' do
         it do
           is_expected.to contain_class('nsd').with(
             enable: nsd_enable,
-            ip_addresses: ['192.0.2.2'],
+            ip_addresses: ['192.0.2.1'],
             server_count: 1,
             nsid: 'dns.example.com',
             identity: 'dns.example.com',
@@ -90,7 +61,7 @@ describe 'dns' do
         it do
           is_expected.to contain_class('knot').with(
             enable: knot_enable,
-            ip_addresses: ['192.0.2.2'],
+            ip_addresses: ['192.0.2.1'],
             server_count: 1,
             nsid: 'dns.example.com',
             identity: 'dns.example.com',
@@ -103,21 +74,22 @@ describe 'dns' do
       end
       describe 'Change Defaults' do
         context 'nsid' do
-          before(:each) { params.merge!(nsid: 'foobar') }
+          let(:params) { super().merge!(nsid: 'foobar') }
+
           it { is_expected.to compile }
           it { is_expected.to contain_class('knot').with_nsid('foobar') }
           it { is_expected.to contain_class('nsd').with_nsid('foobar') }
         end
         context 'identity' do
-          before(:each) { params.merge!(identity: 'foobar') }
+          let(:params) { super().merge!(identity: 'foobar') }
+
           it { is_expected.to compile }
           it { is_expected.to contain_class('knot').with_identity('foobar') }
           it { is_expected.to contain_class('nsd').with_identity('foobar') }
         end
         context 'ip_addresses' do
-          before(:each) do
-            params.merge!(ip_addresses: ['192.0.2.2', '2001:DB8::1'])
-          end
+          let(:params) { super().merge!(ip_addresses: ['192.0.2.2', '2001:DB8::1']) }
+
           it { is_expected.to compile }
           it do
             is_expected.to contain_class('nsd').with_ip_addresses(
@@ -130,10 +102,21 @@ describe 'dns' do
             )
           end
         end
+        context 'processors count larger then 3' do
+          let(:facts) { super().merge(processors: { 'count' => 6 }) }
+
+          it { is_expected.to contain_class(daemon).with_server_count(3) }
+        end
+        context 'processors count smaller then 2' do
+          let(:facts) { super().merge(processors: { 'count' => 4 }) }
+
+          it { is_expected.to contain_class(daemon).with_server_count(1) }
+        end
         context 'exports' do
           Puppet::Util::Log.level = :debug
           Puppet::Util::Log.newdestination(:console)
-          before(:each) { params.merge!(exports: ['foobar']) }
+          let(:params) { super().merge!(exports: ['foobar']) }
+
           it { is_expected.to compile }
           it do
             is_expected.to contain_dns__remote(
@@ -167,12 +150,13 @@ describe 'dns' do
           end
         end
         context 'reject_private_ip reject ipv4' do
-          before(:each) do
-            params.merge!(
+          let(:params) do
+            super().merge!(
               exports: ['foobar'],
               default_ipv4: '192.168.0.1',
             )
           end
+
           it { is_expected.to compile }
           it do
             expect(exported_resources).to contain_nsd__remote(
@@ -196,12 +180,13 @@ describe 'dns' do
           end
         end
         context 'reject_private_ip reject ipv6' do
-          before(:each) do
-            params.merge!(
+          let(:params) do
+            super().merge!(
               exports: ['foobar'],
               default_ipv6: 'fE80::250:56ff:feae:ae83',
             )
           end
+
           it { is_expected.to compile }
           it do
             expect(exported_resources).to contain_nsd__remote(
@@ -225,14 +210,15 @@ describe 'dns' do
           end
         end
         context 'reject_private_ip allow private addresses' do
-          before(:each) do
-            params.merge!(
+          let(:params) do
+            super().merge!(
               exports: ['foobar'],
               default_ipv4: '192.168.0.1',
               default_ipv6: 'fE80::250:56ff:feae:ae83',
               reject_private_ip: false,
             )
           end
+
           it { is_expected.to compile }
           it do
             expect(exported_resources).to contain_nsd__remote(
@@ -256,14 +242,15 @@ describe 'dns' do
           end
         end
         context 'ensure' do
-          before(:each) { params.merge!(ensure: 'absent') }
+          let(:params) { super().merge!(ensure: 'absent') }
+
           it { is_expected.to compile }
           it { is_expected.not_to contain_class('knot') }
           it { is_expected.not_to contain_class('nsd') }
         end
         context 'zones' do
-          before(:each) do
-            params.merge!(
+          let(:params) do
+            super().merge!(
               zones: {
                 'example.com' => {
                   'signed' => true,
@@ -281,18 +268,21 @@ describe 'dns' do
               },
             )
           end
+
           it { is_expected.to compile }
         end
         context 'files' do
-          before(:each) do
-            params.merge!(
+          let(:params) do
+            super().merge!(
               files: { 'test' => { 'source' => 'puppet:///modules/dns/source' } },
             )
           end
+
           it { is_expected.to compile }
         end
         context 'tsigs' do
-          before(:each) { params.merge!(tsigs: { 'test' => { 'data' => 'aaaa' } }) }
+          let(:params) { super().merge!(tsigs: { 'test' => { 'data' => 'aaaa' } }) }
+
           it { is_expected.to compile }
           it { is_expected.to contain_nsd__tsig('test') }
           it { is_expected.to contain_knot__tsig('test') }
@@ -317,51 +307,63 @@ describe 'dns' do
       end
       describe 'check bad type' do
         context 'daemon' do
-          before(:each) { params.merge!(daemon: true) }
+          let(:params) { super().merge!(daemon: true) }
+
           it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'daemon bad option' do
-          before(:each) { params.merge!(daemon: 'foobar') }
+          let(:params) { super().merge!(daemon: 'foobar') }
+
           it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'nsid' do
-          before(:each) { params.merge!(nsid: true) }
+          let(:params) { super().merge!(nsid: true) }
+
           it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'identity' do
-          before(:each) { params.merge!(identity: true) }
+          let(:params) { super().merge!(identity: true) }
+
           it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'ip_addresses' do
-          before(:each) { params.merge!(ip_addresses: true) }
+          let(:params) { super().merge!(ip_addresses: true) }
+
           it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'exports' do
-          before(:each) { params.merge!(exports: true) }
+          let(:params) { super().merge!(exports: true) }
+
           it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'imports' do
-          before(:each) { params.merge!(imports: true) }
+          let(:params) { super().merge!(imports: true) }
+
           it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'ensure' do
-          before(:each) { params.merge!(ensure: true) }
+          let(:params) { super().merge!(ensure: true) }
+
           it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'ensure bad option' do
-          before(:each) { params.merge!(ensure: 'foobar') }
+          let(:params) { super().merge!(ensure: 'foobar') }
+
           it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'zones' do
-          before(:each) { params.merge!(zones: true) }
+          let(:params) { super().merge!(zones: true) }
+
           it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'files' do
-          before(:each) { params.merge!(files: true) }
+          let(:params) { super().merge!(files: true) }
+
           it { is_expected.to raise_error(Puppet::Error) }
         end
         context 'enable_nagios' do
-          before(:each) { params.merge!(enable_nagios: '') }
+          let(:params) { super().merge!(enable_nagios: '') }
+
           it { is_expected.to raise_error(Puppet::Error) }
         end
       end
