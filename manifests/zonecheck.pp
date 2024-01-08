@@ -19,7 +19,7 @@ class dns::zonecheck (
   $masters           = $dns::default_masters
   $provide_xfrs      = $dns::default_provide_xfrs
   $remotes           = $dns::remotes
-  if has_key($dns::tsigs, $dns::default_tsig_name) {
+  if $dns::default_tsig_name in $dns::tsigs {
     $tsig = {
       'algo' => 'hmac-sha256',
       'name' => $dns::default_tsig_name,
