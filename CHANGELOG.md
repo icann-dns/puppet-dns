@@ -1,3 +1,6 @@
+### 2024-01-08 0.7.0
+* Update module to allow users to pass required services
+
 ### 2022-03-24 0.6.1
 * setup zonemd support including zonemd-generate and zonemd-verify for KNOT
 
