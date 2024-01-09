@@ -163,7 +163,7 @@ class dns (
       }
     }
   }
-  unless $required_services.empty {
+  unless $required_services.empty or $ensure == 'absent' {
     Service[$required_services] -> Service[$daemon]
   }
 
