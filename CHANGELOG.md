@@ -1,3 +1,6 @@
+### 2024-01-09 1.0.2
+* Check ensure param before setting up relations
+
 ### 2024-01-09 1.0.1
 * Fix typo in the As112 class
 
