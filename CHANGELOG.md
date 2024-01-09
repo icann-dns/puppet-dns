@@ -1,4 +1,7 @@
-### 2024-01-09 1.0.01
+### 2024-01-09 1.0.1
+* Fix typo in the As112 class
+
+### 2024-01-09 1.0.0
 * Fix typo introduced in 6.0.0
 * drop support for FreeBSD
 * drop support for ubuntu < 18.04
