@@ -1,10 +1,7 @@
 # dns::as112
 #
+# @summary configure and as112 server
 class dns::as112 {
   include dns
-  if $dns::daemon == 'nsd' {
-    class { 'nsd::as112': }
-  } else {
-    class { 'knot::as112': }
-  }
+  include "${dns::daemon}:as112"
 }

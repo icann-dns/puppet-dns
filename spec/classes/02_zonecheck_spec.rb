@@ -40,7 +40,6 @@ describe 'dns::zonecheck' do
       let(:facts) do
         facts.merge(
           environment: 'production',
-          ipaddress: '192.0.2.2',
           networking: { 'ip' => '192.0.2.1', 'ip6' => '2001:DB8::1' },
         )
       end
@@ -108,7 +107,7 @@ describe 'dns::zonecheck' do
                 \s+name:\sfoobar
                 \s+data:\sasdasd
               \s+ip_addresses:
-                \s+-\s192.0.2.2
+                \s+-\s192.0.2.1
             }x,
           )
         end

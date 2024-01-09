@@ -148,16 +148,10 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
       describe port(53), node: dnsedge do
         it { is_expected.to be_listening }
       end
-      describe command('knotc -c /etc/knot/knot.conf checkconf || cat /etc/knot/knot.conf'), if: os[:family] == 'ubuntu', node: dnstop do
+      describe command('knotc -c /etc/knot/knot.conf checkconf || cat /etc/knot/knot.conf'), node: dnstop do
         its(:stdout) { is_expected.to match %r{} }
       end
-      describe command('knotc -c /usr/local/etc/knot/knot.conf checkconf || cat /usr/local/etc/knot/knot.conf'), if: os[:family] == 'freebsd', node: dnstop do
-        its(:stdout) { is_expected.to match %r{} }
-      end
-      describe command('nsd-checkconf /etc/nsd/nsd.conf || cat /etc/nsd/nsd.conf'), if: os[:family] == 'ubuntu', node: dnsmiddle do
-        its(:stdout) { is_expected.to match %r{} }
-      end
-      describe command('nsd-checkconf /usr/local/etc/nsd/nsd.conf || cat /usr/local/etc/nsd/nsd.conf'), if: os[:family] == 'freebsd', node: dnsmiddle do
+      describe command('nsd-checkconf /etc/nsd/nsd.conf || cat /etc/nsd/nsd.conf'), node: dnsmiddle do
         its(:stdout) { is_expected.to match %r{} }
       end
       allzones.each do |zone|

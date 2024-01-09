@@ -45,10 +45,7 @@ if ENV['BEAKER_TESTMODE'] == 'apply'
       describe port(53) do
         it { is_expected.to be_listening }
       end
-      describe command('knotc -c /etc/knot/knot.conf checkconf || cat /etc/knot/knot.conf'), if: os[:family] == 'ubuntu' do
-        its(:stdout) { is_expected.to match %r{} }
-      end
-      describe command('knotc -c /usr/local/etc/knot/knot.conf checkconf || cat /usr/local/etc/knot/knot.conf'), if: os[:family] == 'freebsd' do
+      describe command('knotc -c /etc/knot/knot.conf checkconf || cat /etc/knot/knot.conf') do
         its(:stdout) { is_expected.to match %r{} }
       end
       describe command("dig +short soa . @#{ipaddress}") do

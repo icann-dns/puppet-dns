@@ -1,12 +1,9 @@
-# == Class: dns::zonecheck
+# @sumnmary class to configure zonecheck
+# @param enable indicate if zonecheck is enabled
+# @param syslog_level the syslog level to log at
+# @param version the version to install
+# @param provider the provider to use
 #
-# === Parameters:
-#
-# $enable::        true
-# $syslog_level::  'error'
-# $version::       'latest'
-# $provider::      'pip3'
-
 class dns::zonecheck (
   Boolean           $enable            = true,
   Tea::Syslog_level $syslog_level      = 'error',
@@ -44,9 +41,7 @@ class dns::zonecheck (
       provider => $provider,
     }
   }
-  if $facts['kernel'] != 'FreeBSD' {
-    include python
-  }
+  include python
   file { '/usr/local/etc/zone_check.conf':
     ensure  => file,
     content => template('dns/usr/local/etc/zone_check.conf.erb'),

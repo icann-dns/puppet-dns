@@ -97,16 +97,10 @@ EOS
       describe port(53), node: dnsedge do
         it { is_expected.to be_listening }
       end
-      describe command('nsd-checkconf /etc/nsd/nsd.conf || cat /etc/nsd/nsd.conf'), if: os[:family] == 'ubuntu', node: dnstop do
+      describe command('nsd-checkconf /etc/nsd/nsd.conf || cat /etc/nsd/nsd.conf'), node: dnstop do
         its(:stdout) { is_expected.to match %r{} }
       end
-      describe command('nsd-checkconf /usr/local/etc/nsd/nsd.conf || cat /usr/local/etc/nsd/nsd.conf'), if: os[:family] == 'freebsd', node: dnstop do
-        its(:stdout) { is_expected.to match %r{} }
-      end
-      describe command('nsd-checkconf /etc/nsd/nsd.conf || cat /etc/nsd/nsd.conf'), if: os[:family] == 'ubuntu', node: dnsedge do
-        its(:stdout) { is_expected.to match %r{} }
-      end
-      describe command('nsd-checkconf /usr/local/etc/nsd/nsd.conf || cat /usr/local/etc/nsd/nsd.conf'), if: os[:family] == 'freebsd', node: dnsedge do
+      describe command('nsd-checkconf /etc/nsd/nsd.conf || cat /etc/nsd/nsd.conf'), node: dnsedge do
         its(:stdout) { is_expected.to match %r{} }
       end
       describe command("dig +short soa . @#{dnsedge_ip}"), node: dnsedge do
