@@ -1,3 +1,6 @@
+### 2024-01-09 1.1.0
+* use yaml for fact file
+
 ### 2024-01-09 1.0.2
 * Check ensure param before setting up relations
 
