@@ -46,10 +46,14 @@ class dns::zonecheck (
     ensure  => file,
     content => template('dns/usr/local/etc/zone_check.conf.erb'),
   }
+  # Remove old file
+  file { '/etc/puppetlabs/facter/facts.d/zone_status.txt':
+    ensure => absent,
+  }
   if ! $enable {
-    file { '/etc/puppetlabs/facter/facts.d/zone_status.txt':
+    file { '/etc/puppetlabs/facter/facts.d/zone_status.yaml':
       ensure  => file,
-      content => 'zone_status_errors=false';
+      content => 'zone_status_errors: false';
     }
   }
   cron { '/usr/local/bin/zonecheck':
