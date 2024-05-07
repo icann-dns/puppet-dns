@@ -9,4 +9,7 @@ type Dns::Zone = Struct[{
   send_notify_additions  => Optional[Array[String]],
   zonemd_verify          => Optional[Enum['on','off']],
   zonemd_generate        => Optional[Enum['none','zonemd-sha384','zonemd-sha512','remove']],
+  allow_axfr_fallback    => Optional[Enum['yes','no']],
+  create_ixfr            => Optional[Enum['yes','no']],
+  ixfr_size              => Optional[Integer],
 }]
