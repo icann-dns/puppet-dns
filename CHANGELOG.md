@@ -1,3 +1,6 @@
+### 2024-01-09 1.1.1
+* add ixfr support
+
 ### 2024-01-09 1.1.0
 * use yaml for fact file
 
