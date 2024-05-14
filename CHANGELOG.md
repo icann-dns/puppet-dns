@@ -1,3 +1,6 @@
+### 2024-05-14 1.2.0
+* add support for tcp_max_workers
+
 ### 2024-01-09 1.1.1
 * add ixfr support
 
