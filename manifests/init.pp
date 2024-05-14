@@ -4,6 +4,7 @@
 # @param default_provide_xfrs the list of cfr servers
 # @param default_ipv4 the default ipv4 adress
 # @param default_ipv6 the default ipv4 adress
+# @param tcp_max_clients The maximumnumber of simultanious TCP connections
 # @param server_count how many daemons to start
 # @param daemon the daemon to configure
 # @param nsid the NSID string
@@ -28,13 +29,14 @@ class dns (
   Array[String]                 $default_provide_xfrs = [],
   Stdlib::IP::Address::V4       $default_ipv4         = $facts['networking']['ip'],
   Stdlib::IP::Address::V6       $default_ipv6         = $facts['networking']['ip6'],
+  Integer                       $tcp_max_clients      = 250,
   Dns::Daemon                   $daemon               = 'knot',
   String                        $nsid                 = $facts['networking']['fqdn'],
   String                        $identity             = $facts['networking']['fqdn'],
   Array[Stdlib::IP::Address]    $ip_addresses         = [$facts['networking']['ip']],
   Array[String]                 $imports              = [],
   Array[String]                 $exports              = [],
-  Tea::Port                     $port                 = 53,
+  Stdlib::Port                  $port                 = 53,
   Hash[String, Dns::Zone]       $zones                = {},
   Hash                          $files                = {},
   Hash                          $tsigs                = {},
@@ -127,6 +129,7 @@ class dns (
         default_tsig_name    => $default_tsig_name,
         default_masters      => $default_masters,
         default_provide_xfrs => $default_provide_xfrs,
+        tcp_count            => $tcp_max_clients,
         files                => $files,
         tsigs                => $tsigs,
         zones                => $_zones,
@@ -143,6 +146,7 @@ class dns (
         default_tsig_name    => $default_tsig_name,
         default_masters      => $default_masters,
         default_provide_xfrs => $default_provide_xfrs,
+        tcp_max_clients      => $tcp_max_clients,
         files                => $files,
         tsigs                => $tsigs,
         zones                => $_zones,
