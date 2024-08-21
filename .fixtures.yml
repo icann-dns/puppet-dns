@@ -3,9 +3,8 @@ fixtures:
       dns: "#{source_dir}"
     forge_modules:
       stdlib: "puppetlabs/stdlib"
+      motd: "icann/motd"
       concat: "puppetlabs/concat"
-      knot: "icann/knot"
-      nsd: "icann/nsd"
       tea: "icann/tea"
       python: "puppet/python"
       cron_core:
@@ -14,3 +13,5 @@ fixtures:
         puppet_version: ">= 6.0.0"
     repositories:
       augeas: "https://github.com/camptocamp/puppet-augeas.git"
+      knot: "https://git.dns.icann.org/root/puppet-knot"
+      nsd: "https://git.dns.icann.org/root/puppet-nsd"

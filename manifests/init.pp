@@ -55,6 +55,10 @@ class dns (
     default => $default_ipv6,
   }
   $_server_count = $server_count.lest || { max($facts['processors']['count'] - 3, 1) }
+  motd::message { 'dns_daemon':
+    message  => "DNS Daemon: ${daemon.motd::ansi::attr('bold')}",
+    priority => 60,
+  }
   if $ensure == 'present' {
     if $daemon == 'nsd' {
       $nsd_enable  =  true

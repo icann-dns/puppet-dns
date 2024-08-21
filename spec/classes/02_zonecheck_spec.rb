@@ -135,8 +135,8 @@ describe 'dns::zonecheck' do
           end
           it do
             is_expected.to contain_file(
-              '/etc/puppetlabs/facter/facts.d/zone_status.txt',
-            ).with_content('zone_status_errors=false')
+              '/etc/puppetlabs/facter/facts.d/zone_status.yaml',
+            ).with_content('zone_status_errors: false')
           end
         end
         context 'syslog_level critical' do
