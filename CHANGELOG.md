@@ -1,3 +1,6 @@
+### 2024-08-21 1.3.0
+* add motd indicating the dns daemon
+
 ### 2024-05-14 1.2.0
 * add support for tcp_max_workers
 
