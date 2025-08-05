@@ -39,23 +39,29 @@ if ENV['BEAKER_TESTMODE'] == 'apply'
         # sleep to allow zone transfer (value probably to high)
         sleep(10)
       end
+
       describe service('knot') do
         it { is_expected.to be_running }
       end
+
       describe port(53) do
         it { is_expected.to be_listening }
       end
+
       describe command('knotc -c /etc/knot/knot.conf checkconf || cat /etc/knot/knot.conf') do
         its(:stdout) { is_expected.to match %r{} }
       end
+
       describe command("dig +short soa . @#{ipaddress}") do
         its(:exit_status) { is_expected.to eq 0 }
         its(:stdout) { is_expected.to match %r{a.root-servers.net. nstld.verisign-grs.com.} }
       end
+
       describe command("dig +short soa arpa. @#{ipaddress}") do
         its(:exit_status) { is_expected.to eq 0 }
         its(:stdout) { is_expected.to match %r{a.root-servers.net. nstld.verisign-grs.com.} }
       end
+
       describe command("dig +short soa root-servers.net. @#{ipaddress}") do
         its(:exit_status) { is_expected.to eq 0 }
         its(:stdout) { is_expected.to match %r{a.root-servers.net. nstld.verisign-grs.com.} }

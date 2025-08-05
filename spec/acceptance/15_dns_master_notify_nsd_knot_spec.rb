@@ -9,11 +9,11 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
       dnstop_ip = fact_on(dnstop, 'ipaddress')
       dnsedge     = find_host_with_role('dnsedge')
       dnsedge_ip  = fact_on(dnsedge, 'ipaddress')
-      example_zone = <<EOS
-example.com. 3600 IN SOA sns.dns.icann.org. noc.dns.icann.org. 1 7200 3600 1209600 3600
-example.com. 86400 IN NS a.iana-servers.net.
-example.com. 86400 IN NS b.iana-servers.net.
-EOS
+      example_zone = <<~EOS
+        example.com. 3600 IN SOA sns.dns.icann.org. noc.dns.icann.org. 1 7200 3600 1209600 3600
+        example.com. 86400 IN NS a.iana-servers.net.
+        example.com. 86400 IN NS b.iana-servers.net.
+      EOS
       dnstop_pp = <<-EOS
       class {'::dns':
         daemon  => 'nsd',
@@ -53,61 +53,77 @@ EOS
         execute_manifest_on(dnsedge, dnsedge_pp, catch_failures: true)
         execute_manifest_on(dnstop, dnstop_pp, catch_failures: true)
       end
+
       it 'clean puppet run on dns top' do
         expect(execute_manifest_on(dnstop, dnstop_pp, catch_failures: true).exit_code).to eq 0
       end
+
       it 'clean puppet run on dns dnsedge' do
         expect(execute_manifest_on(dnsedge, dnsedge_pp, catch_failures: true).exit_code).to eq 0
       end
+
       describe service('nsd'), node: dnstop do
         it { is_expected.to be_running }
       end
+
       describe port(53), node: dnstop do
         it { is_expected.to be_listening }
       end
+
       describe service('knot'), node: dnsedge do
         it { is_expected.to be_running }
       end
+
       describe port(53), node: dnsedge do
         it { is_expected.to be_listening }
       end
+
       describe command("dig +short soa example.com. @#{dnstop_ip}"), node: dnstop do
         its(:exit_status) { is_expected.to eq 0 }
+
         its(:stdout) do
           is_expected.to match(
-            %r{sns.dns.icann.org. noc.dns.icann.org. 1 7200 3600 1209600 3600},
+            %r{sns.dns.icann.org. noc.dns.icann.org. 1 7200 3600 1209600 3600}
           )
         end
       end
+
       describe command("dig +short soa example.com. @#{dnsedge_ip}"), node: dnsedge do
         its(:exit_status) { is_expected.to eq 0 }
+
         its(:stdout) do
           is_expected.to match(
-            %r{sns.dns.icann.org. noc.dns.icann.org. 1 7200 3600 1209600 3600},
+            %r{sns.dns.icann.org. noc.dns.icann.org. 1 7200 3600 1209600 3600}
           )
         end
       end
+
       describe command('sed -i \'s/1/2/\' /var/lib/nsd/zone/example.com'), node: dnstop do
         its(:exit_status) { is_expected.to eq 0 }
       end
+
       describe command('service nsd restart'), node: dnstop do
         its(:exit_status) { is_expected.to eq 0 }
       end
+
       describe command("dig +short soa example.com. @#{dnstop_ip}"), node: dnstop do
         let(:pre_command) { 'sleep 5'  }
 
         its(:exit_status) { is_expected.to eq 0 }
+
         its(:stdout) do
           is_expected.to match(
-            %r{sns.dns.icann.org. noc.dns.icann.org. 2 7200 3600 1209600 3600},
+            %r{sns.dns.icann.org. noc.dns.icann.org. 2 7200 3600 1209600 3600}
           )
         end
       end
+
       describe command("dig +short soa example.com. @#{dnsedge_ip}"), node: dnsedge do
         its(:exit_status) { is_expected.to eq 0 }
+
         its(:stdout) do
           is_expected.to match(
-            %r{sns.dns.icann.org. noc.dns.icann.org. 2 7200 3600 1209600 3600},
+            %r{sns.dns.icann.org. noc.dns.icann.org. 2 7200 3600 1209600 3600}
           )
         end
       end

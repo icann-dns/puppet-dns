@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'spec_helper'
 
 describe 'dns::as112' do
@@ -10,6 +12,7 @@ describe 'dns::as112' do
 
         it { is_expected.to compile.with_all_deps }
       end
+
       describe 'with knot' do
         let(:pre_condition) { "class dns {  $daemon = 'knot' }" }
 

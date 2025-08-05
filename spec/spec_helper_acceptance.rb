@@ -65,7 +65,7 @@ else
       host,
       version: '4',
       puppet_agent_version: '1.9.1',
-      default_action: 'gem_install',
+      default_action: 'gem_install'
     )
   end
   install_module_on(hosts)
