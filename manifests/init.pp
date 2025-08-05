@@ -26,8 +26,6 @@
 # @param default_max_retry_time Maximum retry interval for zones
 # @param default_min_retry_time Minimum retry interval for zones
 # @param default_min_expire_time Minimum expire interval for zones
-
-#
 class dns (
   Pattern[/^(present|absent)$/] $ensure                   = 'present',
   String                        $default_tsig_name        = 'NOKEY',

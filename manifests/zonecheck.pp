@@ -1,4 +1,4 @@
-# @sumnmary class to configure zonecheck
+# @summary class to configure zonecheck
 # @param enable indicate if zonecheck is enabled
 # @param syslog_level the syslog level to log at
 # @param version the version to install
