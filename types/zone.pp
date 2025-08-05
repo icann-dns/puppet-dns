@@ -1,3 +1,4 @@
+# @summary type used for zone parameter validation
 type Dns::Zone = Struct[{
   signed                 => Optional[Boolean],
   signer_policy          => Optional[String],

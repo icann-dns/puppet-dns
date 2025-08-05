@@ -48,53 +48,53 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
       hiera_dir      = '/etc/puppetlabs/code/environments/production/hieradata'
       pp             = 'class { \'::dns\': }'
       common_hiera = <<~END
-      ---
-      dns::zones:
-        #{allzones.join(": {}\n  ")}: {}\n
+        ---
+        dns::zones:
+          #{allzones.join(": {}\n  ")}: {}\n
       END
       dnstop_hiera = <<~END
-      ---
-      dns::imports: ['top_layer']
-      dns::daemon: nsd
-      dns::remotes:
-        lax.xfr.dns.icann.org:
-          address4: 192.0.32.132
-          address6: 2620:0:2d0:202::132
-        iad.xfr.dns.icann.org:
-          address4: 192.0.47.132
-          address6: 2620:0:2830:202::132
-      dns::default_masters:
-      - lax.xfr.dns.icann.org
-      - iad.xfr.dns.icann.org\n
+        ---
+        dns::imports: ['top_layer']
+        dns::daemon: nsd
+        dns::remotes:
+          lax.xfr.dns.icann.org:
+            address4: 192.0.32.132
+            address6: 2620:0:2d0:202::132
+          iad.xfr.dns.icann.org:
+            address4: 192.0.47.132
+            address6: 2620:0:2830:202::132
+        dns::default_masters:
+        - lax.xfr.dns.icann.org
+        - iad.xfr.dns.icann.org\n
       END
       dnsmiddle_hiera = <<~END
-      ---
-      dns::daemon: knot
-      dns::exports: ['top_layer']
-      dns::imports: ['mid_layer']
-      dns::default_tsig_name: #{dnsmiddle}-test
-      dns::tsigs:
-        #{dnsmiddle}-test:
-          data: qneKJvaiXqVrfrS4v+Oi/9GpLqrkhSGLTCZkf0dyKZ0=
-      dns::remotes:
-        #{dnstop}:
-          address4: #{dnstop_ip}
-      dns::default_masters:
-      - #{dnstop}\n
+        ---
+        dns::daemon: knot
+        dns::exports: ['top_layer']
+        dns::imports: ['mid_layer']
+        dns::default_tsig_name: #{dnsmiddle}-test
+        dns::tsigs:
+          #{dnsmiddle}-test:
+            data: qneKJvaiXqVrfrS4v+Oi/9GpLqrkhSGLTCZkf0dyKZ0=
+        dns::remotes:
+          #{dnstop}:
+            address4: #{dnstop_ip}
+        dns::default_masters:
+        - #{dnstop}\n
       END
       dnsedge_hiera = <<~END
-      ---
-      dns::daemon: nsd
-      dns::exports: ['mid_layer']
-      dns::default_tsig_name: #{dnsedge}-test
-      dns::tsigs:
-        #{dnsedge}-test:
-          data: L7WLyxJGM5X8tfmzMKdfaQt369JWxAMTmm09ZFgMTc4=
-      dns::remotes:
-        #{dnsmiddle}:
-          address4: #{dnsmiddle_ip}
-      dns::default_masters:
-      - #{dnsmiddle}\n
+        ---
+        dns::daemon: nsd
+        dns::exports: ['mid_layer']
+        dns::default_tsig_name: #{dnsedge}-test
+        dns::tsigs:
+          #{dnsedge}-test:
+            data: L7WLyxJGM5X8tfmzMKdfaQt369JWxAMTmm09ZFgMTc4=
+        dns::remotes:
+          #{dnsmiddle}:
+            address4: #{dnsmiddle_ip}
+        dns::default_masters:
+        - #{dnsmiddle}\n
       END
       it 'copy hiera files' do
         create_remote_file(master, "#{hiera_dir}/common.yaml", common_hiera)
@@ -117,43 +117,56 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
         execute_manifest_on(dnsmiddle, pp, catch_failures: true)
         execute_manifest_on(dnsedge, pp, catch_failures: true)
       end
+
       it 'clean puppet run on dns master' do
         expect(execute_manifest_on(dnstop, pp, catch_failures: true).exit_code).to eq 0
       end
+
       it 'clean puppet run on dns dnsmiddle' do
         expect(execute_manifest_on(dnsmiddle, pp, catch_failures: true).exit_code).to eq 0
       end
+
       it 'clean puppet run on dns dnsedge' do
         execute_manifest_on(dnsedge, pp, catch_failures: true)
       end
+
       # give a bit of time for all the zones to transfer
       it 'sleep for 2 minutes to allow tranfers to occur' do
         sleep(120)
       end
+
       describe service('nsd'), node: dnstop do
         it { is_expected.to be_running }
       end
+
       describe port(53), node: dnstop do
         it { is_expected.to be_listening }
       end
+
       describe service('knot'), node: dnsmiddle do
         it { is_expected.to be_running }
       end
+
       describe port(53), node: dnsmiddle do
         it { is_expected.to be_listening }
       end
+
       describe service('nsd'), node: dnsedge do
         it { is_expected.to be_running }
       end
+
       describe port(53), node: dnsedge do
         it { is_expected.to be_listening }
       end
+
       describe command('knotc -c /etc/knot/knot.conf checkconf || cat /etc/knot/knot.conf'), node: dnstop do
         its(:stdout) { is_expected.to match %r{} }
       end
+
       describe command('nsd-checkconf /etc/nsd/nsd.conf || cat /etc/nsd/nsd.conf'), node: dnsmiddle do
         its(:stdout) { is_expected.to match %r{} }
       end
+
       allzones.each do |zone|
         soa_match = if in_addr_zones.include?(zone)
                       %r{b.in-addr-servers.arpa. nstld.iana.org.}
@@ -166,10 +179,12 @@ if ENV['BEAKER_TESTMODE'] == 'agent'
           its(:exit_status) { is_expected.to eq 0 }
           its(:stdout) { is_expected.to match soa_match }
         end
+
         describe command("dig +short soa #{zone}. @#{dnsmiddle_ip}"), node: dnsmiddle do
           its(:exit_status) { is_expected.to eq 0 }
           its(:stdout) { is_expected.to match soa_match }
         end
+
         describe command("dig +short soa #{zone}. @#{dnsedge_ip}"), node: dnsedge do
           its(:exit_status) { is_expected.to eq 0 }
           its(:stdout) { is_expected.to match soa_match }

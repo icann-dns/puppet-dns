@@ -8,11 +8,11 @@ if ENV['BEAKER_TESTMODE'] == 'apply'
     dnsmaster_ip = fact('ipaddress')
     dnssigner_ip = fact_on(dnssigner, 'ipaddress')
     dnsslave_ip  = fact_on(dnsslave, 'ipaddress')
-    example_zone = <<ZONE_CONTENT
-example.com. 3600 IN SOA sns.dns.icann.org. noc.dns.icann.org. 1 7200 3600 1209600 3600
-example.com. 86400 IN NS a.iana-servers.net.
-example.com. 86400 IN NS b.iana-servers.net.
-ZONE_CONTENT
+    example_zone = <<~ZONE_CONTENT
+      example.com. 3600 IN SOA sns.dns.icann.org. noc.dns.icann.org. 1 7200 3600 1209600 3600
+      example.com. 86400 IN NS a.iana-servers.net.
+      example.com. 86400 IN NS b.iana-servers.net.
+    ZONE_CONTENT
     context 'defaults' do
       dnsmaster_pp = <<-PUPPET_POLICY
       class {'::dns':
@@ -85,92 +85,110 @@ ZONE_CONTENT
 
       it 'run without errors on dnsmaster' do
         expect(
-          apply_manifest(dnsmaster_pp, catch_failures: true).exit_code,
+          apply_manifest(dnsmaster_pp, catch_failures: true).exit_code
         ).to eq 2
       end
+
       it 'run dnssigner twice' do
         apply_manifest_on(dnssigner, dnssigner_pp, catch_failures: true)
         expect(
           apply_manifest_on(
             dnssigner, dnssigner_pp, catch_failures: true
-          ).exit_code,
+          ).exit_code
         ).to eq 2
       end
+
       it 'run without errors on dnsslave' do
         expect(
           apply_manifest_on(
             dnsslave, dnsslave_pp, catch_failures: true
-          ).exit_code,
+          ).exit_code
         ).to eq 2
       end
+
       it 'clean run on dnsmaster' do
         expect(
-          apply_manifest(dnsmaster_pp, catch_failures: true).exit_code,
+          apply_manifest(dnsmaster_pp, catch_failures: true).exit_code
         ).to eq 0
       end
+
       it 'clean run on dnssigner' do
         expect(
-          apply_manifest_on(dnssigner, dnssigner_pp, catch_failures: true).exit_code,
+          apply_manifest_on(dnssigner, dnssigner_pp, catch_failures: true).exit_code
         ).to eq 0
       end
+
       it 'clean run on dnsslave' do
         expect(
           apply_manifest_on(
             dnsslave, dnsslave_pp, catch_failures: true
-          ).exit_code,
+          ).exit_code
         ).to eq 0
       end
+
       describe service('knot') do
         it { is_expected.to be_running }
       end
+
       describe service('opendnssec-signer'), node: dnssigner do
         it { is_expected.to be_running }
       end
+
       describe service('nsd'), node: dnsslave do
         it { is_expected.to be_running }
       end
+
       describe port(53) do
         it { is_expected.to be_listening }
       end
+
       describe port(53), node: dnsslave do
         it { is_expected.to be_listening }
       end
+
       describe port(53), node: dnssigner do
         it { is_expected.to be_listening }
       end
+
       describe command(
-        "dig +dnssec SOA example.com @#{dnsslave_ip}",
+        "dig +dnssec SOA example.com @#{dnsslave_ip}"
       ), node: dnsslave do
         its(:stdout) do
           is_expected.to match(
-            %r{example.com.\s+3600\s+IN\s+SOA\ssns.dns.icann.org.\snoc.dns.icann.org.\s1},
+            %r{example.com.\s+3600\s+IN\s+SOA\ssns.dns.icann.org.\snoc.dns.icann.org.\s1}
           )
         end
+
         its(:stdout) { is_expected.to match(%r{\bRRSIG\b}) }
       end
+
       describe command(
-        "dig +dnssec DNSKEY example.com @#{dnsslave_ip}",
+        "dig +dnssec DNSKEY example.com @#{dnsslave_ip}"
       ), node: dnsslave do
         its(:stdout) { is_expected.to match(%r{\bDNSKEY\s+257\b}) }
         its(:stdout) { is_expected.to match(%r{\bDNSKEY\s+256\b}) }
         its(:stdout) { is_expected.to match(%r{\bRRSIG\b}) }
       end
+
       describe command('sed -i \'s/1/2/\' /etc/knot/zone/zone/example.com') do
         its(:exit_status) { is_expected.to eq 0 }
       end
+
       describe command('service knot restart') do
         its(:exit_status) { is_expected.to eq 0 }
       end
+
       describe command(
-        "dig +dnssec SOA example.com @#{dnsslave_ip}",
+        "dig +dnssec SOA example.com @#{dnsslave_ip}"
       ), node: dnsslave do
         let(:pre_command) { 'sleep 5' }
 
         its(:stdout) do
           is_expected.to match(
-            %r{example.com.\s+3600\s+IN\s+SOA\ssns.dns.icann.org.\snoc.dns.icann.org.\s2},
+            %r{example.com.\s+3600\s+IN\s+SOA\ssns.dns.icann.org.\snoc.dns.icann.org.\s2}
           )
         end
+
         its(:stdout) { is_expected.to match(%r{\bRRSIG\b}) }
       end
     end

@@ -1,3 +1,4 @@
+# @summary type used for DNSSEC algorithems
 type Dns::Algo = Enum[
   hmac-sha1,
   hmac-sha224,

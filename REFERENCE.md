@@ -7,20 +7,20 @@
 ### Classes
 
 * [`dns`](#dns): Using custom types until next stdlib release
-* [`dns::as112`](#dnsas112): configure and as112 server
-* [`dns::zonecheck`](#dnszonecheck)
+* [`dns::as112`](#dns--as112): configure and as112 server
+* [`dns::zonecheck`](#dns--zonecheck): class to configure zonecheck
 
 ### Defined types
 
-* [`dns::remote`](#dnsremote): define for configuering remotes
-* [`dns::tsig`](#dnstsig): define for configuering tsig keys
+* [`dns::remote`](#dns--remote): define for configuering remotes
+* [`dns::tsig`](#dns--tsig): define for configuering tsig keys
 
 ### Data types
 
-* [`Dns::Algo`](#dnsalgo)
-* [`Dns::Daemon`](#dnsdaemon)
-* [`Dns::File`](#dnsfile)
-* [`Dns::Zone`](#dnszone)
+* [`Dns::Algo`](#Dns--Algo): type used for DNSSEC algorithems
+* [`Dns::Daemon`](#Dns--Daemon): type used for supported daemons
+* [`Dns::File`](#Dns--File): type used suported files
+* [`Dns::Zone`](#Dns--Zone): type used for zone parameter validation
 
 ## Classes
 
@@ -32,29 +32,35 @@ Using custom types until next stdlib release
 
 The following parameters are available in the `dns` class:
 
-* [`default_tsig_name`](#default_tsig_name)
-* [`default_masters`](#default_masters)
-* [`default_provide_xfrs`](#default_provide_xfrs)
-* [`default_ipv4`](#default_ipv4)
-* [`default_ipv6`](#default_ipv6)
-* [`server_count`](#server_count)
-* [`daemon`](#daemon)
-* [`nsid`](#nsid)
-* [`identity`](#identity)
-* [`ip_addresses`](#ip_addresses)
-* [`imports`](#imports)
-* [`exports`](#exports)
-* [`ensure`](#ensure)
-* [`port`](#port)
-* [`zones`](#zones)
-* [`files`](#files)
-* [`tsigs`](#tsigs)
-* [`remotes`](#remotes)
-* [`reject_private_ip`](#reject_private_ip)
-* [`monitor_class`](#monitor_class)
-* [`required_services`](#required_services)
+* [`default_tsig_name`](#-dns--default_tsig_name)
+* [`default_masters`](#-dns--default_masters)
+* [`default_provide_xfrs`](#-dns--default_provide_xfrs)
+* [`default_ipv4`](#-dns--default_ipv4)
+* [`default_ipv6`](#-dns--default_ipv6)
+* [`tcp_max_clients`](#-dns--tcp_max_clients)
+* [`server_count`](#-dns--server_count)
+* [`daemon`](#-dns--daemon)
+* [`nsid`](#-dns--nsid)
+* [`identity`](#-dns--identity)
+* [`ip_addresses`](#-dns--ip_addresses)
+* [`imports`](#-dns--imports)
+* [`exports`](#-dns--exports)
+* [`ensure`](#-dns--ensure)
+* [`port`](#-dns--port)
+* [`zones`](#-dns--zones)
+* [`files`](#-dns--files)
+* [`tsigs`](#-dns--tsigs)
+* [`remotes`](#-dns--remotes)
+* [`reject_private_ip`](#-dns--reject_private_ip)
+* [`monitor_class`](#-dns--monitor_class)
+* [`required_services`](#-dns--required_services)
+* [`default_max_refresh_time`](#-dns--default_max_refresh_time)
+* [`default_min_refresh_time`](#-dns--default_min_refresh_time)
+* [`default_max_retry_time`](#-dns--default_max_retry_time)
+* [`default_min_retry_time`](#-dns--default_min_retry_time)
+* [`default_min_expire_time`](#-dns--default_min_expire_time)
 
-##### <a name="default_tsig_name"></a>`default_tsig_name`
+##### <a name="-dns--default_tsig_name"></a>`default_tsig_name`
 
 Data type: `String`
 
@@ -62,7 +68,7 @@ the default tsig key
 
 Default value: `'NOKEY'`
 
-##### <a name="default_masters"></a>`default_masters`
+##### <a name="-dns--default_masters"></a>`default_masters`
 
 Data type: `Array[String]`
 
@@ -70,7 +76,7 @@ the list of default masters
 
 Default value: `[]`
 
-##### <a name="default_provide_xfrs"></a>`default_provide_xfrs`
+##### <a name="-dns--default_provide_xfrs"></a>`default_provide_xfrs`
 
 Data type: `Array[String]`
 
@@ -78,7 +84,7 @@ the list of cfr servers
 
 Default value: `[]`
 
-##### <a name="default_ipv4"></a>`default_ipv4`
+##### <a name="-dns--default_ipv4"></a>`default_ipv4`
 
 Data type: `Stdlib::IP::Address::V4`
 
@@ -86,7 +92,7 @@ the default ipv4 adress
 
 Default value: `$facts['networking']['ip']`
 
-##### <a name="default_ipv6"></a>`default_ipv6`
+##### <a name="-dns--default_ipv6"></a>`default_ipv6`
 
 Data type: `Stdlib::IP::Address::V6`
 
@@ -94,15 +100,23 @@ the default ipv4 adress
 
 Default value: `$facts['networking']['ip6']`
 
-##### <a name="server_count"></a>`server_count`
+##### <a name="-dns--tcp_max_clients"></a>`tcp_max_clients`
+
+Data type: `Integer`
+
+The maximumnumber of simultanious TCP connections
+
+Default value: `250`
+
+##### <a name="-dns--server_count"></a>`server_count`
 
 Data type: `Optional[Integer[1,256]]`
 
 how many daemons to start
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="daemon"></a>`daemon`
+##### <a name="-dns--daemon"></a>`daemon`
 
 Data type: `Dns::Daemon`
 
@@ -110,7 +124,7 @@ the daemon to configure
 
 Default value: `'knot'`
 
-##### <a name="nsid"></a>`nsid`
+##### <a name="-dns--nsid"></a>`nsid`
 
 Data type: `String`
 
@@ -118,7 +132,7 @@ the NSID string
 
 Default value: `$facts['networking']['fqdn']`
 
-##### <a name="identity"></a>`identity`
+##### <a name="-dns--identity"></a>`identity`
 
 Data type: `String`
 
@@ -126,7 +140,7 @@ The chaos identity string
 
 Default value: `$facts['networking']['fqdn']`
 
-##### <a name="ip_addresses"></a>`ip_addresses`
+##### <a name="-dns--ip_addresses"></a>`ip_addresses`
 
 Data type: `Array[Stdlib::IP::Address]`
 
@@ -134,7 +148,7 @@ List of addresses to bind to
 
 Default value: `[$facts['networking']['ip']]`
 
-##### <a name="imports"></a>`imports`
+##### <a name="-dns--imports"></a>`imports`
 
 Data type: `Array[String]`
 
@@ -142,7 +156,7 @@ List of import tags
 
 Default value: `[]`
 
-##### <a name="exports"></a>`exports`
+##### <a name="-dns--exports"></a>`exports`
 
 Data type: `Array[String]`
 
@@ -150,7 +164,7 @@ List of export tags
 
 Default value: `[]`
 
-##### <a name="ensure"></a>`ensure`
+##### <a name="-dns--ensure"></a>`ensure`
 
 Data type: `Pattern[/^(present|absent)$/]`
 
@@ -158,15 +172,15 @@ The ensure parameter
 
 Default value: `'present'`
 
-##### <a name="port"></a>`port`
+##### <a name="-dns--port"></a>`port`
 
-Data type: `Tea::Port`
+Data type: `Stdlib::Port`
 
 The poirt to listen on
 
 Default value: `53`
 
-##### <a name="zones"></a>`zones`
+##### <a name="-dns--zones"></a>`zones`
 
 Data type: `Hash[String, Dns::Zone]`
 
@@ -174,7 +188,7 @@ The list of zones to configure
 
 Default value: `{}`
 
-##### <a name="files"></a>`files`
+##### <a name="-dns--files"></a>`files`
 
 Data type: `Hash`
 
@@ -182,7 +196,7 @@ list of zone files to configure
 
 Default value: `{}`
 
-##### <a name="tsigs"></a>`tsigs`
+##### <a name="-dns--tsigs"></a>`tsigs`
 
 Data type: `Hash`
 
@@ -190,7 +204,7 @@ List of tsigs to configure
 
 Default value: `{}`
 
-##### <a name="remotes"></a>`remotes`
+##### <a name="-dns--remotes"></a>`remotes`
 
 Data type: `Hash`
 
@@ -198,23 +212,23 @@ hash of remotes to configure
 
 Default value: `{}`
 
-##### <a name="reject_private_ip"></a>`reject_private_ip`
+##### <a name="-dns--reject_private_ip"></a>`reject_private_ip`
 
 Data type: `Boolean`
 
 indicate if private ip's are allowed as default
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="monitor_class"></a>`monitor_class`
+##### <a name="-dns--monitor_class"></a>`monitor_class`
 
 Data type: `Optional[String]`
 
 The monitoring class in use
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="required_services"></a>`required_services`
+##### <a name="-dns--required_services"></a>`required_services`
 
 Data type: `Array[String]`
 
@@ -222,32 +236,72 @@ A list of required services to manage before the daemon
 
 Default value: `[]`
 
-### <a name="dnsas112"></a>`dns::as112`
+##### <a name="-dns--default_max_refresh_time"></a>`default_max_refresh_time`
+
+Data type: `Optional[Integer[1]]`
+
+Maximum refresh interval for zones
+
+Default value: `undef`
+
+##### <a name="-dns--default_min_refresh_time"></a>`default_min_refresh_time`
+
+Data type: `Optional[Integer[1]]`
+
+Minimum refresh interval for zones
+
+Default value: `undef`
+
+##### <a name="-dns--default_max_retry_time"></a>`default_max_retry_time`
+
+Data type: `Optional[Integer[1]]`
+
+Maximum retry interval for zones
+
+Default value: `undef`
+
+##### <a name="-dns--default_min_retry_time"></a>`default_min_retry_time`
+
+Data type: `Optional[Integer[1]]`
+
+Minimum retry interval for zones
+
+Default value: `undef`
+
+##### <a name="-dns--default_min_expire_time"></a>`default_min_expire_time`
+
+Data type: `Optional[Integer[1]]`
+
+Minimum expire interval for zones
+
+Default value: `undef`
+
+### <a name="dns--as112"></a>`dns::as112`
 
 dns::as112
 
-### <a name="dnszonecheck"></a>`dns::zonecheck`
+### <a name="dns--zonecheck"></a>`dns::zonecheck`
 
-The dns::zonecheck class.
+class to configure zonecheck
 
 #### Parameters
 
 The following parameters are available in the `dns::zonecheck` class:
 
-* [`enable`](#enable)
-* [`syslog_level`](#syslog_level)
-* [`version`](#version)
-* [`provider`](#provider)
+* [`enable`](#-dns--zonecheck--enable)
+* [`syslog_level`](#-dns--zonecheck--syslog_level)
+* [`version`](#-dns--zonecheck--version)
+* [`provider`](#-dns--zonecheck--provider)
 
-##### <a name="enable"></a>`enable`
+##### <a name="-dns--zonecheck--enable"></a>`enable`
 
 Data type: `Boolean`
 
 indicate if zonecheck is enabled
 
-Default value: ``true``
+Default value: `true`
 
-##### <a name="syslog_level"></a>`syslog_level`
+##### <a name="-dns--zonecheck--syslog_level"></a>`syslog_level`
 
 Data type: `Tea::Syslog_level`
 
@@ -255,7 +309,7 @@ the syslog level to log at
 
 Default value: `'error'`
 
-##### <a name="version"></a>`version`
+##### <a name="-dns--zonecheck--version"></a>`version`
 
 Data type: `String`
 
@@ -263,7 +317,7 @@ the version to install
 
 Default value: `'latest'`
 
-##### <a name="provider"></a>`provider`
+##### <a name="-dns--zonecheck--provider"></a>`provider`
 
 Data type: `String`
 
@@ -273,7 +327,7 @@ Default value: `'pip'`
 
 ## Defined types
 
-### <a name="dnsremote"></a>`dns::remote`
+### <a name="dns--remote"></a>`dns::remote`
 
 define for configuering remotes
 
@@ -281,45 +335,45 @@ define for configuering remotes
 
 The following parameters are available in the `dns::remote` defined type:
 
-* [`address4`](#address4)
-* [`address6`](#address6)
-* [`tsig`](#tsig)
-* [`tsig_name`](#tsig_name)
-* [`port`](#port)
+* [`address4`](#-dns--remote--address4)
+* [`address6`](#-dns--remote--address6)
+* [`tsig`](#-dns--remote--tsig)
+* [`tsig_name`](#-dns--remote--tsig_name)
+* [`port`](#-dns--remote--port)
 
-##### <a name="address4"></a>`address4`
+##### <a name="-dns--remote--address4"></a>`address4`
 
 Data type: `Optional[Stdlib::IP::Address::V4]`
 
 The IPv4 address of the remote
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="address6"></a>`address6`
+##### <a name="-dns--remote--address6"></a>`address6`
 
 Data type: `Optional[Stdlib::IP::Address::V6]`
 
 The IPv4 address of the remote
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="tsig"></a>`tsig`
+##### <a name="-dns--remote--tsig"></a>`tsig`
 
 Data type: `Optional[String]`
 
 The name tsig key
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="tsig_name"></a>`tsig_name`
+##### <a name="-dns--remote--tsig_name"></a>`tsig_name`
 
 Data type: `Optional[String]`
 
 The name of the tsig key
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="port"></a>`port`
+##### <a name="-dns--remote--port"></a>`port`
 
 Data type: `Stdlib::Port`
 
@@ -327,7 +381,7 @@ The port to contact the remote
 
 Default value: `53`
 
-### <a name="dnstsig"></a>`dns::tsig`
+### <a name="dns--tsig"></a>`dns::tsig`
 
 define for configuering tsig keys
 
@@ -335,11 +389,11 @@ define for configuering tsig keys
 
 The following parameters are available in the `dns::tsig` defined type:
 
-* [`algo`](#algo)
-* [`key_name`](#key_name)
-* [`data`](#data)
+* [`algo`](#-dns--tsig--algo)
+* [`key_name`](#-dns--tsig--key_name)
+* [`data`](#-dns--tsig--data)
 
-##### <a name="algo"></a>`algo`
+##### <a name="-dns--tsig--algo"></a>`algo`
 
 Data type: `Dns::Algo`
 
@@ -347,15 +401,15 @@ the tsig algorithem
 
 Default value: `'hmac-sha256'`
 
-##### <a name="key_name"></a>`key_name`
+##### <a name="-dns--tsig--key_name"></a>`key_name`
 
 Data type: `String`
 
 The Tsig name
 
-Default value: ``undef``
+Default value: `undef`
 
-##### <a name="data"></a>`data`
+##### <a name="-dns--tsig--data"></a>`data`
 
 Data type: `String`
 
@@ -363,39 +417,27 @@ the tsig key
 
 ## Data types
 
-### <a name="dnsalgo"></a>`Dns::Algo`
+### <a name="Dns--Algo"></a>`Dns::Algo`
 
-The Dns::Algo data type.
+type used for DNSSEC algorithems
 
-Alias of
+Alias of `Enum[hmac-sha1, hmac-sha224, hmac-sha256, hmac-sha384, hmac-sha512, hmac-md5]`
 
-```puppet
-Enum[hmac-sha1, hmac-sha224, hmac-sha256, hmac-sha384, hmac-sha512, hmac-md5]
-```
+### <a name="Dns--Daemon"></a>`Dns::Daemon`
 
-### <a name="dnsdaemon"></a>`Dns::Daemon`
+type used for supported daemons
 
-The Dns::Daemon data type.
+Alias of `Enum['nsd', 'knot', 'opendnssec']`
 
-Alias of
+### <a name="Dns--File"></a>`Dns::File`
 
-```puppet
-Enum['nsd', 'knot', 'opendnssec']
-```
+type used suported files
 
-### <a name="dnsfile"></a>`Dns::File`
+Alias of `Variant[Nsd::File, Knot::File]`
 
-The Dns::File data type.
+### <a name="Dns--Zone"></a>`Dns::Zone`
 
-Alias of
-
-```puppet
-Variant[Nsd::File, Knot::File]
-```
-
-### <a name="dnszone"></a>`Dns::Zone`
-
-The Dns::Zone data type.
+type used for zone parameter validation
 
 Alias of
 
@@ -411,6 +453,9 @@ Struct[{
   send_notify_additions  => Optional[Array[String]],
   zonemd_verify          => Optional[Enum['on','off']],
   zonemd_generate        => Optional[Enum['none','zonemd-sha384','zonemd-sha512','remove']],
+  allow_axfr_fallback    => Optional[Enum['yes','no']],
+  create_ixfr            => Optional[Enum['yes','no']],
+  ixfr_size              => Optional[Integer],
 }]
 ```
 
