@@ -13,5 +13,6 @@ fixtures:
         puppet_version: ">= 6.0.0"
     repositories:
       augeas: "https://github.com/camptocamp/puppet-augeas.git"
-      knot: "https://git.dns.icann.org/root/puppet-knot"
-      nsd: "https://git.dns.icann.org/root/puppet-nsd"
+      knot: "https://git.dns.icann.org/dns-eng/puppet-knot"
+      nsd: "https://git.dns.icann.org/dns-eng/puppet-nsd"
+      systemd: "https://github.com/icann-dns/puppet-systemd"

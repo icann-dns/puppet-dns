@@ -23,7 +23,6 @@ describe 'dns' do
     context "on #{os}" do
       let(:facts) do
         facts.merge(
-          environment: 'production',
           networking: facts[:networking].merge(
             { 'ip' => '192.0.2.1', 'ip6' => '2001:DB8::1' }
           )

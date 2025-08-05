@@ -39,7 +39,6 @@ describe 'dns::zonecheck' do
     context "on #{os}" do
       let(:facts) do
         facts.merge(
-          environment: 'production',
           networking: { 'ip' => '192.0.2.1', 'ip6' => '2001:DB8::1' }
         )
       end
