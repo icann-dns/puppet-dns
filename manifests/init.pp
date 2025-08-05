@@ -114,7 +114,7 @@ class dns (
     } else {
       $_export_tsig      = undef
     }
-    dns::remote { "dns__export_${export}_${facts['fqdn']}":
+    dns::remote { "dns__export_${export}_${facts['networking']['fqdn']}":
       address4  => $_default_ipv4,
       address6  => $_default_ipv6,
       tsig      => $_export_tsig,
