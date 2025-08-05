@@ -1,3 +1,7 @@
+### 2025-08-05 1.4.0
+* add support to override soa parameters
+* fix CI
+
 ### 2024-08-21 1.3.0
 * add motd indicating the dns daemon
 
